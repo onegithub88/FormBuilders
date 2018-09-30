@@ -1,2 +1,8 @@
 # FormBuilders
 ISAT Form Builder
+# INTALASI
+1. clone Project
+2. masuk kedalam folder Form Builders
+3. npm install
+4. npm start
+5. buka broser http://localhost:9090
