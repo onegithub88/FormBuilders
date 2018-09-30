@@ -1,6 +1,6 @@
 # FormBuilders
 ISAT Form Builder
-# INTALASI
+# Instalasi
 1. clone Project
 2. masuk kedalam folder Form Builders
 3. npm install
