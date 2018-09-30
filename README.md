@@ -5,4 +5,4 @@ ISAT Form Builder
 2. masuk kedalam folder Form Builders
 3. npm install
 4. npm start
-5. buka broser http://localhost:9090
+5. buka browser http://localhost:9090
