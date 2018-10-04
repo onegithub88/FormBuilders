@@ -12,27 +12,41 @@ import 'moment/locale/fr';
 const { Header, Sider, Content,Footer } = Layout;
 import {dispatchAction} from './../actions';
 import {Const} from './../const/Const';
-const columns = [{
-  title: 'No',
-  className: 'no',
-  dataIndex: 'no'
-}, {
-  title: 'Name',
-  className: 'name',
-  dataIndex: 'name',
-}, {
-  title: 'Keterangan',
-  className:'keterangan',
-  dataIndex: 'keterangan'
-},
-{
-  title: 'Action',
-  dataIndex: 'action'
-}
-];
-
+import history from './../controllers/History';
+var index = 0;
 class Home extends React.Component{
+  index=0;
   state = {
+      columns : [{
+        title: 'No',
+        className: 'no',
+        dataIndex: 'no'
+      }, {
+        title: 'Name',
+        className: 'name',
+        dataIndex: 'name',
+      }, {
+        title: 'Keterangan',
+        className:'keterangan',
+        dataIndex: 'keterangan'
+      },
+      {
+        title: 'Action',
+        dataIndex: 'action',
+        render:(text, record)=>{
+          this.index++;
+          console.log("Name Form",record);
+          console.log(this.state);
+          return (
+            <Row type="flex" justify="end">
+              <Button type="primary" shape="circle" icon="edit" style={{marginRight: 15}} />
+              <Button type="primary" shape="circle" icon="delete" style={{marginRight: 25}} />
+              <Button onClick={(index)=>this.handleGoToGenerateForm(record.keyModule,record.key)} type="primary" ghost>Generate Form</Button>
+            </Row>
+          )
+        }
+      }
+    ],
     title:'',
     collapsed: false,
     visibleAddModule: false,
@@ -53,6 +67,32 @@ class Home extends React.Component{
       KeteranganForm:''
     }
   };
+
+  handleGoToGenerateForm = (moduleId,FormId) => {
+    history.push(`/formbuilder/module${moduleId}/formId${FormId}`);
+  }
+
+  componentWillMount = () => {
+    var modules = {
+      key:0,
+      name: "Module 1",
+      keterangan: "test Module 1"
+    }
+
+    var form = {
+      key:0,
+      keyModule:0,
+      name: "Form 1",
+      keterangan: "TEST FORM 1",
+    }
+    if (this.props.dataForm.length==0 && this.props.dataModule.length==0) {
+      this.props.dispatch(dispatchAction(modules,Const.ADD_MODULE));
+      setTimeout(()=>{
+        this.props.dispatch(dispatchAction(form,Const.ADD_FORM));
+      },500);
+    }
+
+  }
 
   handleInputChange = (name,text) => {
     var value = text.target.value ? text.target.value : '';
@@ -243,6 +283,7 @@ class Home extends React.Component{
         obj.no = index;
         return obj;
       }
+
     }) : null  : null;
       var defaultMenuKey = this.props.dataModule.length> 0 ? `"${(Number(this.state.activeMenuModule)+Number(1))}"` : '0';
       return (
@@ -289,7 +330,7 @@ class Home extends React.Component{
               <Content style={{ margin: '24px 16px 0' }}>
                 <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
                   <Table
-                    columns={columns}
+                    columns={this.state.columns}
                     locale={{ emptyText: 'Data form kosong, silahkan menambahkan module sebelum membuat form !' }}
                     dataSource={data}
                     bordered

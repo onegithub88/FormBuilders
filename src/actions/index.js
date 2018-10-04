@@ -1,6 +1,7 @@
 import React from 'react';
 
-export const dispatchAction = (payload,action)=>({
+export const dispatchAction = (payload,action,dragStatus)=>({
 	type:action,
-	payload
+	payload,
+	dragStatus
 })

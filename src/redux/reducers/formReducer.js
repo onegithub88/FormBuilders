@@ -5,8 +5,6 @@ export default function formReducer(state = {
   var {dataForm,data} = state;
   switch (action.type) {
     case `${Const.ADD_FORM}`:
-      console.log("FROM ADD FORM");
-      console.log(action);
       dataForm = [...dataForm,action.payload];
         return {...state, dataForm};
       break;
