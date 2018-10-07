@@ -14,11 +14,19 @@ const { Header, Footer, Sider, Content } = Layout;
 import {dispatchAction} from './../actions';
 import {Const} from './../const/Const';
 import CommonComponent from './CommonComponent';
+
+var ALLOWED_DROP_EFFECT = false;
+var ALLOWED_DROP        = "move";
+var NO_HOVER            = null;
 class FormBuilders extends React.Component{
   state = {
+    minHeight:window.innerHeight,
+    boxColor:'#fff',
+    selected:0,
+    indexHover:null,
     title:'',
     tempDataComponent:[
-      {title:"Text Input", type:'textInput',placeholder:'Masukkan title',required:1}
+      {title:"Text Input", type:'textInput',placeholder:'Masukkan title',required:1,color:'#ededed'}
     ],
     visibleModalAction:false,
     activeIndex:0,
@@ -27,6 +35,9 @@ class FormBuilders extends React.Component{
     idModule:0,
     idForm:0
   };
+
+  tempDataT7an =[];
+
   componentWillMount =() => {
     var idModule = this.props.match.params.idModule;
     var idForm   = this.props.match.params.idForm;
@@ -38,20 +49,16 @@ class FormBuilders extends React.Component{
 
   onDragOver = (e) => {
     if(this.tempdataDrag.length > 0 && this.dragStatus==true){
-      var {dataComponent} = this.props;
-      dataComponent=[...dataComponent,this.tempdataDrag[0]]
-      this.props.dispatch(dispatchAction(dataComponent,Const.ADD_COMPONENT))
+      var dataComponent = this.props.dataComponent;
+      this.props.dispatch(dispatchAction(this.tempdataDrag[0],Const.ADD_COMPONENT))
       this.tempdataDrag = [];
       this.dragStatus   = false;
     }
   }
-  handleOnDragStart = (e) => {
-    this.tempdataDrag.splice(0,1,{idModule:this.state.idModule,idForm:this.state.idForm,title:"Text Input", type:'textInput',placeholder:'Masukkan title',required:1});
+
+  handleOnDragStart = (e,title,componentType) => {
+    this.tempdataDrag.splice(0,1,{idModule:this.state.idModule,idForm:this.state.idForm,title:title, type:componentType,placeholder:'',required:1});
     this.dragStatus=true;
-  }
-
-  handleOnDrop = (e,text) => {
-
   }
 
   handleAction = (actionType,index) => {
@@ -159,29 +166,86 @@ class FormBuilders extends React.Component{
     return ModalAction;
   }
 
+  onMouseOverDetails = () => {
+    this.setState({boxColor:'#fefefe'})
+  }
+
+  onMouseOutDetails = () => {
+    this.setState({boxColor:'#ededed'})
+  }
+
+  onDragStartItems = (e) => {
+    var selectedIndex   = parseInt(e.currentTarget.dataset.key);
+    var {dataComponent} = this.props;
+    e.dataTransfer.effectAllowed = ALLOWED_DROP_EFFECT;
+    e.dataTransfer.setData("drag_drop_content_type",JSON.stringify(dataComponent[selectedIndex]));
+    this.setState({selected:selectedIndex});
+  }
+
+  containerAcceptsDropData = (transferTypes) => {
+    return Array.prototype.indexOf.call(transferTypes, "drag_drop_content_type") !== -1;
+  }
+
+  onDragOverDetais = (e) => {
+    if(this.containerAcceptsDropData(e.dataTransfer.types)) {
+      e.preventDefault();
+    }
+    var over = parseInt(e.currentTarget.dataset.key);
+    if(over !== this.state.indexHover) {
+      this.setState({ indexHover: over });
+    }
+  }
+
+  onDragEndItems = () =>{
+
+  }
+
   renderDragDetails = () => {
     var DragDetails = [];
     DragDetails = this.props.dataComponent.map((items, i)=>{
       if (items.idModule==this.state.idModule && items.idForm==this.state.idForm) {
         return (
-          <Row key={i} type='flex' justify='left' align='middle'>
+          <Row
+            data-key={i}
+            onDragStart ={(e)=>this.onDragStartItems(e)}
+            onDragOver  ={(e)=>this.onDragOverDetais(e)}
+            draggable   ={true}
+            style={{cursor:'move',backgroundColor:'#ededed',paddingLeft: 15,paddingTop: 10,paddingBottom: 5,marginBottom: 15}}
+            key={i} type='flex' justify='left' align='middle'>
             <CommonComponent
               key={i}
               title={items.title}
               value={items.value}
               placeholder={items.placeholder}
-              type={"textInput"}
-              span={17}
-              />
-            <Row style={{marginTop: 5,marginLeft: 20}}>
-              <Button onClick={()=>this.handleShowModalAction(true,i, "edit")} style={{marginRight: 20}} icon={'edit'}>Edit</Button>
-              <Button onClick={()=>this.handleShowModalAction(true, i, "delete")} icon={'delete'}>Delete</Button>
-            </Row>
+              type={items.type}
+              span={15}
+            />
+          <Col span={9}>
+              <Row style={{padding:'5px 10px 10px 10px'}}>
+                <Col span={12}>
+                  <Button onClick={()=>this.handleShowModalAction(true,i, "edit")} style={{marginRight: 20}} icon={'edit'}>Edit</Button>
+                </Col>
+                <Col span={12}>
+                  <Button onClick={()=>this.handleShowModalAction(true, i, "delete")} icon={'delete'}>Delete</Button>
+                </Col>
+              </Row>
+            </Col>
           </Row>
         )
       }
     });
     return DragDetails;
+  }
+
+  onDrop = (e) => {
+    var data   = JSON.parse(e.dataTransfer.getData("drag_drop_content_type"));
+    var dataComponent =this.props.dataComponent;
+    this.tempDataT7an = dataComponent[this.state.indexHover];
+    if(this.state.indexHover !== this.state.selected) {
+      dataComponent[this.state.indexHover] = data;
+      dataComponent[this.state.selected]  = this.tempDataT7an;
+      this.props.dispatch(dispatchAction(dataComponent,Const.MOVE_COMPONENT))
+    }
   }
 
   render() {
@@ -195,34 +259,65 @@ class FormBuilders extends React.Component{
             </Row>
           </Header>
             <Layout>
-              <Content style={{backgroundColor: '#fff', margin:15}}>
-                <Col type="flex" className="wip"
-                     style={{backgroundColor:'#fff',margin:'20px 10px 20px 10px',padding:10}}
-                     onDragOver={(e)=>this.onDragOver(e)}
-                     onDrop={(e)=>{this.handleOnDrop(e, "wip")}}>
-                      {this.props.dataComponent.length> 0 ?
+            <Col span={18} offset={3}>
+              <Row style={{backgroundColor: '#ededed',
+              }}>
+                <Col span={16}>
+                  <Row span ={12} style={{backgroundColor: '#ededed',
+                    backgroundColor:'#dedede',minHeight: this.state.minHeight-172, margin:'10px',padding:'10px 10px 20px 10px',
+                    }}
+                    onDragOver={(e)=>this.onDragOver(e)}
+                    onDrop={(e)=>this.onDrop(e)}
+                  >
+                    {this.props.dataComponent.length> 0 ?
                         this.renderDragDetails()
                         :
                         []
-                      }
-                    <span className="task-header"></span>
-                  </Col>
-              </Content>
-              <Sider style={{backgroundColor: '#ccc'}}>
-                <Col>
+                    }
+                  </Row>
+                </Col>
+                <Col span={8} style={{paddingTop: 10}}>
                   <Row type='flex' justify='center'
-                  style={{padding:15, backgroundColor: '#ccc'}}
-                  onDragStart={(e)=>this.handleOnDragStart(e)}
+                  style={{padding:'10px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Text Input","textinput")}
                   draggable
                   >
                     <Button style={{width: '100%',height: 40}} type={'dashed'}>
                       <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Input</span>
                     </Button>
                   </Row>
+                  <Row type='flex' justify='center'
+                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede', marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Text Area","textarea")}
+                  draggable
+                  >
+                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
+                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Area</span>
+                    </Button>
+                  </Row>
+                  <Row type='flex' justify='center'
+                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Label","label")}
+                  draggable
+                  >
+                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
+                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Label</span>
+                    </Button>
+                  </Row>
+                  <Row type='flex' justify='center'
+                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Drop Down","dropdown")}
+                  draggable
+                  >
+                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
+                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >DropDown</span>
+                    </Button>
+                  </Row>
                 </Col>
-              </Sider>
-            </Layout>
-          <Footer style={{backgroundColor: '#020292'}}>
+              </Row>
+            </Col>
+          </Layout>
+          <Footer style={{backgroundColor: '#020292',height: '120px'}}>
             <Row type='flex' justify='center'>
               <span style={{color:'#fff'}}></span>
             </Row>
