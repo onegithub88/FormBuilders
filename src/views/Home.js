@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
-import { LocaleProvider, Layout, Form, Input, Menu, Select,
+import React, { Component} from 'react';
+import PropTypes from 'prop-types';
+import { LocaleProvider, Layout, Form, Radio, Input, Menu, Select,
   Modal, Icon, Avatar, Table, Button, Row, Col, Card
 } from 'antd';
+const RadioGroup = Radio.Group;
 const { Option, OptGroup } = Select;
 const FormItem = Form.Item;
 import {connect} from 'react-redux';
@@ -14,33 +16,42 @@ import {dispatchAction} from './../actions';
 import {Const} from './../const/Const';
 import history from './../controllers/History';
 var index = 0;
+
 class Home extends React.Component{
   index=0;
   state = {
-      columns : [{
-        title: 'No',
-        className: 'no',
-        dataIndex: 'no'
-      }, {
-        title: 'Name',
-        className: 'name',
-        dataIndex: 'name',
-      }, {
-        title: 'Keterangan',
-        className:'keterangan',
-        dataIndex: 'keterangan'
-      },
-      {
-        title: 'Action',
-        dataIndex: 'action',
-        render:(text, record)=>{
-          this.index++;
-          console.log("Name Form",record);
-          console.log(this.state);
+    selected:0,
+    tempDataForm :[
+      {key:0,
+       keyModule:0,
+       name: "Form 1",
+       keterangan: "TEST FORM 1",
+      }
+    ],
+    visibleModalAction :false,
+    visibleEditForm:false,
+    columns : [{
+      title: 'No',
+      className: 'no',
+      dataIndex: 'no'
+    }, {
+      title: 'Name',
+      className: 'name',
+      dataIndex: 'name',
+    }, {
+      title: 'Keterangan',
+      className:'keterangan',
+      dataIndex: 'keterangan'
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      render:(text, record)=>{
+        this.index++;
           return (
             <Row type="flex" justify="end">
-              <Button type="primary" shape="circle" icon="edit" style={{marginRight: 15}} />
-              <Button type="primary" shape="circle" icon="delete" style={{marginRight: 25}} />
+              <Button onClick={()=>this.handleShowModalAction(true,record.key, "edit")} type="primary" shape="circle" icon="edit" style={{marginRight: 15}} />
+              <Button onClick={()=>this.handleShowModalAction(true,record.key, "delete")} type="primary" shape="circle" icon="delete" style={{marginRight: 25}} />
               <Button onClick={(index)=>this.handleGoToGenerateForm(record.keyModule,record.key)} type="primary" ghost>Generate Form</Button>
             </Row>
           )
@@ -91,19 +102,44 @@ class Home extends React.Component{
         this.props.dispatch(dispatchAction(form,Const.ADD_FORM));
       },500);
     }
-
   }
 
   handleInputChange = (name,text) => {
     var value = text.target.value ? text.target.value : '';
-    this.setState({[name]:value});
+    switch (this.state.activeAction) {
+      case 'edit':
+        var {tempDataForm} =this.state;
+        tempDataForm[0][name]=value;
+        this.setState({tempDataForm});
+        break;
+      case 'tambah':
+        this.setState({[name]:value})
+        break;
+      default:
+      this.setState({[name]:value})
+    }
   }
 
   handleShowModalAddModule = (visible) => {
     this.setState({
       visibleAddModule: visible,
-      title:'Module'
+      title:'Module',
+      activeAction:'tambah'
     });
+  }
+
+  handleShowCanceEditForm = (visible) => {
+    this.setState({
+      visibleEditForm: visible
+    });
+  }
+
+  handleSaveEditForm = () => {
+    var {tempDataForm} = this.state;
+    var {dataForm}     = this.props;
+    dataForm[this.state.activeIndex]=tempDataForm[0];
+    this.props.dispatch(dispatchAction(dataForm,Const.ADD_FORM));
+    this.handleShowCanceEditForm(false);
   }
 
   handleShowModalAddForm = (visible) => {
@@ -111,6 +147,7 @@ class Home extends React.Component{
       this.setState({
         visibleAddModule: visible,
         title:'Form',
+        activeAction:'tambah',
         activeSelectModule:this.state.activeSelectModule,
         activeMenuModule:this.state.activeMenuModule
       });
@@ -275,6 +312,120 @@ class Home extends React.Component{
     return MenuModule;
   }
 
+  handleAction = (actionType,index) => {
+    var {dataForm} =this.props;
+    var {tempDataForm} = this.state;
+    if(actionType=='delete'){
+      dataForm.map((obj,i)=>{
+        if (obj.key==index){
+          dataForm.splice(i,1);
+        }
+      })
+      this.props.dispatch(dispatchAction(dataForm,Const.DELETE_FORM));
+    }else if (actionType=='edit'){
+      var tempDataForm = [];
+      dataForm.map((obj,i)=>{
+        if (obj.key==index){
+          dataForm[i]=tempDataForm[0];
+        }
+      })
+      this.props.dispatch(dispatchAction(dataForm,Const.EDIT_FORM));
+    }
+    this.handleShowModalAction(false,index);
+  }
+
+  handleCancelModal = (visible) => {
+    this.setState({visibleModalAction:visible})
+  }
+
+  handleShowModalAction = (visible,index,action) => {
+    var {tempDataForm} = this.state;
+    tempDataForm[0]    = this.props.dataForm[index];
+    switch (action) {
+      case 'edit':
+        this.setState({tempDataForm,visibleEditForm:visible,activeIndex:index,activeAction:action})
+        break;
+      case 'delete':
+        this.setState({tempDataForm,visibleModalAction:visible,activeIndex:index,activeAction:action})
+        break;
+      default:
+      this.setState({tempDataForm,activeIndex:index,activeAction:action})
+    }
+  }
+
+  handleModalAction = () => {
+    var ModalAction = [];
+    if (this.state.tempDataForm.length > 0) {
+      switch (this.state.activeAction) {
+        case 'delete':
+        ModalAction = (
+          <Modal
+            title={`Warning!`}
+            visible={this.state.visibleModalAction}
+            okText={'Ok'}
+            cancelText={'Cancel'}
+            onOk={()=>this.handleAction(this.state.activeAction,this.state.activeIndex)}
+            onCancel={()=>this.handleCancelModal(false)}
+            >
+            <Col>
+              <Row>
+                Apakah anda yakin ingin men{this.state.activeAction} Form ini ??
+              </Row>
+            </Col>
+          </Modal>
+        )
+        break;
+        case 'edit' :
+        ModalAction = (
+          <Modal
+            title={`Edit ${this.state.title}`}
+            visible={this.state.visibleEditForm}
+            okText={'Save'}
+            cancelText ={'Cancel'}
+            onOk={()=>this.handleSaveEditForm()}
+            onCancel={()=>this.handleShowCanceEditForm(false)}
+          >
+          <Form layout={"vertical"}>
+            {this.state.title=="Form" ?
+              (<FormItem
+                  label={`Select Module`}
+                  wrapperCol ={{ span: 24 }}
+                >
+                  {this.renderSelectModule()}
+              </FormItem>
+              )
+              :
+              []
+            }
+            <FormItem
+                label={`Nama ${this.state.title}`}
+                wrapperCol ={{ span: 24 }}
+              >
+                <Input placeholder={`Masukkan Nama ${this.state.title}`}
+                  value={this.state.tempDataForm[0].name}
+                  onChange={(text)=>this.handleInputChange("name",text)}
+                />
+              </FormItem>
+              <FormItem
+                label="Keterangan"
+                wrapperCol ={{ span: 24 }}
+              >
+                <Input placeholder={`Keterangan ${this.state.title}`}
+                  value={this.state.tempDataForm[0].keterangan}
+                  onChange={(text)=>this.handleInputChange("keterangan",text)}
+                />
+              </FormItem>
+          </Form>
+          </Modal>
+        )
+        break;
+        default:
+        return []
+    }
+    }
+    return ModalAction;
+  }
+
   render() {
     var index = 0;
     var data = this.props.dataModule.length > 0 ? this.props.dataForm.length > 0 ? this.props.dataForm.filter((obj)=>{
@@ -286,9 +437,12 @@ class Home extends React.Component{
 
     }) : null  : null;
       var defaultMenuKey = this.props.dataModule.length> 0 ? `"${(Number(this.state.activeMenuModule)+Number(1))}"` : '0';
+
       return (
         <LocaleProvider locale={frFR} >
+
           <Layout>
+            {this.handleModalAction()}
             {this.renderModalGeneral()}
             <Sider
               breakpoint="lg"

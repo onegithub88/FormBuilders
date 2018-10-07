@@ -8,6 +8,12 @@ export default function formReducer(state = {
       dataForm = [...dataForm,action.payload];
         return {...state, dataForm};
       break;
+    case `${Const.EDIT_FORM}`:
+        return {...state, dataForm:action.payload};
+      break;
+    case `${Const.DELETE_FORM}`:
+        return {...state, dataForm:action.payload};
+      break;
     default:
       return state;
   }

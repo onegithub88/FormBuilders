@@ -2,12 +2,17 @@ import {Const} from './../../const/Const';
 export default function formBuilderReducer(state = {
   dataComponent: [],
   tempdataDrag:[],
-  dragStatus:false
 },action) {
   var {dataComponent,data} = state;
   switch (action.type) {
     case `${Const.ADD_COMPONENT}`:
-        return {...state, dataComponent:action.payload};
+        dataComponent=[...dataComponent,action.payload]
+        return {...state, dataComponent};
+      break;
+
+    case `${Const.MOVE_COMPONENT}`:
+        dataComponent=action.payload
+        return {...state, dataComponent};
       break;
     default:
       return state;
