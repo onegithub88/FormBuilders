@@ -233,9 +233,12 @@ class FormBuilders extends React.Component{
 
   handleShowModalAction = (visible,index,action) => {
     var {tempDataComponent} = this.state;
-    if (this.state.typeInput=="textinput" ||
-      this.state.typeInput=="number" ||
-      this.state.typeInput=="email"
+    if (
+      action=="edit" && (
+        this.state.typeInput=="textinput" ||
+        this.state.typeInput=="number" ||
+        this.state.typeInput=="email"
+      )
     ){
       tempDataComponent[0]    = this.props.dataComponent[index];
       this.setState({tempDataComponent,visibleModalEditInput:visible,activeIndex:index,activeAction:action})
