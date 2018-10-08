@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { LocaleProvider, Layout, Form, Input, Menu, Select,
+import { LocaleProvider, Layout, Form, Input, Menu, Select, Checkbox,
   Modal, Icon, Avatar, Table, Button, Radio, Row, Col, Card
 } from 'antd';
 const RadioGroup = Radio.Group;
+const CheckboxGroup = Checkbox.Group;
 const { Option, OptGroup } = Select;
 const FormItem = Form.Item;
 import {connect} from 'react-redux';
@@ -20,11 +21,18 @@ var ALLOWED_DROP        = "move";
 var NO_HOVER            = null;
 class FormBuilders extends React.Component{
   state = {
+    typeInput:'textinput',
+    title:'',
+    value:'',
+    required:1,
+    requiredOption:1,
+    requiredOption:['required','readonly'],
+    visibleModalAddInput:false,
+    visibleModalEditInput:false,
     minHeight:window.innerHeight,
     boxColor:'#fff',
     selected:0,
     indexHover:null,
-    title:'',
     tempDataComponent:[
       {title:"Text Input", type:'textInput',placeholder:'Masukkan title',required:1,color:'#ededed'}
     ],
@@ -56,9 +64,155 @@ class FormBuilders extends React.Component{
     }
   }
 
+  handleSetTypeInput = (typeInput) => {
+    this.setState({
+      typeInput:typeInput,
+      title:'',
+      value:'',
+      requiredOption:1,
+      requiredOption:['required','readonly']
+    });
+  }
+
+  handleChangeRequiredOption = (name,value)=> {
+    this.setState({[name]:value})
+  }
+
+  handleSaveTextInput = () => {
+    var tempdataDrag = [];
+    if (this.state.typeInput!='') {
+      this.props.dispatch(dispatchAction({idModule:this.state.idModule,idForm:this.state.idForm,title:this.state.typeInput, type:this.state.typeInput,placeholder:'',required:1},Const.ADD_COMPONENT))
+      tempdataDrag = [];
+      this.handleShowModalAddTextInput(false);
+    }
+  }
+
+  handleChangeSelectTypeInput = (text) => {
+  }
+
+  handleEditTextInput = () =>{
+    this.handleShowModalEditTextInput(false);
+
+  }
+
+  renderModalEditTextInput = () =>{
+    var ModalEditTextInput =[];
+    ModalEditTextInput = (
+      <Modal
+        title={`Edit Text!`}
+        visible={this.state.visibleModalEditInput}
+        okText={'Ok'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditTextInput()}
+        onCancel={()=>this.handleShowModalEditTextInput(false)}
+        >
+        <Col>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 8}}>
+                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Title</span>
+              </Row>
+              <Row style={{marginBottom: 15}}>
+                <Input
+                  placeholder="value title"
+                  value={this.state.title}
+                  onChange={(e)=>this.handleOnChangeInputDetails("title",e.target.value)}
+                  />
+              </Row>
+              <Row style={{marginBottom: 8}}>
+                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Placeholder</span>
+              </Row>
+              <Row style={{marginBottom: 15}}>
+                <Input
+                  placeholder="value placeholder"
+                  value={this.state.title}
+                  onChange={(e)=>this.handleOnChangeInputDetails("placeholder",e.target.value)}
+                  />
+              </Row>
+              <Row style={{marginBottom: 15}}>
+                <Col>
+                  <CheckboxGroup options={this.state.requiredOption} defaultValue={['required']} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text.target.value)} />
+                </Col>
+              </Row>
+              <Row style={{marginBottom: 8}}>
+                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Change Type</span>
+              </Row>
+              <Row style={{marginBottom: 8}}>
+                It will erase the current value
+              </Row>
+              <Row style={{marginBottom: 10}}>
+                <Select
+                 style={{ width: 200 }}
+                 placeholder="Text"
+                 optionFilterProp="children"
+                 onChange={()=>this.handleChangeSelectTypeInput()}
+                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+               >
+                 <Option value="jack">Text</Option>
+                 <Option value="lucy">Number</Option>
+                 <Option value="tom">Email</Option>
+               </Select>
+              </Row>
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalEditTextInput;
+  }
+
+  renderModalAddTextInput = () =>{
+    var ModalAddTextInput =[];
+    ModalAddTextInput = (
+      <Modal
+        title={`Add Text`}
+        visible={this.state.visibleModalAddInput}
+        okText={'Ok'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleSaveTextInput()}
+        onCancel={()=>this.handleShowModalAddTextInput(false)}
+        >
+        <Col>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 8}}>
+                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Please select your type input</span>
+              </Row>
+              <Row span={24} style={{marginBottom: 10}}>
+                <Select
+                 style={{ width: 200 }}
+                 placeholder="Text"
+                 optionFilterProp="children"
+                 onChange={()=>this.handleChangeSelectTypeInput()}
+                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+               >
+                 <Option value="jack">Text</Option>
+                 <Option value="lucy">Number</Option>
+                 <Option value="tom">Email</Option>
+               </Select>
+              </Row>
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalAddTextInput;
+  }
+
+  handleShowModalAddTextInput = (visible)=> {
+    this.setState({visibleModalAddInput:visible});
+  }
+
+  handleShowModalEditTextInput = (visible)=> {
+    this.setState({visibleModalEditInput:visible});
+  }
   handleOnDragStart = (e,title,componentType) => {
-    this.tempdataDrag.splice(0,1,{idModule:this.state.idModule,idForm:this.state.idForm,title:title, type:componentType,placeholder:'',required:1});
-    this.dragStatus=true;
+    if (componentType=='textinput'){
+        this.handleShowModalAddTextInput(true);
+    }else {
+      this.tempdataDrag.splice(0,1,{idModule:this.state.idModule,idForm:this.state.idForm,title:title, type:componentType,placeholder:'',required:1});
+      this.dragStatus=true;
+    }
   }
 
   handleAction = (actionType,index) => {
@@ -79,8 +233,16 @@ class FormBuilders extends React.Component{
 
   handleShowModalAction = (visible,index,action) => {
     var {tempDataComponent} = this.state;
-    tempDataComponent[0]    = this.props.dataComponent[index];
-    this.setState({tempDataComponent,visibleModalAction:visible,activeIndex:index,activeAction:action})
+    if (this.state.typeInput=="textinput" ||
+      this.state.typeInput=="number" ||
+      this.state.typeInput=="email"
+    ){
+      tempDataComponent[0]    = this.props.dataComponent[index];
+      this.setState({tempDataComponent,visibleModalEditInput:visible,activeIndex:index,activeAction:action})
+    }else {
+      tempDataComponent[0]    = this.props.dataComponent[index];
+      this.setState({tempDataComponent,visibleModalAction:visible,activeIndex:index,activeAction:action})
+    }
   }
 
   handleRadioChange = (e) => {
@@ -252,6 +414,8 @@ class FormBuilders extends React.Component{
     return (
       <Row>
       {this.handleModalAction()}
+      {this.renderModalEditTextInput()}
+      {this.renderModalAddTextInput()}
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
             <Row type='flex' justify='center'>

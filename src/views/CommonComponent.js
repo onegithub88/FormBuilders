@@ -1,8 +1,9 @@
 import React from 'react';
-import { LocaleProvider, Layout, Form, Input, Menu, Select,
+import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox,
   Modal, Icon, Avatar, Table, Button, Row, Col, Card
 } from 'antd';
 const {TextArea} = Input;
+const CheckboxGroup = Checkbox.Group;
 const Option = Select.Option;
 class CommonComponent extends React.Component{
   renderDetailsOption = ()=> {
