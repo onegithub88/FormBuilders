@@ -26,6 +26,7 @@ class CommonComponent extends React.Component{
     var options= this.props.options ? this.props.options : [];
     var placeholder = this.props.placeholder ? this.props.placeholder :'';
     var disabled = this.props.disabled ? this.props.disabled :true;
+    var handleChangeInputNumber = this.props.handleChangeInputNumber ? this.props.handleChangeInputNumber : () => {};
     switch (type) {
       case 'textinput':
         return (
@@ -36,6 +37,7 @@ class CommonComponent extends React.Component{
               []
             }
             <Input
+              onChange={()=>handleChangeInputNumber(e)}
               disabled={disabled}
               defaultValue={value}
               placeholder={placeholder}

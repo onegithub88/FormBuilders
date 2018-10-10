@@ -34,7 +34,16 @@ class FormBuilders extends React.Component{
     selected:0,
     indexHover:null,
     tempDataComponent:[
-      {title:"Text Input", type:'textInput',placeholder:'Masukkan title',required:1,color:'#ededed'}
+      {
+       title:"Text Input",
+       format:'text',
+       type:'textInput',
+       placeholder:'Masukkan title',
+       required:1,
+       color:'#ededed',
+       requiredOption:[],
+       selectOption:['text','number','email']
+      }
     ],
     visibleModalAction:false,
     activeIndex:0,
@@ -75,19 +84,39 @@ class FormBuilders extends React.Component{
   }
 
   handleChangeRequiredOption = (name,value)=> {
-    this.setState({[name]:value})
+    var {tempDataComponent}=this.state;
+    console.log(name);
+    console.log(value);
+    tempDataComponent[0][name]=value;
+    console.log(tempDataComponent);
+    this.setState({tempDataComponent})
   }
 
   handleSaveTextInput = () => {
-    var tempdataDrag = [];
+    var {tempDataComponent} = this.state;
     if (this.state.typeInput!='') {
-      this.props.dispatch(dispatchAction({idModule:this.state.idModule,idForm:this.state.idForm,title:this.state.typeInput, type:this.state.typeInput,placeholder:'',required:1},Const.ADD_COMPONENT))
-      tempdataDrag = [];
+      console.log("FROM SAVE TEXT INPUT");
+      console.log(tempDataComponent);
+      var title = tempDataComponent[0].format!= '' ? `${tempDataComponent[0].title} ${tempDataComponent[0].format}` : tempDataComponent[0].title;
+      this.props.dispatch(dispatchAction({
+        idModule:this.state.idModule,
+        idForm:this.state.idForm,
+        title:title,
+        type:this.state.typeInput,
+        placeholder:tempDataComponent[0].placeholder,
+        required:1,
+        format:tempDataComponent[0].format,
+        requiredOption:tempDataComponent[0].requiredOption,
+        selectOption:['text','number','email']
+      },Const.ADD_COMPONENT))
       this.handleShowModalAddTextInput(false);
     }
   }
 
-  handleChangeSelectTypeInput = (text) => {
+  handleChangeSelectTypeInput = (name,value) => {
+    var {tempDataComponent} = this.state;
+    tempDataComponent[0][name]=value;
+    this.setState({tempDataComponent});
   }
 
   handleEditTextInput = () =>{
@@ -95,69 +124,91 @@ class FormBuilders extends React.Component{
 
   }
 
+  renderSelectOption = () => {
+    var SelectOption = [];
+    console.log("from this.renderSelectOption");
+    console.log(this.state.componentWillMount);
+    SelectOption =this.state.tempDataComponent[0].selectOption.map((obj,i)=>{
+      return (
+        <Option key={i} value={obj}>{obj}</Option>
+      )
+    })
+    return SelectOption;
+  }
+
   renderModalEditTextInput = () =>{
     var ModalEditTextInput =[];
-    ModalEditTextInput = (
-      <Modal
-        title={`Edit Text!`}
-        visible={this.state.visibleModalEditInput}
-        okText={'Ok'}
-        cancelText={'Cancel'}
-        onOk={()=>this.handleEditTextInput()}
-        onCancel={()=>this.handleShowModalEditTextInput(false)}
-        >
-        <Col>
-          <Row>
-            <Col>
-              <Row style={{marginBottom: 8}}>
-                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Title</span>
-              </Row>
-              <Row style={{marginBottom: 15}}>
-                <Input
-                  placeholder="value title"
-                  value={this.state.title}
-                  onChange={(e)=>this.handleOnChangeInputDetails("title",e.target.value)}
-                  />
-              </Row>
-              <Row style={{marginBottom: 8}}>
-                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Placeholder</span>
-              </Row>
-              <Row style={{marginBottom: 15}}>
-                <Input
-                  placeholder="value placeholder"
-                  value={this.state.title}
-                  onChange={(e)=>this.handleOnChangeInputDetails("placeholder",e.target.value)}
-                  />
-              </Row>
-              <Row style={{marginBottom: 15}}>
-                <Col>
-                  <CheckboxGroup options={this.state.requiredOption} defaultValue={['required']} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text.target.value)} />
-                </Col>
-              </Row>
-              <Row style={{marginBottom: 8}}>
-                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Change Type</span>
-              </Row>
-              <Row style={{marginBottom: 8}}>
-                It will erase the current value
-              </Row>
-              <Row style={{marginBottom: 10}}>
-                <Select
-                 style={{ width: 200 }}
-                 placeholder="Text"
-                 optionFilterProp="children"
-                 onChange={()=>this.handleChangeSelectTypeInput()}
-                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-               >
-                 <Option value="jack">Text</Option>
-                 <Option value="lucy">Number</Option>
-                 <Option value="tom">Email</Option>
-               </Select>
-              </Row>
-            </Col>
-          </Row>
-        </Col>
-      </Modal>
-    );
+    console.log("FROM RENDER MODAL edit text")
+    console.log(this.state);
+    if (this.state.tempDataComponent[0]!=undefined && this.state.tempDataComponent.length > 0) {
+      ModalEditTextInput = (
+        <Modal
+          title={`Edit Text!`}
+          visible={this.state.visibleModalEditInput}
+          okText={'Ok'}
+          cancelText={'Cancel'}
+          onOk={()=>this.handleEditTextInput()}
+          onCancel={()=>this.handleShowModalEditTextInput(false)}
+          >
+          <Col>
+            <Row>
+              <Col>
+                <Row style={{marginBottom: 8}}>
+                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Title</span>
+                </Row>
+                <Row style={{marginBottom: 15}}>
+                  <Input
+                    placeholder="value title"
+                    value={this.state.title}
+                    value={this.state.tempDataComponent[0].title}
+                    onChange={(e)=>this.handleOnChangeInputDetails("title",e.target.value)}
+                    />
+                </Row>
+                <Row style={{marginBottom: 8}}>
+                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Placeholder</span>
+                </Row>
+                <Row style={{marginBottom: 15}}>
+                  <Input
+                    placeholder="value placeholder"
+                    value={this.state.tempDataComponent[0].placeholder}
+                    onChange={(e)=>this.handleOnChangeInputDetails("placeholder",e.target.value)}
+                    />
+                </Row>
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} defaultValue={this.state.tempDataComponent.requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                <Row style={{marginBottom: 8}}>
+                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Change Type</span>
+                </Row>
+                <Row style={{marginBottom: 8}}>
+                  It will erase the current value
+                </Row>
+                <Row style={{marginBottom: 10}}>
+                  <Select
+                   style={{ width: 200 }}
+                   placeholder="Text"
+                   defaultValue={"text"}
+                   value ={this.state.tempDataComponent[0].format}
+                   optionFilterProp="children"
+                   onChange={(e)=>this.handleChangeSelectTypeInput("format",e)}
+                   filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                 >
+                  {this.state.tempDataComponent.length > 0 ? this.state.tempDataComponent[0].selectOption.length > 0 ? 
+                  this.renderSelectOption()
+                  :[]
+                  :[]
+                  }
+                 </Select>
+                </Row>
+              </Col>
+            </Row>
+          </Col>
+        </Modal>
+      );
+    }
+    
     return  ModalEditTextInput;
   }
 
@@ -166,29 +217,30 @@ class FormBuilders extends React.Component{
     ModalAddTextInput = (
       <Modal
         title={`Add Text`}
+        width={350}
         visible={this.state.visibleModalAddInput}
         okText={'Ok'}
         cancelText={'Cancel'}
         onOk={()=>this.handleSaveTextInput()}
         onCancel={()=>this.handleShowModalAddTextInput(false)}
         >
-        <Col>
+        <Col type={'flex'} align={'center'}>
           <Row>
             <Col>
-              <Row style={{marginBottom: 8}}>
-                <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Please select your type input</span>
+              <Row style={{marginBottom: 15}}>
+                <span style={{fontSize: 18, fontWeight: '600', color:'#666'}}>Please select your type input</span>
               </Row>
-              <Row span={24} style={{marginBottom: 10}}>
+              <Row span={24} style={{marginBottom: 20}}>
                 <Select
-                 style={{ width: 200 }}
+                 style={{ width: 300 }}
                  placeholder="Text"
                  optionFilterProp="children"
-                 onChange={()=>this.handleChangeSelectTypeInput()}
+                 onChange={(e)=>this.handleChangeSelectTypeInput("format",e)}
                  filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                >
-                 <Option value="jack">Text</Option>
-                 <Option value="lucy">Number</Option>
-                 <Option value="tom">Email</Option>
+                 <Option value="text">Text</Option>
+                 <Option value="number">Number</Option>
+                 <Option value="email">Email</Option>
                </Select>
               </Row>
             </Col>
@@ -207,10 +259,20 @@ class FormBuilders extends React.Component{
     this.setState({visibleModalEditInput:visible});
   }
   handleOnDragStart = (e,title,componentType) => {
+    var initialdataDrag = {
+      idModule:this.state.idModule,
+      idForm:this.state.idForm,title:title,
+      type:componentType,
+      placeholder:'',
+      required:1,
+      format:'',
+      requiredOption:[],
+      selectOption:['text','number','email']
+    }
+    this.tempdataDrag.splice(0,1,initialdataDrag);
     if (componentType=='textinput'){
         this.handleShowModalAddTextInput(true);
     }else {
-      this.tempdataDrag.splice(0,1,{idModule:this.state.idModule,idForm:this.state.idForm,title:title, type:componentType,placeholder:'',required:1});
       this.dragStatus=true;
     }
   }
@@ -240,6 +302,8 @@ class FormBuilders extends React.Component{
         this.state.typeInput=="email"
       )
     ){
+      console.log("FROM EDIT COMPONENT");
+      console.log(this.props.dataComponent);
       tempDataComponent[0]    = this.props.dataComponent[index];
       this.setState({tempDataComponent,visibleModalEditInput:visible,activeIndex:index,activeAction:action})
     }else {
@@ -254,6 +318,7 @@ class FormBuilders extends React.Component{
   }
 
   handleOnChangeInputDetails = (name,value) => {
+    console.log(name, value);
     var {tempDataComponent} = this.state;
     tempDataComponent[0][name] = value;
     this.setState({tempDataComponent})
@@ -369,6 +434,8 @@ class FormBuilders extends React.Component{
     var DragDetails = [];
     DragDetails = this.props.dataComponent.map((items, i)=>{
       if (items.idModule==this.state.idModule && items.idForm==this.state.idForm) {
+        console.log("FROM RENDER DETAILS");
+        console.log(items);
         return (
           <Row
             data-key={i}
@@ -379,6 +446,7 @@ class FormBuilders extends React.Component{
             key={i} type='flex' justify='left' align='middle'>
             <CommonComponent
               key={i}
+              handleChangeInputNumber={this.handleChangeInputNumber.bind(this)}
               title={items.title}
               value={items.value}
               placeholder={items.placeholder}
@@ -413,7 +481,17 @@ class FormBuilders extends React.Component{
     }
   }
 
+  handleChangeInputNumber = (e) => {
+    const { value } = e.target;
+    const reg = /^-?(0|[1-9][0-9]*)(\.[0-9]*)?$/;
+    if ((!isNaN(value) && reg.test(value)) || value === '' || value === '-') {
+      this.props.onChange(value);
+    }
+  }
+
   render() {
+    console.log("FROM RENDER");
+    console.log(this.state);
     return (
       <Row>
       {this.handleModalAction()}
@@ -446,7 +524,7 @@ class FormBuilders extends React.Component{
                 <Col span={8} style={{paddingTop: 10}}>
                   <Row type='flex' justify='center'
                   style={{padding:'10px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
-                  onDragStart={(e)=>this.handleOnDragStart(e,"Text Input","textinput")}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Text input","textinput")}
                   draggable
                   >
                     <Button style={{width: '100%',height: 40}} type={'dashed'}>
@@ -455,7 +533,7 @@ class FormBuilders extends React.Component{
                   </Row>
                   <Row type='flex' justify='center'
                   style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede', marginRight: 10}}
-                  onDragStart={(e)=>this.handleOnDragStart(e,"Text Area","textarea")}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Text area","textarea")}
                   draggable
                   >
                     <Button style={{width: '100%',height: 40}} type={'dashed'}>
@@ -473,7 +551,7 @@ class FormBuilders extends React.Component{
                   </Row>
                   <Row type='flex' justify='center'
                   style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
-                  onDragStart={(e)=>this.handleOnDragStart(e,"Drop Down","dropdown")}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Dropdown","dropdown")}
                   draggable
                   >
                     <Button style={{width: '100%',height: 40}} type={'dashed'}>
