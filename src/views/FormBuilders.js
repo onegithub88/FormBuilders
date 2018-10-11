@@ -5,6 +5,7 @@ import { LocaleProvider, Layout, Form, Input, Menu, Select, Checkbox,
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 const { Option, OptGroup } = Select;
+const {TextArea} = Input;
 const FormItem = Form.Item;
 import {connect} from 'react-redux';
 import frFR from 'antd/lib/locale-provider/fr_FR';
@@ -29,6 +30,9 @@ class FormBuilders extends React.Component{
     requiredOption:['required','readonly'],
     visibleModalAddInput:false,
     visibleModalEditInput:false,
+    visibleModalAddButton:false,
+    visibleModalRadioButton:false,
+    visibleModalDateTime:false,
     minHeight:window.innerHeight,
     boxColor:'#fff',
     selected:0,
@@ -37,8 +41,8 @@ class FormBuilders extends React.Component{
       {
        title:"Text Input",
        format:'text',
-       type:'textInput',
-       placeholder:'Masukkan title',
+       type:'textinput',
+       placeholder:'Enter value',
        required:1,
        color:'#ededed',
        requiredOption:[],
@@ -85,19 +89,15 @@ class FormBuilders extends React.Component{
 
   handleChangeRequiredOption = (name,value)=> {
     var {tempDataComponent}=this.state;
-    console.log(name);
-    console.log(value);
     tempDataComponent[0][name]=value;
-    console.log(tempDataComponent);
     this.setState({tempDataComponent})
   }
 
   handleSaveTextInput = () => {
     var {tempDataComponent} = this.state;
     if (this.state.typeInput!='') {
-      console.log("FROM SAVE TEXT INPUT");
-      console.log(tempDataComponent);
-      var title = tempDataComponent[0].format!= '' ? `${tempDataComponent[0].title} ${tempDataComponent[0].format}` : tempDataComponent[0].title;
+      var title='';
+      title = tempDataComponent[0].format!= '' ? `${tempDataComponent[0].title} ${tempDataComponent[0].format}` : tempDataComponent[0].title;
       this.props.dispatch(dispatchAction({
         idModule:this.state.idModule,
         idForm:this.state.idForm,
@@ -115,19 +115,30 @@ class FormBuilders extends React.Component{
 
   handleChangeSelectTypeInput = (name,value) => {
     var {tempDataComponent} = this.state;
-    tempDataComponent[0][name]=value;
+    tempDataComponent[0][name]          = value;
+    tempDataComponent[0]['title']       = '';
+    tempDataComponent[0]['placeholder'] = '';
     this.setState({tempDataComponent});
   }
 
   handleEditTextInput = () =>{
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    var title = '';
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    if (dataComponent[this.state.activeIndex].type=='textinput' &&  dataComponent[this.state.activeIndex].format != '') {
+      title = dataComponent[this.state.activeIndex].title;
+      dataComponent[this.state.activeIndex].title = title;
+      
+    }
+
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
     this.handleShowModalEditTextInput(false);
 
   }
 
   renderSelectOption = () => {
     var SelectOption = [];
-    console.log("from this.renderSelectOption");
-    console.log(this.state.componentWillMount);
     SelectOption =this.state.tempDataComponent[0].selectOption.map((obj,i)=>{
       return (
         <Option key={i} value={obj}>{obj}</Option>
@@ -138,8 +149,6 @@ class FormBuilders extends React.Component{
 
   renderModalEditTextInput = () =>{
     var ModalEditTextInput =[];
-    console.log("FROM RENDER MODAL edit text")
-    console.log(this.state);
     if (this.state.tempDataComponent[0]!=undefined && this.state.tempDataComponent.length > 0) {
       ModalEditTextInput = (
         <Modal
@@ -154,7 +163,7 @@ class FormBuilders extends React.Component{
             <Row>
               <Col>
                 <Row style={{marginBottom: 8}}>
-                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Title</span>
+                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set value</span>
                 </Row>
                 <Row style={{marginBottom: 15}}>
                   <Input
@@ -258,18 +267,38 @@ class FormBuilders extends React.Component{
   handleShowModalEditTextInput = (visible)=> {
     this.setState({visibleModalEditInput:visible});
   }
-  handleOnDragStart = (e,title,componentType) => {
+  handleOnDragStart = (e,title,componentType,format) => {
     var initialdataDrag = {
       idModule:this.state.idModule,
-      idForm:this.state.idForm,title:title,
+      idForm:this.state.idForm,
+      title:title,
       type:componentType,
       placeholder:'',
       required:1,
-      format:'',
+      format:format,
       requiredOption:[],
       selectOption:['text','number','email']
     }
     this.tempdataDrag.splice(0,1,initialdataDrag);
+      switch (componentType) {
+        case 'textinput' : 
+          this.handleShowModalAddTextInput(true);
+          break;
+        case 'button' : 
+          initialdataDrag.selectOption = ['Red','Blue','Green', 'Grey'];
+          initialdataDrag.color = "primary";
+          initialdataDrag.value = "Button";
+          break;
+        case 'radio' : 
+          initialdataDrag.requiredOption = ['Required','Display Horizontal'];
+          initialdataDrag.value = "Radio";
+          break;
+        case 'date' : 
+          initialdataDrag.value = "Date";
+          break;
+          default:
+          this.dragStatus=true;
+      }
     if (componentType=='textinput'){
         this.handleShowModalAddTextInput(true);
     }else {
@@ -292,22 +321,41 @@ class FormBuilders extends React.Component{
   handleCancelModal = (visible) => {
     this.setState({visibleModalAction:visible})
   }
-
-  handleShowModalAction = (visible,index,action) => {
+  // metode crud
+  handleShowModalAction = (visible,index,action,type,color) => {
+   
     var {tempDataComponent} = this.state;
-    if (
-      action=="edit" && (
-        this.state.typeInput=="textinput" ||
-        this.state.typeInput=="number" ||
-        this.state.typeInput=="email"
-      )
-    ){
-      console.log("FROM EDIT COMPONENT");
-      console.log(this.props.dataComponent);
-      tempDataComponent[0]    = this.props.dataComponent[index];
-      this.setState({tempDataComponent,visibleModalEditInput:visible,activeIndex:index,activeAction:action})
-    }else {
-      tempDataComponent[0]    = this.props.dataComponent[index];
+    if (action=="edit") {
+      switch (type) {
+        case 'button' : 
+          tempDataComponent[0]       = this.props.dataComponent[index];
+          tempDataComponent[0].color = color;
+          this.setState({tempDataComponent,visibleModalAddButton:visible,activeIndex:index,activeAction:action})
+          break;
+          case 'textinput' || 'number' || 'email' : 
+          tempDataComponent[0]    = this.props.dataComponent[index];
+          this.setState({tempDataComponent,visibleModalEditInput:visible,activeIndex:index,activeAction:action})
+        break;
+        case 'radio' : 
+          tempDataComponent[0]       = this.props.dataComponent[index];
+          tempDataComponent[0].requiredOption = ['Required','Display Horizontal'];
+          this.setState({tempDataComponent,visibleModalRadioButton:visible,activeIndex:index,activeAction:action})
+          break;
+        case 'date' : 
+          tempDataComponent[0]       = this.props.dataComponent[index];
+          tempDataComponent[0].requiredOption = ['Required','Display Horizontal'];
+          this.setState({tempDataComponent,visibleModalRadioButton:visible,activeIndex:index,activeAction:action})
+          break;
+        default:
+          return 0
+      }
+    } else {
+      if (this.props.dataComponent.length> 0){
+        tempDataComponent[0]    = this.props.dataComponent[index];
+      }else {
+        tempDataComponent[0]       = this.state.tempDataComponent[0];
+        tempDataComponent[0].title = "TextInput";
+      }
       this.setState({tempDataComponent,visibleModalAction:visible,activeIndex:index,activeAction:action})
     }
   }
@@ -318,7 +366,6 @@ class FormBuilders extends React.Component{
   }
 
   handleOnChangeInputDetails = (name,value) => {
-    console.log(name, value);
     var {tempDataComponent} = this.state;
     tempDataComponent[0][name] = value;
     this.setState({tempDataComponent})
@@ -434,8 +481,6 @@ class FormBuilders extends React.Component{
     var DragDetails = [];
     DragDetails = this.props.dataComponent.map((items, i)=>{
       if (items.idModule==this.state.idModule && items.idForm==this.state.idForm) {
-        console.log("FROM RENDER DETAILS");
-        console.log(items);
         return (
           <Row
             data-key={i}
@@ -449,6 +494,7 @@ class FormBuilders extends React.Component{
               handleChangeInputNumber={this.handleChangeInputNumber.bind(this)}
               title={items.title}
               value={items.value}
+              color={items.color}
               placeholder={items.placeholder}
               type={items.type}
               span={15}
@@ -456,10 +502,10 @@ class FormBuilders extends React.Component{
           <Col span={9}>
               <Row style={{padding:'5px 10px 10px 10px'}}>
                 <Col span={12}>
-                  <Button onClick={()=>this.handleShowModalAction(true,i, "edit")} style={{marginRight: 20}} icon={'edit'}>Edit</Button>
+                  <Button onClick={()=>this.handleShowModalAction(true,i, "edit",items.type)} style={{marginRight: 20}} icon={'edit'}>Edit</Button>
                 </Col>
                 <Col span={12}>
-                  <Button onClick={()=>this.handleShowModalAction(true, i, "delete")} icon={'delete'}>Delete</Button>
+                  <Button onClick={()=>this.handleShowModalAction(true, i, "delete",items.type)} icon={'delete'}>Delete</Button>
                 </Col>
               </Row>
             </Col>
@@ -489,14 +535,192 @@ class FormBuilders extends React.Component{
     }
   }
 
+  //add Button //
+  handleShowModalAddButton = (visible) => {
+    this.setState({
+      visibleModalAddButton:visible
+    })
+  }
+
+  renderSelectOptionButton = () => {
+    var SelectOption = [];
+    SelectOption =this.state.tempDataComponent[0].selectOption.map((obj,i)=>{
+      return (
+        <Option key={i} value={obj}>{obj}</Option>
+      )
+    })
+    return SelectOption;
+  }
+
+  handleSelectColorButton = (name,value) => {
+    var {tempDataComponent}    = this.state;
+    tempDataComponent[0][name] = value;
+    this.setState({tempDataComponent});
+  }
+
+  handleEditButton = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalAddButton(false);
+  }
+
+  renderModalAddButton = () =>{
+    var ModalAddButton =[];
+    ModalAddButton = (
+      <Modal
+        title={`Add Button`}
+        width={350}
+        visible={this.state.visibleModalAddButton}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditButton()}
+        onCancel={()=>this.handleShowModalAddButton(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Button Text</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0].value}
+                  onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Button Color</Row>
+              <Row style={{marginBottom: 10}}>
+                <Select
+                  style={{ width: 300}}
+                  placeholder="Color (Red, Green, Blue, 'Grey')"
+                  defaultValue={"Red"}
+                  value ={this.state.tempDataComponent[0].color}
+                  optionFilterProp="children"
+                  onChange={(e)=>this.handleSelectColorButton("color",e)}
+                  filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                >
+                 {this.state.tempDataComponent.length > 0 ? this.state.tempDataComponent[0].selectOption.length > 0 ? 
+                  this.renderSelectOptionButton()
+                  :[]
+                  :[]
+                  }
+                </Select>
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Input Your Code Here</Row>
+              <Row style={{marginBottom: 10}}>
+                <TextArea
+                  rows={4}
+                  defaultValue={this.state.tempDataComponent[0].code}
+                  placeholder={""}
+                />
+              </Row>
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalAddButton;
+  }
+
+  //add Radio Button
+  handleShowModalRadioButton = (visible) => {
+    this.setState({
+      visibleModalRadioButton:visible
+    })
+  }
+
+  handleEditRadioButton = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalRadioButton(false);
+  }
+
+  renderModalRadioButton = () =>{
+    var ModalRadioButton =[];
+    ModalRadioButton = (
+      <Modal
+        title={`Add Radio Button`}
+        width={350}
+        visible={this.state.visibleModalRadioButton}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditRadioButton()}
+        onCancel={()=>this.handleShowModalRadioButton(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0].value}
+                  onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
+                />
+              </Row>
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalRadioButton;
+  }
+
+  //add Date Time
+  handleShowModalDateTime = (visible) => {
+    this.setState({
+      visibleModalDateTime:visible
+    })
+  }
+
+  handleEditDateTime = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalDateTime(false);
+  }
+
+  renderModalDateTime = () =>{
+    var ModalDateTime =[];
+    ModalDateTime = (
+      <Modal
+        title={`Add Date`}
+        width={350}
+        visible={this.state.visibleModalDateTime}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditDateTime()}
+        onCancel={()=>this.handleShowModalDateTime(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Date</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0].value}
+                  onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
+                />
+              </Row>
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalDateTime;
+  }
+
   render() {
-    console.log("FROM RENDER");
-    console.log(this.state);
     return (
       <Row>
       {this.handleModalAction()}
       {this.renderModalEditTextInput()}
       {this.renderModalAddTextInput()}
+      {this.renderModalAddButton()}
+      {this.renderModalRadioButton()}
+      {this.renderModalDateTime()}
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
             <Row type='flex' justify='center'>
@@ -541,21 +765,48 @@ class FormBuilders extends React.Component{
                     </Button>
                   </Row>
                   <Row type='flex' justify='center'
-                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
-                  onDragStart={(e)=>this.handleOnDragStart(e,"Label","label")}
-                  draggable
+                    style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                    onDragStart={(e)=>this.handleOnDragStart(e,"Label","label")}
+                    draggable
                   >
                     <Button style={{width: '100%',height: 40}} type={'dashed'}>
                       <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Label</span>
                     </Button>
                   </Row>
                   <Row type='flex' justify='center'
-                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
-                  onDragStart={(e)=>this.handleOnDragStart(e,"Dropdown","dropdown")}
-                  draggable
+                    style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                    onDragStart={(e)=>this.handleOnDragStart(e,"Dropdown","dropdown")}
+                    draggable
                   >
                     <Button style={{width: '100%',height: 40}} type={'dashed'}>
                       <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >DropDown</span>
+                    </Button>
+                  </Row>
+                  <Row type='flex' justify='center'
+                    style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                    onDragStart={(e)=>this.handleOnDragStart(e,"Button","button","primary")}
+                    draggable
+                  >
+                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
+                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Button</span>
+                    </Button>
+                  </Row>
+                  <Row type='flex' justify='center'
+                    style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                    onDragStart={(e)=>this.handleOnDragStart(e,"Radio","radio")}
+                    draggable
+                  >
+                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
+                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Radio Buttons</span>
+                    </Button>
+                  </Row>
+                  <Row type='flex' justify='center'
+                    style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
+                    onDragStart={(e)=>this.handleOnDragStart(e,"Date","date")}
+                    draggable
+                  >
+                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
+                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Date Time</span>
                     </Button>
                   </Row>
                 </Col>
