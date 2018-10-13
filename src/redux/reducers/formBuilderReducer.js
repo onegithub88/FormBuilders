@@ -14,6 +14,10 @@ export default function formBuilderReducer(state = {
         dataComponent=action.payload
         return {...state, dataComponent};
       break;
+    case `${Const.EDIT_COMPONENT}`:
+      dataComponent=action.payload
+      return {...state, dataComponent};
+    break;
     default:
       return state;
   }
