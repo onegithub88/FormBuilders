@@ -29,6 +29,7 @@ class FormBuilders extends React.Component{
     requiredOption:1,
     requiredOption:['required','readonly'],
     visibleModalAddInput:false,
+    visibleModalEditTable:false,
     visibleModalEditInput:false,
     visibleModalAddButton:false,
     visibleModalRadioButton:false,
@@ -655,8 +656,8 @@ class FormBuilders extends React.Component{
               <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
               <Row style={{marginBottom: 10}}>
                 <Input
-                  value={this.state.tempDataComponent[0].value}
-                  onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
+                  value={this.state.tempDataComponent[0].title}
+                  onChange={(e)=>this.handleOnChangeInputDetails("title",e.target.value)}
                 />
               </Row>
             </Col>
@@ -665,13 +666,20 @@ class FormBuilders extends React.Component{
       </Modal>
     );
     return  ModalRadioButton;
-  }
+  } 
 
   //add Date Time
   handleShowModalDateTime = (visible) => {
     this.setState({
       visibleModalDateTime:visible
     })
+  }
+
+  handleShowModalTable=(visible)=>{
+    this.setState({
+      visibleModalEditTable:visible
+    })
+    console.log(visible,'dapet')
   }
 
   handleEditDateTime = () => {
@@ -712,6 +720,31 @@ class FormBuilders extends React.Component{
     return  ModalDateTime;
   }
 
+  renderModalTable = ()=>{
+    var ModalTable = [];
+    ModalTable = (
+      <Modal
+        title={`Add Table`}
+        width={350}
+        visible={this.state.visibleModalEditTable}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditTable()}
+        onCancel={()=>this.handleShowModalTable(false)}
+        >
+          <Col type={'flex'} align={'left'}>
+            <Row style={{marginBottom:5,fontSize:14}}>Set Title Table</Row>
+            <Row style={{marginBottom:10}}>
+              <Input
+                value={this.state.tempDataComponent[0].value}
+                onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}/>
+            </Row>
+          </Col>
+        </Modal>
+    );
+    return ModalTable;
+  }
+
   render() {
     return (
       <Row>
@@ -721,6 +754,7 @@ class FormBuilders extends React.Component{
       {this.renderModalAddButton()}
       {this.renderModalRadioButton()}
       {this.renderModalDateTime()}
+      {this.renderModalTable()}
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
             <Row type='flex' justify='center'>
@@ -733,7 +767,7 @@ class FormBuilders extends React.Component{
               }}>
                 <Col span={16}>
                   <Row span ={12} style={{backgroundColor: '#ededed',
-                    backgroundColor:'#dedede',minHeight: this.state.minHeight-172, margin:'10px',padding:'10px 10px 20px 10px',
+                    backgroundColor:'#dedede',minHeight:450, margin:'10px',padding:'10px 10px 20px 10px',
                     }}
                     onDragOver={(e)=>this.onDragOver(e)}
                     onDrop={(e)=>this.onDrop(e)}
@@ -746,68 +780,76 @@ class FormBuilders extends React.Component{
                   </Row>
                 </Col>
                 <Col span={8} style={{paddingTop: 10}}>
-                  <Row type='flex' justify='center'
+                  <Row type='flex' justify='left'
                   style={{padding:'10px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
                   onDragStart={(e)=>this.handleOnDragStart(e,"Text input","textinput")}
                   draggable
                   >
-                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
-                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Input</span>
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                     <Icon type="font-colors" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Input</span>
                     </Button>
                   </Row>
-                  <Row type='flex' justify='center'
+                  <Row type='flex' justify='left'
                   style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede', marginRight: 10}}
                   onDragStart={(e)=>this.handleOnDragStart(e,"Text area","textarea")}
                   draggable
                   >
-                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
-                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Area</span>
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="read" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Area</span>
                     </Button>
                   </Row>
-                  <Row type='flex' justify='center'
+                  <Row type='flex' justify='left'
                     style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
                     onDragStart={(e)=>this.handleOnDragStart(e,"Label","label")}
                     draggable
                   >
-                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
-                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Label</span>
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="font-size" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Label</span>
                     </Button>
                   </Row>
-                  <Row type='flex' justify='center'
+                  <Row type='flex' justify='left'
                     style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
                     onDragStart={(e)=>this.handleOnDragStart(e,"Dropdown","dropdown")}
                     draggable
                   >
-                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
-                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >DropDown</span>
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="align-left" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >DropDown</span>
                     </Button>
                   </Row>
-                  <Row type='flex' justify='center'
+                  <Row type='flex' justify='left'
                     style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
                     onDragStart={(e)=>this.handleOnDragStart(e,"Button","button","primary")}
                     draggable
                   >
-                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
-                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Button</span>
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="link" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Button</span>
                     </Button>
                   </Row>
-                  <Row type='flex' justify='center'
+                  <Row type='flex' justify='left'
                     style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
                     onDragStart={(e)=>this.handleOnDragStart(e,"Radio","radio")}
                     draggable
                   >
-                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
-                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Radio Buttons</span>
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                       <Icon type="ordered-list" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Radio Buttons</span>
                     </Button>
                   </Row>
-                  <Row type='flex' justify='center'
+                  <Row type='flex' justify='left'
                     style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
                     onDragStart={(e)=>this.handleOnDragStart(e,"Date","date")}
                     draggable
                   >
-                    <Button style={{width: '100%',height: 40}} type={'dashed'}>
-                      <span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Date Time</span>
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="clock-circle" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Date Time</span>
                     </Button>
+                  </Row>
+                  <Row type='flex' justify='left'
+                    style={{padding:'0px 10px 10px 10px',backgroundColor:'#dedede',marginRight:10}}
+                    onDragStart={(e)=>this.handleOnDragStart(e,"Table","table")}
+                    draggable>
+                    <Button style={{width:'100%',height:40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="table" theme="outlined" /><span style={{fontWeight:'400',fontSize:17,color:'#999'}}>Table</span>
+                    </Button>                  
                   </Row>
                 </Col>
               </Row>
