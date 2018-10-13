@@ -452,7 +452,7 @@ class Home extends React.Component{
             >
               <div className="logo">
                 <Avatar icon="user"  />
-                <span style={{color:'#fff', fontSize: 12, marginLeft: 10}}>Wawan Cyber88</span>
+                <span style={{color:'#fff', fontSize: 12, marginLeft: 10}}>Admin ISAT</span>
               </div>
               <Menu theme="dark" mode="inline" defaultSelectedKeys={[defaultMenuKey]}>
                 { this.props.dataModule.length > 0 ?
@@ -462,7 +462,7 @@ class Home extends React.Component{
                 }
               </Menu>
             </Sider>
-            <Layout>
+            <Layout style={{height:'100vh'}}>
               <Header style={{ background: '#fff', padding: 0 }} >
                 <Row type="flex" justify="space-between">
                   <Col span={8} offset={1}>
