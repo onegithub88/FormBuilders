@@ -9,7 +9,7 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
-class CommonComponent extends React.Component{
+class CommonPreviewComponent extends React.Component{
   state = {
     value: 1,
   }
@@ -39,7 +39,7 @@ class CommonComponent extends React.Component{
     var color = this.props.value ? this.props.color :'primary';
     var options            = this.props.options ? this.props.options : [];
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
-    var disabled           = this.props.disabled ? this.props.disabled :true;
+    var disabled           = this.props.disabled ? this.props.disabled :false;
     var detailsTabs        = this.props.items.detailsTabs ? this.props.items.detailsTabs : []; 
     var detailsDropDown    = this.props.items.detailsDropDown ? this.props.items.detailsDropDown : []; 
     var detailsCheckList   = this.props.items.detailsCheckList ? this.props.items.detailsCheckList : []; 
@@ -91,57 +91,63 @@ class CommonComponent extends React.Component{
     switch (type) {
       case 'textinput':
         return (
-          <Col span={span} style={{marginBottom: 15,paddingBottom: 10}}>
+          <Col span={span} style={{marginBottom: 15}}>
             <Row style={{marginBottom: 10}}>
-              {this.props.title ?
-                <span style={{marginBottom: 15}}>{title}</span>
+                {this.props.title ?
+                <span>{title}</span>
                 :
                 []
-              }
+                }
             </Row>
             <Row>
-              <Input
+                <Input
                 onChange={()=>handleChangeInputNumber(e)}
                 disabled={disabled}
                 defaultValue={value}
                 placeholder={placeholder}
-              />
+                />
             </Row>
           </Col>
         )
         break;
       case 'textarea':
         return (
-          <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
-            {this.props.title ?
-              <span style={{marginBottom: 10}}>{value}</span>
-              :
-              []
-            }
-            <TextArea
-              disabled={disabled}
-              rows={4}
-              defaultValue={value}
-              placeholder={"test brow"}
-            />
+          <Col span={span} style={{marginBottom: 15}}>
+            <Row style={{marginBottom: 10}}>
+                {this.props.title ?
+                <span>{value}</span>
+                :
+                []
+                }
+            </Row>
+            <Row>
+                <TextArea
+                disabled={disabled}
+                rows={4}
+                defaultValue={value}
+                placeholder={"test brow"}
+                />
+            </Row>
           </Col>
         )
         break;
       case 'label':
         return (
-          <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
-            {this.props.title ?
-              <span style={{marginBottom: 10,fontSize: 16, fontWeight: 18}}>{value=='' ? title : value}</span>
-              :
-              []
-            }
+          <Col span={span}>
+            <Row>
+                {this.props.title ?
+                <span style={{fontSize: 16, fontWeight:'600'}}>{value=='' ? title : value}</span>
+                :
+                []
+                }
+            </Row>
           </Col>
         )
         break;
 
       case 'dropdown' :
        return (
-         <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
+         <Col span={span} style={{marginBottom: 15}}>
             <Row style={{marginBottom:10}}>
               {this.props.value ?
                 <Row>
@@ -159,7 +165,7 @@ class CommonComponent extends React.Component{
               <Select
                 disabled={disabled}
                 showSearch
-                style={{ width: 300}}
+                style={{ width: '100%'}}
                 placeholder={placeholder}
                 optionFilterProp="children"
                 onChange={()=>this.handleChangeDropDown()}
@@ -182,7 +188,7 @@ class CommonComponent extends React.Component{
       case 'button' :
         var backgrounColor = '#22ff22 !important';
         return (
-          <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
+          <Col span={span} style={{marginBottom: 15}}>
             <div>
               <Button color={'#22ff22'} style={{paddingLeft:10, paddingRight:10, marginTop: 20, backgrounColor:backgrounColor}}  type={color}>{value}</Button>
             </div>
@@ -191,10 +197,10 @@ class CommonComponent extends React.Component{
       break;
       case 'radio' :
         return (
-          <Col span={span} style={{marginBottom:15,paddingBottom:10}}>
+          <Col span={span} style={{marginBottom:15}}>
             <Row style={{marginBottom:10}}>
               {this.props.title ?
-                <span style={{marginBottom: 10}}>{title}</span>
+                <span>{title}</span>
                 :
                 []
               }
@@ -217,26 +223,26 @@ class CommonComponent extends React.Component{
       break;
       case 'date' :
         return (
-          <Col span={span} style={{marginBottom: 15, paddingBottom: 10,marginTop:20}}>
+          <Col span={span} style={{marginBottom: 15}}>
             <Row style={{marginBottom:10}}>
               {this.props.title ?
-                <span style={{marginBottom: 10}}>{title}</span>
+                <span>{title}</span>
                 :
                 []
               }
             </Row>
             <Row>
-              <DatePicker disabled={true} style={{width:300}} onChange={()=>this.onChange()} />
+              <DatePicker disabled={disabled} style={{width:'100%'}} onChange={()=>this.onChange()} />
             </Row>
           </Col>
         );
       break;
       case 'table':
         return(
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
+          <Col span={span} style={{marginBottom:15}}>
             <Row style={{marginBottom:10}}>
               {this.props.title ?
-                <span style={{marginBottom: 10}}>{title}</span>
+                <span>{title}</span>
                 :
                 []
               }
@@ -249,7 +255,7 @@ class CommonComponent extends React.Component{
       break;
       case 'tab' : 
         return (
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
+          <Col span={span} style={{marginBottom:15}}>
             <Tabs onChange={()=>this.callback()} type="card">
               {detailsTabs.length > 0 ?
                 detailsTabs.map((obj,i)=>{
@@ -266,11 +272,11 @@ class CommonComponent extends React.Component{
       break;
       case 'checklist' : 
       return (
-        <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
+        <Col span={span} style={{marginBottom:15}}>
             <Col>
               <Row style={{marginBottom:10}}>
                 {this.props.title ?
-                  <span style={{marginBottom: 10, fontWeight:'600',fontSize:15}}>{value}</span>
+                  <span style={{fontWeight:'600',fontSize:15}}>{value}</span>
                   :
                   []
                 }
@@ -300,18 +306,18 @@ class CommonComponent extends React.Component{
           handleChangeUpload
         };
         return (
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
+          <Col span={span} style={{marginBottom:15}}>
               <Col>
                 <Row style={{marginBottom:10}}>
                   {this.props.value ?
-                    <span style={{marginBottom: 10, fontWeight:'600',fontSize:15}}>{value}</span>
+                    <span style={{fontWeight:'600',fontSize:15}}>{value}</span>
                     :
                     []
                   }
                 </Row>
               </Col>
               <Upload {...props}>
-                <Button disabled={true}>
+                <Button disabled={disabled}>
                   <Icon type="upload" /> Click to Upload
                 </Button>
               </Upload>
@@ -327,4 +333,4 @@ class CommonComponent extends React.Component{
     }
   }
 }
-export default CommonComponent;
+export default CommonPreviewComponent;
