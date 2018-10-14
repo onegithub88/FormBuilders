@@ -45,6 +45,7 @@ class FormBuilders extends React.Component{
     visibleModalChecklist:false,
     visibleModalFileUpload:false,
     visibleModalPreview:false,
+    visibleModalPreviewPayload:false,
     minHeight:window.innerHeight,
     format:'text',
     boxColor:'#fff',
@@ -122,6 +123,7 @@ class FormBuilders extends React.Component{
         case 'dropdown' : 
           initialdataDrag.value       = 'Select Items';
           initialdataDrag.placeholder = 'Select Option';
+          initialdataDrag.type        = 'dropdown';
           initialdataDrag.detailsDropDown = [
             {
               title:'Option 1',
@@ -223,7 +225,6 @@ class FormBuilders extends React.Component{
           break;
         case 'dropdown' : 
           tempDataComponent[0] = this.props.dataComponent[index];
-          console.log(tempDataComponent);
           this.setState({tempDataComponent,typeInput:'dropdown',visibleModalDropDown:visible,activeIndex:index,activeAction:action})
         break;
         case 'button' : 
@@ -838,8 +839,6 @@ class FormBuilders extends React.Component{
 
   renderModalEditDropDown = () =>{
     var ModalDropDown =[];
-    console.log("from dropdown");
-    console.log(this.state);
     ModalDropDown = (
       <Modal
         title={`Add DropDown Option`}
@@ -869,7 +868,7 @@ class FormBuilders extends React.Component{
                   onChange={(e)=>this.handleOnChangeInputDetails("placeholder",e.target.value)}/>
               </Row>
               <Row/>
-                {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].typeInput=='dropdown' ? this.state.tempDataComponent[0].detailsDropDown.length > 0 ? 
+                {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].type=='dropdown' ? this.state.tempDataComponent[0].detailsDropDown.length > 0 ? 
                 this.state.tempDataComponent[0].detailsDropDown.map((items,i)=>{
                   return (
                     <Card key={i} style={{ width: '100%', marginBottom:10}}>
@@ -1663,11 +1662,49 @@ class FormBuilders extends React.Component{
       </Modal>
     );
     return  ModalPreview;
-  } 
+  }
+  
+  handleShowPreviewCode = (visible) => {
+    this.setState({
+      visibleModalPreviewPayload:visible
+    })
+  }
+
+  renderModalPreviewCode = () =>{
+    var ModalPreviewCode =[];
+    ModalPreviewCode = (
+      <Modal
+        title={`Form Preview Payload`}
+        width={600}
+        visible={this.state.visibleModalPreviewPayload}
+        okText={'Ok'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleShowPreviewCode(false)}
+        onCancel={()=>this.handleShowPreviewCode(false)}
+        >
+          <Col type={'flex'} align={'left'}>
+            <Card>
+              { this.props.dataComponent.length > 0 ? 
+                <pre><code>{JSON.stringify(this.props.dataComponent)}</code></pre>
+              :
+              <Row type="flex" justify="center">
+                <Col span={13}>
+                  <span style={{marginLeft:40,fontSize: 16, color:'red',fontWeight:'600',textAlign:'center'}}>  {"Empty Component!"}</span>
+                </Col>
+              </Row>
+            } 
+            </Card>
+          </Col>
+      </Modal>
+    );
+    return  ModalPreviewCode;
+  }
+
   render() {
     return (
       <Row>
       {this.renderModalPreview()}
+      {this.renderModalPreviewCode()}
       {this.handleModalAction()}
       {this.renderModalEditTextInput()}
       {this.renderModalAddTextInput()}
@@ -1686,6 +1723,13 @@ class FormBuilders extends React.Component{
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
             <Row type='flex' justify='end'>
+             <Col span={4} style={{paddingLeft:25}}>
+                <Button
+                  onClick = {() =>this.handleShowPreviewCode(true)}
+                  type="dash">
+                  Preview Payload<Icon type="code" />
+                </Button>
+              </Col>
               <Col span={6} style={{paddingLeft:25}}>
                 <Button
                   onClick = {() =>this.handleGotoPreview(true)}
