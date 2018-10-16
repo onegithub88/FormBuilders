@@ -1,5 +1,5 @@
 import React from 'react';
-import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, DatePicker,
+import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, DatePicker,Alert,
   Modal, Icon, Avatar, Table, Button, Row, Col, Card, Divider, Tag, Tabs,Upload, message
 } from 'antd';
 const {TextArea} = Input;
@@ -30,6 +30,19 @@ class CommonPreviewComponent extends React.Component{
 
   callback=(key) => {
   }
+
+  // error render
+  renderErrorMessage = (name) => {
+    var ErrorMessage = [];
+    if (this.props.dataErrorMessage.length > 0) {
+      ErrorMessage = this.props.dataErrorMessage.map((obj,i)=>{
+        if (obj.type==name) {
+          return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
+        }
+      })
+    }
+    return ErrorMessage;
+  }
   
   render (){
     var title = this.props.title ? this.props.title :'';
@@ -47,7 +60,7 @@ class CommonPreviewComponent extends React.Component{
     var handleChangeUpload = this.props.handleChangeUpload ? this.props.handleChangeUpload : () => {}
     var detailColumn       = this.props.items.detailColumn ? this.props.items.detailColumn : [];
     var detailRow          = this.props.items.detailRow ? this.props.items.detailRow : [];
-    
+    var dataErrorMessage   = this.props.dataErrorMessage ? this.props.dataErrorMessage : [];
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -107,6 +120,9 @@ class CommonPreviewComponent extends React.Component{
                 placeholder={placeholder}
                 />
             </Row>
+            {this.renderErrorMessage("text")}
+            {this.renderErrorMessage("number")}
+            {this.renderErrorMessage("email")}
           </Col>
         )
         break;
@@ -128,6 +144,7 @@ class CommonPreviewComponent extends React.Component{
                 placeholder={"test brow"}
                 />
             </Row>
+            {this.renderErrorMessage("textarea")}
           </Col>
         )
         break;
@@ -141,6 +158,7 @@ class CommonPreviewComponent extends React.Component{
                 []
                 }
             </Row>
+            {this.renderErrorMessage("label")}
           </Col>
         )
         break;
@@ -182,6 +200,7 @@ class CommonPreviewComponent extends React.Component{
                 }
               </Select>
             </Row>
+            {this.renderErrorMessage("dropdown")}
         </Col>
        )
       break;
@@ -218,6 +237,7 @@ class CommonPreviewComponent extends React.Component{
                 }
               </RadioGroup>
             </Row>
+            {this.renderErrorMessage("radio")}
           </Col>
         );
       break;
@@ -250,6 +270,7 @@ class CommonPreviewComponent extends React.Component{
             <Row>
               <Table columns={detailColumn} dataSource={detailRow} /> 
             </Row>
+            {this.renderErrorMessage("table")}
           </Col>
         )
       break;
@@ -293,6 +314,7 @@ class CommonPreviewComponent extends React.Component{
                 []
               }
             </Checkbox.Group>
+            {this.renderErrorMessage("checklist")}
         </Col>
       )
       break;

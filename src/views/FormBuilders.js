@@ -46,6 +46,7 @@ class FormBuilders extends React.Component{
     visibleModalFileUpload:false,
     visibleModalPreview:false,
     visibleModalPreviewPayload:false,
+    dataErrorMessage: [],
     minHeight:window.innerHeight,
     format:'text',
     boxColor:'#fff',
@@ -113,17 +114,20 @@ class FormBuilders extends React.Component{
         case 'textarea' : 
           initialdataDrag.title = "TextArea";
           initialdataDrag.value = "TextArea";
-          initialdataDrag.placeholder = "Placeholder";
+          initialdataDrag.placeholder    = "Placeholder";
+          initialdataDrag.requiredOption = [];
           break;
         case 'label' : 
           initialdataDrag.title = "Label";
           initialdataDrag.value = "Label";
           initialdataDrag.placeholder = "Placeholder";
+          initialdataDrag.requiredOption = [];
           break;
         case 'dropdown' : 
           initialdataDrag.value       = 'Select Items';
           initialdataDrag.placeholder = 'Select Option';
           initialdataDrag.type        = 'dropdown';
+          initialdataDrag.requiredOption = [];
           initialdataDrag.detailsDropDown = [
             {
               title:'Option 1',
@@ -139,6 +143,7 @@ class FormBuilders extends React.Component{
         case 'radio' : 
           initialdataDrag.value       = 'Chose Items';
           initialdataDrag.placeholder = 'Select Option';
+          initialdataDrag.requiredOption = [];
           initialdataDrag.detailsRadioButton = [
             {
               title:'Option 1',
@@ -149,11 +154,13 @@ class FormBuilders extends React.Component{
           break;
         case 'date' : 
           initialdataDrag.value = "Date";
+          initialdataDrag.requiredOption = [];
           break;
         case 'table' : 
           initialdataDrag.value = "Table";
           initialdataDrag.col =1;
           initialdataDrag.row =1;
+          initialdataDrag.requiredOption = [];
           this.handleShowModalAddTable(true);
           break;
         case 'tab' : 
@@ -162,6 +169,7 @@ class FormBuilders extends React.Component{
           break;
         case 'checklist' : 
           initialdataDrag.value = 'List Items';
+          initialdataDrag.requiredOption = [];
           initialdataDrag.detailsCheckList = [
             {
               title:'CheckList 1',
@@ -171,6 +179,7 @@ class FormBuilders extends React.Component{
           break;
         case 'file' : 
           initialdataDrag.value = 'File Upload';
+          initialdataDrag.requiredOption = [];
           break;
 
           default:
@@ -468,7 +477,84 @@ class FormBuilders extends React.Component{
       this.props.dispatch(dispatchAction(dataComponent,Const.MOVE_COMPONENT))
     }
   }
- 
+  // validate metode
+
+  handleValidateEmail = (email) => {
+    var regeXEmail = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    if (regeXEmail.test(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  handleValidateForm = (callback) => {
+    var tempContinue = true;
+    var tempError    = [];
+    if (this.props.dataComponent.length > 0) {
+      this.props.dataComponent.map((obj,i)=>{
+        var tempRequired = '';
+        var checkRequired = obj.requiredOption.filter((required)=> { 
+          if (required == 'required'){
+            tempRequired = required;
+          }
+        });
+        if (tempRequired=='required'){
+          switch (obj.type) {
+            case 'textinput': 
+              if (obj.format=='text'){
+                tempError.push({type:'text',message:"Text input Can't be empty!"});
+              } else if (obj.format=='number') {
+                tempError.push({type:'number',message:"Number Input Can't be empty!"});
+              } else if (obj.format=='email') {
+                tempError.push({type:'email',message:"Email Input Can't be empty!"});
+              }
+              tempContinue = false;
+              break;
+            case 'textarea' : 
+              tempError.push({type:'textarea',message:"textarea Can't be empty!"});
+              tempContinue = false;
+              break;
+            case 'label' : 
+              tempError.push({type:'label',message:"label Can't be empty!"});
+              tempContinue = false;
+              break;
+            case 'dropdown' : 
+              tempError.push({type:'dropdown',message:"dropdown Can't be empty!"});
+              tempContinue = false;
+            break;
+            case 'radio' : 
+              tempError.push({type:'radio',message:"radio Can't be empty!"});
+              tempContinue = false;
+              break;
+            case 'table' : 
+              tempError.push({type:'table',message:"radio Can't be empty!"});
+              tempContinue = false; 
+              break;
+            case 'date' : 
+              tempError.push({type:'date',message:"radio Can't be empty!"});
+              tempContinue = false; 
+              break;
+            case 'checklist' : 
+              tempError.push({type:'checklist',message:"radio Can't be empty!"});
+              tempContinue = false; 
+              break;
+            case 'file' : 
+              tempError.push({type:'file',message:"radio Can't be empty!"});
+              tempContinue = false; 
+              break;
+            default:
+              return 0
+          }
+        }
+      });
+    }
+    this.setState({dataErrorMessage:tempError});
+    if (tempContinue) {
+      this.handleSaveForm();
+    }
+  }
+
   // add textinput 
   handleShowModalAddTextInput = (visible)=> {
     this.setState({visibleModalAddInput:visible, typeInput:'textinput',format:'text'});
@@ -487,7 +573,6 @@ class FormBuilders extends React.Component{
       typeInput:typeInput,
       title:'',
       value:'',
-      requiredOption:1,
       requiredOption:['required','readonly']
     });
   }
@@ -518,19 +603,19 @@ class FormBuilders extends React.Component{
           tempData.title          = "Text Input";
           tempData.placeholder    = "Enter Text Input";
           tempData.format         = "text";
-          tempData.requiredOption = ['normal','required'];
+          tempData.requiredOption = [];
           break;
         case 'number' : 
           tempData.title          = "Number Input";
           tempData.placeholder    = "Enter Number Input";
           tempData.format         = "number";
-          tempData.requiredOption = ['normal','required'];
+          tempData.requiredOption = [];
           break;
         case 'email' : 
           tempData.title          = "Email Input";
           tempData.placeholder    = "Email Number Input";
           tempData.format         = "email";
-          tempData.requiredOption = ['normal','required'];
+          tempData.requiredOption = [];
           break;
         default:
       }
@@ -633,7 +718,7 @@ class FormBuilders extends React.Component{
                 </Row>
                 <Row style={{marginBottom: 15}}>
                   <Col>
-                    <CheckboxGroup options={this.state.requiredOption} defaultValue={this.state.tempDataComponent.requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
                   </Col>
                 </Row>
                 <Row style={{marginBottom: 8}}>
@@ -715,7 +800,6 @@ class FormBuilders extends React.Component{
       visibleModalTextArea:visible
     })
   }
-
   handleEditTextArea = () => {
     var {dataComponent}       = this.props;
     var {tempDataComponent}   = this.state;
@@ -746,6 +830,17 @@ class FormBuilders extends React.Component{
                   onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
                 />
               </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
             </Col>
           </Row>
         </Col>
@@ -791,6 +886,17 @@ class FormBuilders extends React.Component{
                     onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
                   />
                 </Row>
+                {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                  <Row style={{marginBottom: 15}}>
+                    <Col>
+                      <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                    </Col>
+                  </Row>
+                  :
+                  []
+                  :
+                  []
+                }
               </Col>
             </Row>
           </Col>
@@ -867,6 +973,17 @@ class FormBuilders extends React.Component{
                   value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].placeholder : ''}
                   onChange={(e)=>this.handleOnChangeInputDetails("placeholder",e.target.value)}/>
               </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
               <Row/>
                 {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].type=='dropdown' ? this.state.tempDataComponent[0].detailsDropDown.length > 0 ? 
                 this.state.tempDataComponent[0].detailsDropDown.map((items,i)=>{
@@ -1064,11 +1181,22 @@ class FormBuilders extends React.Component{
               <Row style={{marginBottom: 15}}>
                 <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title</span>
               </Row>
-              <Row style={{marginBottom: 20}}>
+              <Row style={{marginBottom: 15}}>
                 <Input
                   value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value:''}
                   onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}/>
               </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
               <Row/>
                 {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].type=='radio' ? this.state.tempDataComponent[0].detailsRadioButton.length > 0 ? 
                 this.state.tempDataComponent[0].detailsRadioButton.map((items,i)=>{
@@ -1166,6 +1294,17 @@ class FormBuilders extends React.Component{
                   onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
                 />
               </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
             </Col>
           </Row>
         </Col>
@@ -1248,6 +1387,17 @@ class FormBuilders extends React.Component{
                   onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
                 />
               </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
               <Row style={{marginBottom: 15}}>
                 <span style={{fontSize: 14, fontWeight: '500', color:'#666'}}>Insert Column</span>
               </Row>
@@ -1497,6 +1647,17 @@ class FormBuilders extends React.Component{
                   value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value:''}
                   onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}/>
               </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
               <Row/>
                 {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].type=='checklist' ? this.state.tempDataComponent[0].detailsCheckList.length > 0 ? 
                 this.state.tempDataComponent[0].detailsCheckList.map((items,i)=>{
@@ -1592,6 +1753,17 @@ class FormBuilders extends React.Component{
             <Row style={{marginBottom: 15}}>
               <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title File Upload</span>
             </Row>
+            {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+              <Row style={{marginBottom: 15}}>
+                <Col>
+                  <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                </Col>
+              </Row>
+              :
+              []
+              :
+              []
+            }
             <Row style={{marginBottom: 20}}>
               <Input
                 value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value:''}
@@ -1623,7 +1795,7 @@ class FormBuilders extends React.Component{
         visible={this.state.visibleModalPreview}
         okText={'Submit'}
         cancelText={'Cancel'}
-        onOk={()=>this.handleSaveForm()}
+        onOk={()=>this.handleValidateForm()}
         onCancel={()=>this.handleGotoPreview(false)}
         >
           <Col type={'flex'} align={'left'}>
@@ -1646,6 +1818,7 @@ class FormBuilders extends React.Component{
                             placeholder={items.placeholder}
                             type={items.type}
                             span={24}
+                            dataErrorMessage={this.state.dataErrorMessage}
                         />
                     </Row>
                   )
