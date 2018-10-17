@@ -13,7 +13,7 @@ import './../assets/common/css/layoutIsat.css';
 import moment from 'moment';
 import 'moment/locale/fr';
 const { Header, Footer, Sider, Content } = Layout;
-import {dispatchAction} from './../actions';
+import {dispatchAction,dispatchChangeAction} from './../actions';
 import {Const} from './../const/Const';
 import CommonComponent from './CommonComponent';
 import CommonPreviewComponent from './CommonPreviewComponent';
@@ -47,6 +47,7 @@ class FormBuilders extends React.Component{
     visibleModalPreview:false,
     visibleModalPreviewPayload:false,
     dataErrorMessage: [],
+    tempPostDataComponent:[],
     minHeight:window.innerHeight,
     format:'text',
     boxColor:'#fff',
@@ -488,28 +489,58 @@ class FormBuilders extends React.Component{
     }
   }
 
+  handleValidateNumber = (value) => {
+    const reg = /^-?(0|[1-9][0-9]*)(\.[0-9]*)?$/;
+    if ((!isNaN(value) && reg.test(value)) || value === '' || value === '-') {
+      return true;
+    }else {
+      return false;
+    }
+  }
+
   handleValidateForm = (callback) => {
     var tempContinue = true;
     var tempError    = [];
-    if (this.props.dataComponent.length > 0) {
-      this.props.dataComponent.map((obj,i)=>{
+    if (this.state.tempPostDataComponent.length > 0) {
+      this.state.tempPostDataComponent.map((obj,i)=>{
         var tempRequired = '';
         var checkRequired = obj.requiredOption.filter((required)=> { 
           if (required == 'required'){
             tempRequired = required;
           }
         });
-        if (tempRequired=='required'){
+        if ((tempRequired=='required' || obj.postValue==undefined || obj.postValue<=0)){
           switch (obj.type) {
             case 'textinput': 
               if (obj.format=='text'){
-                tempError.push({type:'text',message:"Text input Can't be empty!"});
+                if (tempRequired=='required' && (obj.postValue==''|| obj.postValue==undefined)){
+                  tempError.push({type:'text',message:"Text input Can't be empty!"});
+                  tempContinue=false;
+                }
               } else if (obj.format=='number') {
-                tempError.push({type:'number',message:"Number Input Can't be empty!"});
+                var checkNumber = this.handleValidateNumber(obj.postValue);
+                if (checkNumber==false){
+                  tempContinue = false;
+                  tempError.push({type:'number',message:"You must enter the number!"});
+                } else {
+                  if (obj.postValue==''){
+                    tempError.push({type:'number',message:"Number Input Can't be empty!"});
+                    tempContinue = false;
+                  }
+                }
               } else if (obj.format=='email') {
-                tempError.push({type:'email',message:"Email Input Can't be empty!"});
+                var checkEmail = this.handleValidateEmail(obj.postValue);
+
+                if (checkEmail==false){
+                  tempContinue = false;
+                  tempError.push({type:'email',message:"Email must enter a Valid Email!"});
+                }else {
+                  if (obj.postValue==''){
+                    tempContinue = false;
+                    tempError.push({type:'email',message:"Email Input Can't be empty!"});
+                  }
+                }
               }
-              tempContinue = false;
               break;
             case 'textarea' : 
               tempError.push({type:'textarea',message:"textarea Can't be empty!"});
@@ -1777,13 +1808,21 @@ class FormBuilders extends React.Component{
   } 
   // show Preview
   handleGotoPreview =(visible) => {
+    var {dataComponent} = this.props;
     this.setState({
-      visibleModalPreview:visible
-    })
+      tempPostDataComponent:dataComponent
+    },this.setState({visibleModalPreview:visible}))
+    
   }
 
   handleSaveForm = () => {
     this.handleGotoPreview(false);
+  }
+  // add InputChange Preview
+  handleOnChageInputPreview = (value, items, index) => {
+    var {tempPostDataComponent} = this.state;
+    tempPostDataComponent[index].postValue=value.target.value;
+    this.setState({tempPostDataComponent});
   }
 
   renderModalPreview = () =>{
@@ -1800,8 +1839,8 @@ class FormBuilders extends React.Component{
         >
           <Col type={'flex'} align={'left'}>
             <Card>
-              { this.props.dataComponent.length > 0 ? 
-                this.props.dataComponent.map((items,i)=>{
+              {this.state.tempPostDataComponent.length > 0 ? 
+                this.state.tempPostDataComponent.map((items,i)=>{
                   return (
                     <Row
                         data-key={i}
@@ -1819,6 +1858,7 @@ class FormBuilders extends React.Component{
                             type={items.type}
                             span={24}
                             dataErrorMessage={this.state.dataErrorMessage}
+                            handleOnChageInputPreview={this.handleOnChageInputPreview}
                         />
                     </Row>
                   )

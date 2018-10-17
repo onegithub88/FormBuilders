@@ -32,12 +32,19 @@ class CommonPreviewComponent extends React.Component{
   }
 
   // error render
-  renderErrorMessage = (name) => {
+  renderErrorMessage = (name,valueCheck) => {
     var ErrorMessage = [];
     if (this.props.dataErrorMessage.length > 0) {
       ErrorMessage = this.props.dataErrorMessage.map((obj,i)=>{
-        if (obj.type==name) {
+
+        if (obj.type==name && valueCheck!='') {
           return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
+        }else{
+          if (valueCheck==''){
+            return [];
+          }else {
+            return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
+          }
         }
       })
     }
@@ -100,7 +107,7 @@ class CommonPreviewComponent extends React.Component{
 
     }];
 
-    var handleChangeInputNumber = this.props.handleChangeInputNumber ? this.props.handleChangeInputNumber : () => {};
+    var handleOnChageInputPreview = this.props.handleOnChageInputPreview ? this.props.handleOnChageInputPreview : () => {};
     switch (type) {
       case 'textinput':
         return (
@@ -114,15 +121,16 @@ class CommonPreviewComponent extends React.Component{
             </Row>
             <Row>
                 <Input
-                onChange={()=>handleChangeInputNumber(e)}
+                value={this.props.items.postValue}
+                onChange={(e)=>handleOnChageInputPreview(e,this.props.items,this.props.index)}
                 disabled={disabled}
                 defaultValue={value}
                 placeholder={placeholder}
                 />
             </Row>
-            {this.renderErrorMessage("text")}
-            {this.renderErrorMessage("number")}
-            {this.renderErrorMessage("email")}
+            {this.props.dataErrorMessage.length > 0 && this.props.items.format=="text" ?  this.renderErrorMessage("text",this.props.items.postValue) : []}
+            {this.props.dataErrorMessage.length > 0 && this.props.items.format=="number" ?  this.renderErrorMessage("number",this.props.items.postValue) : []}
+            {this.props.dataErrorMessage.length > 0 && this.props.items.format=="email"  ?  this.renderErrorMessage("email",this.props.items.postValue) : []}
           </Col>
         )
         break;
