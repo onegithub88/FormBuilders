@@ -46,17 +46,18 @@ class FormBuilders extends React.Component{
     visibleModalFileUpload:false,
     visibleModalPreview:false,
     visibleModalPreviewPayload:false,
+    visibleModalTextInputs:false,
+    visibleModalNumberInputs:false,
+    visibleModalEmailInputs:false,
     dataErrorMessage: [],
     tempPostDataComponent:[],
     minHeight:window.innerHeight,
-    format:'text',
     boxColor:'#fff',
     selected:0,
     indexHover:null,
     tempDataComponent:[
       {
        title:"",
-       format:'',
        type:'',
        placeholder:'',
        required:1,
@@ -95,7 +96,7 @@ class FormBuilders extends React.Component{
 
  
   // action drag start
-  handleOnDragStart = (e,title,componentType,format) => {
+  handleOnDragStart = (e,title,componentType) => {
     var initialdataDrag = {
       idModule:this.state.idModule,
       idForm:this.state.idForm,
@@ -103,14 +104,28 @@ class FormBuilders extends React.Component{
       type:componentType,
       placeholder:'',
       required:1,
-      format:format,
       requiredOption:[],
       selectOption:['text','number','email']
     }
     this.tempdataDrag.splice(0,1,initialdataDrag);
       switch (componentType) {
-        case 'textinput' : 
-          this.handleShowModalAddTextInput(true);
+        case 'text' : 
+          initialdataDrag.title = "Text";
+          initialdataDrag.value = "Text";
+          initialdataDrag.placeholder    = "enter text";
+          initialdataDrag.requiredOption = [];
+          break;
+        case 'number' : 
+          initialdataDrag.title = "Input Number";
+          initialdataDrag.value = "Input Number";
+          initialdataDrag.placeholder    = "enter number";
+          initialdataDrag.requiredOption = [];
+          break;
+        case 'email' : 
+          initialdataDrag.title = "Input Email";
+          initialdataDrag.value = "Input Email";
+          initialdataDrag.placeholder    = "enter email";
+          initialdataDrag.requiredOption = [];
           break;
         case 'textarea' : 
           initialdataDrag.title = "TextArea";
@@ -209,21 +224,21 @@ class FormBuilders extends React.Component{
     this.setState({visibleModalAction:visible})
   }
   // metode crud
-  handleShowModalAction = (visible,index,action,type,color,format) => {
+  handleShowModalAction = (visible,index,action,type,color) => {
     var {tempDataComponent} = this.state;
     if (action=="edit") {
       switch (type) {
-        case 'textinput': 
-          if (format=='text'){
-            tempDataComponent[0] = this.props.dataComponent[index];
-            this.setState({tempDataComponent,typeInput:'text',visibleModalEditInput:visible,activeIndex:index,activeAction:action})
-          } else if (format=='number') {
-            tempDataComponent[0] = this.props.dataComponent[index];
-            this.setState({tempDataComponent,typeInput:'number',visibleModalEditInput:visible,activeIndex:index,activeAction:action})
-          } else if (format=='email') {
-            tempDataComponent[0] = this.props.dataComponent[index];
-            this.setState({tempDataComponent,typeInput:'email',visibleModalEditInput:visible,activeIndex:index,activeAction:action})
-          }
+        case 'text' : 
+          tempDataComponent[0] = this.props.dataComponent[index];
+          this.setState({tempDataComponent,typeInput:'text', visibleModalTextInputs:visible,activeIndex:index,activeAction:action})
+          break;
+        case 'number' : 
+          tempDataComponent[0] = this.props.dataComponent[index];
+          this.setState({tempDataComponent,typeInput:'number', visibleModalNumberInputs:visible,activeIndex:index,activeAction:action})
+          break;
+        case 'email' : 
+          tempDataComponent[0] = this.props.dataComponent[index];
+          this.setState({tempDataComponent,typeInput:'email', visibleModalEmailInputs:visible,activeIndex:index,activeAction:action})
           break;
         case 'textarea' : 
           tempDataComponent[0] = this.props.dataComponent[index];
@@ -278,6 +293,12 @@ class FormBuilders extends React.Component{
       }
       this.setState({tempDataComponent,typeInput:'',visibleModalAction:visible,activeIndex:index,activeAction:action})
     }
+  }
+
+  handleChangeRequiredOption = (name,value)=> {
+    var {tempDataComponent}=this.state;
+    tempDataComponent[0][name]=value;
+    this.setState({tempDataComponent})
   }
 
   handleRadioChange = (e) => {
@@ -442,7 +463,6 @@ class FormBuilders extends React.Component{
               key={i}
               items={items}
               index={i}
-              handleChangeInputNumber={this.handleChangeInputNumber.bind(this)}
               title={items.title}
               value={items.value}
               color={items.color}
@@ -454,10 +474,10 @@ class FormBuilders extends React.Component{
           <Col span={4}>
               <Row style={{padding:'5px 10px 10px 10px'}}>
                 <Col span={12}>
-                  <Button onClick={()=>this.handleShowModalAction(true,i, "edit",items.type,'',items.format)} style={{marginRight: 20}} icon={'setting'}></Button>
+                  <Button onClick={()=>this.handleShowModalAction(true,i, "edit",items.type,'')} style={{marginRight: 20}} icon={'setting'}></Button>
                 </Col>
                 <Col span={12}>
-                  <Button onClick={()=>this.handleShowModalAction(true, i, "delete",'',items.type,items.format)} icon={'delete'}></Button>
+                  <Button onClick={()=>this.handleShowModalAction(true, i, "delete",'',items.type)} icon={'delete'}></Button>
                 </Col>
               </Row>
             </Col>
@@ -511,37 +531,36 @@ class FormBuilders extends React.Component{
         });
         if ((tempRequired=='required' || obj.postValue==undefined || obj.postValue<=0)){
           switch (obj.type) {
-            case 'textinput': 
-              if (obj.format=='text'){
-                if (tempRequired=='required' && (obj.postValue==''|| obj.postValue==undefined)){
-                  tempError.push({type:'text',message:"Text input Can't be empty!"});
-                  tempContinue=false;
-                }
-              } else if (obj.format=='number') {
-                var checkNumber = this.handleValidateNumber(obj.postValue);
-                if (checkNumber==false){
+            case 'text' :
+              if (tempRequired=='required' && (obj.postValue==''|| obj.postValue==undefined)){
+                tempError.push({type:'text',message:"Text input Can't be empty!"});
+                tempContinue=false;
+              }
+            break;
+            case 'number' :
+              var checkNumber = this.handleValidateNumber(obj.postValue);
+              if (checkNumber==false){
+                tempContinue = false;
+                tempError.push({type:'number',message:"You must enter the number!"});
+              } else {
+                if (obj.postValue==''){
+                  tempError.push({type:'number',message:"Number Input Can't be empty!"});
                   tempContinue = false;
-                  tempError.push({type:'number',message:"You must enter the number!"});
-                } else {
-                  if (obj.postValue==''){
-                    tempError.push({type:'number',message:"Number Input Can't be empty!"});
-                    tempContinue = false;
-                  }
-                }
-              } else if (obj.format=='email') {
-                var checkEmail = this.handleValidateEmail(obj.postValue);
-
-                if (checkEmail==false){
-                  tempContinue = false;
-                  tempError.push({type:'email',message:"Email must enter a Valid Email!"});
-                }else {
-                  if (obj.postValue==''){
-                    tempContinue = false;
-                    tempError.push({type:'email',message:"Email Input Can't be empty!"});
-                  }
                 }
               }
-              break;
+            break;
+            case 'email' :
+              var checkEmail = this.handleValidateEmail(obj.postValue);
+              if (checkEmail==false){
+                tempContinue = false;
+                tempError.push({type:'email',message:"Email must enter a Valid Email!"});
+              } else {
+                if (obj.postValue==''){
+                  tempContinue = false;
+                  tempError.push({type:'email',message:"Email Input Can't be empty!"});
+                }
+              }
+            break;
             case 'textarea' : 
               tempError.push({type:'textarea',message:"textarea Can't be empty!"});
               tempContinue = false;
@@ -586,243 +605,211 @@ class FormBuilders extends React.Component{
     }
   }
 
-  // add textinput 
-  handleShowModalAddTextInput = (visible)=> {
-    this.setState({visibleModalAddInput:visible, typeInput:'textinput',format:'text'});
-  }
-
-  handleChangeInputNumber = (e) => {
-    const { value } = e.target;
-    const reg = /^-?(0|[1-9][0-9]*)(\.[0-9]*)?$/;
-    if ((!isNaN(value) && reg.test(value)) || value === '' || value === '-') {
-      this.props.onChange(value);
-    }
-  }
-
-  handleSetTypeInput = (typeInput) => {
+  // add Text Input
+  handleShowModalTextInputs = (visible) => {
     this.setState({
-      typeInput:typeInput,
-      title:'',
-      value:'',
-      requiredOption:['required','readonly']
-    });
+      visibleModalTextInputs:visible
+    })
   }
 
-  handleChangeRequiredOption = (name,value)=> {
-    var {tempDataComponent}=this.state;
-    tempDataComponent[0][name]=value;
+  handleOnChangeTextInput = (name,value,typeChange) => {
+    var {tempDataComponent} = this.state;
+    tempDataComponent[0][name] = value;
     this.setState({tempDataComponent})
   }
 
-  handleSaveTextInput = () => {
-    var {format} = this.state;
-    var tempData = {
-      idModule:this.state.idModule,
-      idForm:this.state.idForm,
-      type:this.state.typeInput,
-      title:'',
-      placeholder:'',
-      required:1,
-      format:'',
-      requiredOption:[],
-      selectOption:['text','number','email']
-    }
-    if (this.state.typeInput=='textinput') {
-      var title='';
-      switch(format) {
-        case 'text' : 
-          tempData.title          = "Text Input";
-          tempData.placeholder    = "Enter Text Input";
-          tempData.format         = "text";
-          tempData.requiredOption = [];
-          break;
-        case 'number' : 
-          tempData.title          = "Number Input";
-          tempData.placeholder    = "Enter Number Input";
-          tempData.format         = "number";
-          tempData.requiredOption = [];
-          break;
-        case 'email' : 
-          tempData.title          = "Email Input";
-          tempData.placeholder    = "Email Number Input";
-          tempData.format         = "email";
-          tempData.requiredOption = [];
-          break;
-        default:
-      }
-      this.props.dispatch(dispatchAction(tempData,Const.ADD_COMPONENT))
-      this.handleShowModalAddTextInput(false);
-    }
-  }
-
-  handleChangeSelectTypeInput = (name,value) => {
-    var {tempDataComponent}    = this.state;
-    switch(value) {
-      case 'text' : 
-        tempDataComponent[0].title          = "Text Input";
-        tempDataComponent[0].placeholder    = "Enter Text Input";
-        tempDataComponent[0].format         = "text";
-        tempDataComponent[0].requiredOption = ['normal','required'];
-        break;
-      case 'number' : 
-        tempDataComponent[0].title          = "Number Input";
-        tempDataComponent[0].placeholder    = "Enter Number Input";
-        tempDataComponent[0].format         = "number";
-        tempDataComponent[0].requiredOption = ['normal','required'];
-        break;
-      case 'email' : 
-        tempDataComponent[0].title          = "Email Input";
-        tempDataComponent[0].placeholder    = "Email Number Input";
-        tempDataComponent[0].format         = "email";
-        tempDataComponent[0].requiredOption = ['normal','required'];
-        break;
-      default:
-    }
-    this.setState({tempDataComponent,format:value});
-  }
-
-  handleShowModalEditTextInput = (visible)=> {
-    this.setState({visibleModalEditInput:visible});
-  }
-  
-  handleEditTextInput = () =>{
+  handleEditTextInputs = () => {
     var {dataComponent}       = this.props;
     var {tempDataComponent}   = this.state;
-    var title = '';
     dataComponent[this.state.activeIndex] =  tempDataComponent[0];
-    if (dataComponent[this.state.activeIndex].type=='textinput' &&  dataComponent[this.state.activeIndex].format != '') {
-      title = dataComponent[this.state.activeIndex].title;
-      dataComponent[this.state.activeIndex].title = title;
-      
-    }
-
     this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
-    this.handleShowModalEditTextInput(false);
-
+    this.handleShowModalTextInputs(false);
   }
 
-  renderSelectOption = () => {
-    var SelectOption = [];
-    SelectOption =this.state.tempDataComponent[0].selectOption.map((obj,i)=>{
-      return (
-        <Option key={i} value={obj}>{obj}</Option>
-      )
-    })
-    return SelectOption;
-  }
-
-  renderModalEditTextInput = () =>{
-    var ModalEditTextInput =[];
-    if (this.state.tempDataComponent[0]!=undefined && this.state.tempDataComponent.length > 0) {
-      ModalEditTextInput = (
-        <Modal
-          title={`Edit Text!`}
-          visible={this.state.visibleModalEditInput}
-          okText={'Ok'}
-          cancelText={'Cancel'}
-          onOk={()=>this.handleEditTextInput()}
-          onCancel={()=>this.handleShowModalEditTextInput(false)}
-          >
-          <Col>
-            <Row>
-              <Col>
-                <Row style={{marginBottom: 8}}>
-                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set value</span>
-                </Row>
-                <Row style={{marginBottom: 15}}>
-                  <Input
-                    placeholder="value title"
-                    value={this.state.title}
-                    value={this.state.tempDataComponent[0].title}
-                    onChange={(e)=>this.handleOnChangeInputDetails("title",e.target.value)}
-                    />
-                </Row>
-                <Row style={{marginBottom: 8}}>
-                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Set Placeholder</span>
-                </Row>
-                <Row style={{marginBottom: 15}}>
-                  <Input
-                    placeholder="value placeholder"
-                    value={this.state.tempDataComponent[0].placeholder}
-                    onChange={(e)=>this.handleOnChangeInputDetails("placeholder",e.target.value)}
-                    />
-                </Row>
+  renderModalTextInputs = () =>{
+    var ModalTextInputs =[];
+    ModalTextInputs = (
+      <Modal
+        title={`Add Text Input`}
+        width={350}
+        visible={this.state.visibleModalTextInputs}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditTextInputs()}
+        onCancel={()=>this.handleShowModalTextInputs(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInput("value",e.target.value,"text")}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Placeholder</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].placeholder: ''}
+                  onChange={(e)=>this.handleOnChangeTextInput("placeholder",e.target.value,"text")}
+                />
+              </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
                 <Row style={{marginBottom: 15}}>
                   <Col>
                     <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
                   </Col>
                 </Row>
-                <Row style={{marginBottom: 8}}>
-                  <span style={{fontSize: 15, fontWeight: '500', color:'#666'}}>Change Type</span>
-                </Row>
-                <Row style={{marginBottom: 8}}>
-                  It will erase the current value
-                </Row>
-                <Row style={{marginBottom: 10}}>
-                  <Select
-                   style={{ width: 200 }}
-                   placeholder="Text"
-                   defaultValue={''}
-                   value ={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].format : ''}
-                   optionFilterProp="children"
-                   onChange={(e)=>this.handleChangeSelectTypeInput("format",e)}
-                   filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                 >
-                  {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent.length > 0 ? this.state.tempDataComponent[0].selectOption.length > 0 ? 
-                  this.renderSelectOption()
-                  :[]
-                  :[]
-                  :[]
-                  }
-                 </Select>
-                </Row>
-              </Col>
-            </Row>
-          </Col>
-        </Modal>
-      );
-    }
-    
-    return  ModalEditTextInput;
-  }
-
-  renderModalAddTextInput = () =>{
-    var ModalAddTextInput =[];
-    ModalAddTextInput = (
-      <Modal
-        title={`Add Text`}
-        width={350}
-        visible={this.state.visibleModalAddInput}
-        okText={'Ok'}
-        cancelText={'Cancel'}
-        onOk={()=>this.handleSaveTextInput()}
-        onCancel={()=>this.handleShowModalAddTextInput(false)}
-        >
-        <Col type={'flex'} align={'center'}>
-          <Row>
-            <Col>
-              <Row style={{marginBottom: 15}}>
-                <span style={{fontSize: 18, fontWeight: '600', color:'#666'}}>Please select your type input</span>
-              </Row>
-              <Row span={24} style={{marginBottom: 20}}>
-                <Select
-                 style={{ width: 300 }}
-                 placeholder="Text"
-                 optionFilterProp="children"
-                 onChange={(e)=>this.handleChangeSelectTypeInput("format",e)}
-                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-               >
-                 <Option value="text">Text</Option>
-                 <Option value="number">Number</Option>
-                 <Option value="email">Email</Option>
-               </Select>
-              </Row>
+                :
+                []
+                :
+                []
+              }
             </Col>
           </Row>
         </Col>
       </Modal>
     );
-    return  ModalAddTextInput;
+    return  ModalTextInputs;
+  }
+
+  // add Number Input
+  handleShowModalNumberInputs = (visible) => {
+    this.setState({
+      visibleModalNumberInputs:visible
+    })
+  }
+
+  handleOnChangeTextInput = (name,value,typeChange) => {
+    var {tempDataComponent} = this.state;
+    tempDataComponent[0][name] = value;
+    this.setState({tempDataComponent})
+  }
+
+  handleEditNumberInputs = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalNumberInputs(false);
+  }
+
+  renderModalNumberInputs = () =>{
+    var ModalNumberInputs =[];
+    ModalNumberInputs = (
+      <Modal
+        title={`Add Text Input`}
+        width={350}
+        visible={this.state.visibleModalNumberInputs}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditNumberInputs()}
+        onCancel={()=>this.handleShowModalNumberInputs(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInput("value",e.target.value,"text")}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Placeholder</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].placeholder: ''}
+                  onChange={(e)=>this.handleOnChangeTextInput("placeholder",e.target.value,"text")}
+                />
+              </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalNumberInputs;
+  }
+
+  // add Email Input
+  handleShowModalEmailInputs = (visible) => {
+    this.setState({
+      visibleModalEmailInputs:visible
+    })
+  }
+
+  handleOnChangeTextInput = (name,value,typeChange) => {
+    var {tempDataComponent} = this.state;
+    tempDataComponent[0][name] = value;
+    this.setState({tempDataComponent})
+  }
+
+  handleEditEmailInputs = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalEmailInputs(false);
+  }
+
+  renderModalEmailInputs = () =>{
+    var ModalEmailInputs =[];
+    ModalEmailInputs = (
+      <Modal
+        title={`Add Text Input`}
+        width={350}
+        visible={this.state.visibleModalEmailInputs}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditEmailInputs()}
+        onCancel={()=>this.handleShowModalEmailInputs(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInput("value",e.target.value,"text")}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Placeholder</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].placeholder: ''}
+                  onChange={(e)=>this.handleOnChangeTextInput("placeholder",e.target.value,"text")}
+                />
+              </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalEmailInputs;
   }
   
   // add TextArea
@@ -1389,7 +1376,6 @@ class FormBuilders extends React.Component{
         title:title,
         type:'table',
         placeholder:'',
-        format:'',
         detailColumn:tempColumn,
         detailRow:tempRow,
         selectOption:['text','number','email']
@@ -1510,7 +1496,6 @@ class FormBuilders extends React.Component{
         title:title,
         type:'tab',
         placeholder:'',
-        format:'',
         detailsTabs:detailsTabs,
         selectOption:[]
       },Const.ADD_COMPONENT))
@@ -1916,11 +1901,12 @@ class FormBuilders extends React.Component{
   render() {
     return (
       <Row>
+      {this.renderModalTextInputs()}
+      {this.renderModalNumberInputs()}
+      {this.renderModalEmailInputs()}
       {this.renderModalPreview()}
       {this.renderModalPreviewCode()}
       {this.handleModalAction()}
-      {this.renderModalEditTextInput()}
-      {this.renderModalAddTextInput()}
       {this.renderModalTextArea()}
       {this.renderModalLabel()}
       {this.renderModalEditDropDown()}
@@ -1973,12 +1959,30 @@ class FormBuilders extends React.Component{
                 </Col>
                 <Col span={8} style={{paddingTop: 10}}>
                   <Row type='flex' justify='left'
-                  style={{padding:'10px 10px 10px 10px', backgroundColor: '#dedede',marginRight: 10}}
-                  onDragStart={(e)=>this.handleOnDragStart(e,"Text input","textinput")}
+                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede', marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Text Input","text")}
                   draggable
                   >
                     <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
-                     <Icon type="font-colors" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Input</span>
+                      <Icon type="font-colors" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Text Input</span>
+                    </Button>
+                  </Row>
+                  <Row type='flex' justify='left'
+                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede', marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Number Input","number")}
+                  draggable
+                  >
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="font-colors" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Number Input</span>
+                    </Button>
+                  </Row>
+                  <Row type='flex' justify='left'
+                  style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede', marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"Email Input","email")}
+                  draggable
+                  >
+                    <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="font-colors" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >Email Input</span>
                     </Button>
                   </Row>
                   <Row type='flex' justify='left'

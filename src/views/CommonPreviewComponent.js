@@ -36,17 +36,21 @@ class CommonPreviewComponent extends React.Component{
     var ErrorMessage = [];
     if (this.props.dataErrorMessage.length > 0) {
       ErrorMessage = this.props.dataErrorMessage.map((obj,i)=>{
-
-        if (obj.type==name && valueCheck!='') {
-          return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
-        }else{
-          if (valueCheck==''){
-            return [];
-          }else {
+        switch(name){
+          case 'text' && obj.type=="text" : 
             return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
-          }
+          break;
+          case 'number' && obj.type=="number": 
+            return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
+          break;
+          case 'email' && obj.type=="email": 
+            return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
+          break;
+          return []
         }
       })
+    }else {
+      ErrorMessage = [];
     }
     return ErrorMessage;
   }
@@ -109,28 +113,72 @@ class CommonPreviewComponent extends React.Component{
 
     var handleOnChageInputPreview = this.props.handleOnChageInputPreview ? this.props.handleOnChageInputPreview : () => {};
     switch (type) {
-      case 'textinput':
+        case 'text':
         return (
           <Col span={span} style={{marginBottom: 15}}>
             <Row style={{marginBottom: 10}}>
-                {this.props.title ?
-                <span>{title}</span>
+              {this.props.title ?
+                <span>{value}</span>
                 :
                 []
-                }
+              }
             </Row>
             <Row>
-                <Input
+              <Input
+                type={'text'}
                 value={this.props.items.postValue}
                 onChange={(e)=>handleOnChageInputPreview(e,this.props.items,this.props.index)}
                 disabled={disabled}
-                defaultValue={value}
                 placeholder={placeholder}
-                />
+              />
             </Row>
-            {this.props.dataErrorMessage.length > 0 && this.props.items.format=="text" ?  this.renderErrorMessage("text",this.props.items.postValue) : []}
-            {this.props.dataErrorMessage.length > 0 && this.props.items.format=="number" ?  this.renderErrorMessage("number",this.props.items.postValue) : []}
-            {this.props.dataErrorMessage.length > 0 && this.props.items.format=="email"  ?  this.renderErrorMessage("email",this.props.items.postValue) : []}
+            {this.props.dataErrorMessage.length > 0 ? this.renderErrorMessage("text",this.props.items.postValue) : []}
+          </Col>
+        )
+        break;
+        case 'number':
+        return (
+          <Col span={span} style={{marginBottom: 15}}>
+            <Row style={{marginBottom: 10}}>
+              {this.props.title ?
+                <span>{value}</span>
+                :
+                []
+              }
+            </Row>
+            <Row>
+              <Input
+                type={'number'}
+                value={this.props.items.postValue}
+                onChange={(e)=>handleOnChageInputPreview(e,this.props.items,this.props.index)}
+                disabled={disabled}
+                placeholder={placeholder}
+              />
+            </Row>
+            {this.props.dataErrorMessage.length > 0 ?  this.renderErrorMessage("number",this.props.items.postValue) : []}
+          </Col>
+        )
+        break;
+        case 'email':
+        return (
+          <Col span={span} style={{marginBottom: 15}}>
+            <Row style={{marginBottom: 10}}>
+              {this.props.title ?
+                <span>{value}</span>
+                :
+                []
+              }
+            </Row>
+            <Row>
+              <Input
+                type={'email'}
+                value={this.props.items.postValue}
+                onChange={(e)=>handleOnChageInputPreview(e,this.props.items,this.props.index)}
+                disabled={disabled}
+                placeholder={placeholder}
+              />
+            </Row>
+            {this.props.dataErrorMessage.length > 0 ?  this.renderErrorMessage("email",this.props.items.postValue) : []}
           </Col>
         )
         break;

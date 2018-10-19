@@ -87,7 +87,6 @@ class CommonComponent extends React.Component{
 
     }];
 
-    var handleChangeInputNumber = this.props.handleChangeInputNumber ? this.props.handleChangeInputNumber : () => {};
     switch (type) {
       case 'textinput':
         return (
@@ -101,7 +100,6 @@ class CommonComponent extends React.Component{
             </Row>
             <Row>
               <Input
-                onChange={()=>handleChangeInputNumber(e)}
                 disabled={disabled}
                 defaultValue={value}
                 placeholder={placeholder}
@@ -110,6 +108,66 @@ class CommonComponent extends React.Component{
           </Col>
         )
         break;
+      case 'text':
+      return (
+        <Col span={span} style={{marginBottom: 15,paddingBottom: 10}}>
+          <Row style={{marginBottom: 10}}>
+            {this.props.title ?
+              <span style={{marginBottom: 15}}>{value}</span>
+              :
+              []
+            }
+          </Row>
+          <Row>
+            <Input
+              type={'text'}
+              disabled={disabled}
+              placeholder={placeholder}
+            />
+          </Row>
+        </Col>
+      )
+      break;
+      case 'number':
+      return (
+        <Col span={span} style={{marginBottom: 15,paddingBottom: 10}}>
+          <Row style={{marginBottom: 10}}>
+            {this.props.title ?
+              <span style={{marginBottom: 15}}>{value}</span>
+              :
+              []
+            }
+          </Row>
+          <Row>
+            <Input
+              type={'number'}
+              disabled={disabled}
+              placeholder={placeholder}
+            />
+          </Row>
+        </Col>
+      )
+      break;
+      case 'email':
+      return (
+        <Col span={span} style={{marginBottom: 15,paddingBottom: 10}}>
+          <Row style={{marginBottom: 10}}>
+            {this.props.title ?
+              <span style={{marginBottom: 15}}>{value}</span>
+              :
+              []
+            }
+          </Row>
+          <Row>
+            <Input
+              type={'email'}
+              disabled={disabled}
+              placeholder={placeholder}
+            />
+          </Row>
+        </Col>
+      )
+      break;
       case 'textarea':
         return (
           <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
@@ -121,8 +179,7 @@ class CommonComponent extends React.Component{
             <TextArea
               disabled={disabled}
               rows={4}
-              defaultValue={value}
-              placeholder={"test brow"}
+              placeholder={placeholder}
             />
           </Col>
         )
