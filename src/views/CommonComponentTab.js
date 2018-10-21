@@ -4,7 +4,6 @@ import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, Date
 } from 'antd';
 const {TextArea} = Input;
 const CheckboxGroup = Checkbox.Group;
-import CommonComponentTab from './CommonComponentTab';
 
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
@@ -37,18 +36,17 @@ class CommonComponent extends React.Component{
     var type  = this.props.type ? this.props.type :'';
     var span  = this.props.span ? this.props.span : 24;
     var value = this.props.value ? this.props.value :'';
+    var items = this.props.items ? this.props.items : []; 
     var color = this.props.value ? this.props.color :'primary';
     var options            = this.props.options ? this.props.options : [];
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
     var disabled           = this.props.disabled ? this.props.disabled :true;
-    var detailsTabs        = this.props.items.detailsTabs ? this.props.items.detailsTabs : []; 
     var detailsDropDown    = this.props.items.detailsDropDown ? this.props.items.detailsDropDown : []; 
     var detailsCheckList   = this.props.items.detailsCheckList ? this.props.items.detailsCheckList : []; 
     var detailsRadioButton = this.props.items.detailsRadioButton ? this.props.items.detailsRadioButton : []; 
     var handleChangeUpload = this.props.handleChangeUpload ? this.props.handleChangeUpload : () => {}
     var detailColumn       = this.props.items.detailColumn ? this.props.items.detailColumn : [];
     var detailRow          = this.props.items.detailRow ? this.props.items.detailRow : [];
-    
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -237,16 +235,6 @@ class CommonComponent extends React.Component{
         </Col>
        )
       break;
-      case 'button' :
-        var backgrounColor = '#22ff22 !important';
-        return (
-          <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
-            <div>
-              <Button color={'#22ff22'} style={{paddingLeft:10, paddingRight:10, marginTop: 20, backgrounColor:backgrounColor}}  type={color}>{value}</Button>
-            </div>
-          </Col>
-        )
-      break;
       case 'radio' :
         return (
           <Col span={span} style={{marginBottom:15,paddingBottom:10}}>
@@ -288,63 +276,6 @@ class CommonComponent extends React.Component{
             </Row>
           </Col>
         );
-      break;
-      case 'table':
-        return(
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
-            <Row style={{marginBottom:10}}>
-              {this.props.title ?
-                <span style={{marginBottom: 10}}>{title}</span>
-                :
-                []
-              }
-            </Row>
-            <Row>
-              <Table columns={detailColumn} dataSource={detailRow} /> 
-            </Row>
-          </Col>
-        )
-      break;
-      case 'tab' : 
-        return (
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
-            <Tabs onChange={()=>this.callback()} type="card">
-              {detailsTabs.length > 0 ?
-                detailsTabs.map((obj,i)=>{
-                  return (
-                    <TabPane style={{backgroundColor:'#fafafa',padding:10,borderRadius:3}} tab={obj.value} key={i}> 
-                      <Row span={24}>{
-                        obj.componentTabs.map((compTab,t)=>{
-                          return (
-                            <Row 
-                            data-key={t}
-                            style={{backgroundColor:'#fafafa',borderWidth:2, padding:5,borderColor:'#fff'}}
-                            key={t} type='flex' justify='left' align='middle'>
-                              <CommonComponentTab
-                                key={t}
-                                items={compTab[0]}
-                                index={t}
-                                title={compTab[0].title}
-                                value={compTab[0].value}
-                                color={compTab[0].color}
-                                placeholder={compTab.placeholder}
-                                type={compTab[0].type}
-                                span={20}
-                                handleChangeUpload={this.handleChangeUpload}
-                              />
-                            </Row>
-                          )
-                        })}
-                      </Row>
-                    </TabPane>
-                  )
-                })
-                :
-                []
-              }
-            </Tabs>
-          </Col>
-        )
       break;
       case 'checklist' : 
       return (

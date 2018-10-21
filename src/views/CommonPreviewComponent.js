@@ -4,14 +4,14 @@ import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, Date
 } from 'antd';
 const {TextArea} = Input;
 const CheckboxGroup = Checkbox.Group;
-
+import CommonComponentTabPreview from './CommonComponentTabPreview';
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 class CommonPreviewComponent extends React.Component{
   state = {
-    value: 1,
+    value: 1
   }
   renderDetailsOption = ()=> {
     var DetailsOption = [];
@@ -22,37 +22,139 @@ class CommonPreviewComponent extends React.Component{
     });
     return DetailsOption;
   }
-  handleChangeDropDown = () => {
-
-  }
+  
   onChange = (date, dateString) => {
   }
 
   callback=(key) => {
   }
+  
+  componentWillMount = () =>{
+    this.statusCheck = {
+      checkText:false
+    }
+  }
+
+  handleValidateEmail = (email) => {
+    var regeXEmail = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    if (regeXEmail.test(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   // error render
-  renderErrorMessage = (name,valueCheck) => {
-    var ErrorMessage = [];
-    if (this.props.dataErrorMessage.length > 0) {
-      ErrorMessage = this.props.dataErrorMessage.map((obj,i)=>{
-        switch(name){
-          case 'text' && obj.type=="text" : 
-            return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
-          break;
-          case 'number' && obj.type=="number": 
-            return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
-          break;
-          case 'email' && obj.type=="email": 
-            return (<Row key={i} style={{marginTop:5}}><Alert message={obj.message} type="error" showIcon /></Row>);
-          break;
-          return []
+  renderErrorMessage = (name,items,index) => {
+    switch (name){
+      case 'text' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkText==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Text input Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkText==false){
+            this.props.handleChangeStatusCheck("checkText",true);
+          }
         }
-      })
-    }else {
-      ErrorMessage = [];
+      break;
+      case 'number' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkNumber==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Number input Required!"} type="error" showIcon /></Row>);
+        }
+        if (this.props.statusCheck.checkNumber==false){
+          this.props.handleChangeStatusCheck("checkNumber",true);
+        }
+      break;
+      case 'email' :
+        var checkRequired =false;
+        var checkEmail = this.handleValidateEmail(items.postValue);
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && this.props.statusCheck.checkEmail==true){
+          if (items.postValue.length==0) {
+            return (<Row key={index} style={{marginTop:5}}><Alert message={"Email input Required!"} type="error" showIcon /></Row>);
+          }else {
+            if (checkRequired==true && items.postValue.length> 0 && checkEmail==false){
+              return (<Row key={index} style={{marginTop:5}}><Alert message={"Email Not Valid!"} type="error" showIcon /></Row>);
+            }
+          }
+        }
+
+        if (this.props.statusCheck.checkEmail==false){
+          this.props.handleChangeStatusCheck("checkEmail",true);
+        }
+      break;
+      case 'textarea' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkTextArea==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"TextArea input Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkTextArea==false){
+            this.props.handleChangeStatusCheck("checkTextArea",true);
+          }
+        }
+      break;
+      case 'dropdown' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkDropDown==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Select Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkDropDown==false){
+            this.props.handleChangeStatusCheck("checkDropDown",true);
+          }
+        }
+      break;
+      case 'radio' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkRadio==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Choise Radio Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkRadio==false){
+            this.props.handleChangeStatusCheck("checkRadio",true);
+          }
+        }
+      break;
+      case 'date' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkDateTime==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Date Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkDateTime==false){
+            this.props.handleChangeStatusCheck("checkDateTime",true);
+          }
+        }
+      break;
+      case 'checklist' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkListOption==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Select checkList Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkListOption==false){
+            this.props.handleChangeStatusCheck("checkListOption",true);
+          }
+        }
+      break;
+      case 'file' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkFileUpload==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"File Upload Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkFileUpload==false){
+            this.props.handleChangeStatusCheck("checkFileUpload",true);
+          }
+        }
+      break;
+      default :
+      return []
     }
-    return ErrorMessage;
   }
   
   render (){
@@ -61,6 +163,8 @@ class CommonPreviewComponent extends React.Component{
     var span  = this.props.span ? this.props.span : 24;
     var value = this.props.value ? this.props.value :'';
     var color = this.props.value ? this.props.color :'primary';
+    var items              = this.props.items ? this.props.items : [];
+    var index              = this.props.index ? this.props.index : 0;
     var options            = this.props.options ? this.props.options : [];
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
     var disabled           = this.props.disabled ? this.props.disabled :false;
@@ -132,7 +236,7 @@ class CommonPreviewComponent extends React.Component{
                 placeholder={placeholder}
               />
             </Row>
-            {this.props.dataErrorMessage.length > 0 ? this.renderErrorMessage("text",this.props.items.postValue) : []}
+            {this.renderErrorMessage("text",items,index)}
           </Col>
         )
         break;
@@ -155,7 +259,7 @@ class CommonPreviewComponent extends React.Component{
                 placeholder={placeholder}
               />
             </Row>
-            {this.props.dataErrorMessage.length > 0 ?  this.renderErrorMessage("number",this.props.items.postValue) : []}
+            {this.renderErrorMessage("number",items,index)}
           </Col>
         )
         break;
@@ -178,7 +282,7 @@ class CommonPreviewComponent extends React.Component{
                 placeholder={placeholder}
               />
             </Row>
-            {this.props.dataErrorMessage.length > 0 ?  this.renderErrorMessage("email",this.props.items.postValue) : []}
+            {this.renderErrorMessage("email",items,index)}
           </Col>
         )
         break;
@@ -195,12 +299,13 @@ class CommonPreviewComponent extends React.Component{
             <Row>
                 <TextArea
                 disabled={disabled}
+                value={this.props.items.postValue}
+                onChange={(e)=>handleOnChageInputPreview(e,this.props.items,this.props.index)}
                 rows={4}
-                defaultValue={value}
-                placeholder={"test brow"}
+                placeholder={placeholder}
                 />
             </Row>
-            {this.renderErrorMessage("textarea")}
+            {this.renderErrorMessage("textarea",items,index)}
           </Col>
         )
         break;
@@ -240,9 +345,9 @@ class CommonPreviewComponent extends React.Component{
                 disabled={disabled}
                 showSearch
                 style={{ width: '100%'}}
-                placeholder={placeholder}
                 optionFilterProp="children"
-                onChange={()=>this.handleChangeDropDown()}
+                value={this.props.items.postValue}
+                onChange={(e)=>this.props.handleChangeDropDown(e,this.props.items,this.props.index)}
                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
               >
                 { detailsDropDown.length > 0 ? 
@@ -256,7 +361,7 @@ class CommonPreviewComponent extends React.Component{
                 }
               </Select>
             </Row>
-            {this.renderErrorMessage("dropdown")}
+            {this.renderErrorMessage("dropdown",items,index)}
         </Col>
        )
       break;
@@ -281,7 +386,10 @@ class CommonPreviewComponent extends React.Component{
               }
             </Row>
             <Row>
-              <RadioGroup style={{width:365}} onChange={this.onChange} value={this.state.value}>
+              <RadioGroup style={{width:365}} 
+                onChange={(e)=>this.props.handleChangeRadioButton(e,this.props.items,this.props.index)} 
+                value={this.props.items.postValue}
+              >
                 {detailsRadioButton.length > 0 ?
                   detailsRadioButton.map((obj,i)=>{
                     return (
@@ -293,7 +401,7 @@ class CommonPreviewComponent extends React.Component{
                 }
               </RadioGroup>
             </Row>
-            {this.renderErrorMessage("radio")}
+            {this.renderErrorMessage("radio",items,index)}
           </Col>
         );
       break;
@@ -308,7 +416,12 @@ class CommonPreviewComponent extends React.Component{
               }
             </Row>
             <Row>
-              <DatePicker disabled={disabled} style={{width:'100%'}} onChange={()=>this.onChange()} />
+              <DatePicker 
+              disabled={disabled} 
+              style={{width:'100%'}} 
+              onChange={(e)=>this.props.handleChangeDateTime(e,this.props.items,this.props.index)} 
+              value={this.props.items.postValue}
+            />
             </Row>
           </Col>
         );
@@ -326,7 +439,7 @@ class CommonPreviewComponent extends React.Component{
             <Row>
               <Table columns={detailColumn} dataSource={detailRow} /> 
             </Row>
-            {this.renderErrorMessage("table")}
+            {this.renderErrorMessage("table",items,index)}
           </Col>
         )
       break;
@@ -337,7 +450,32 @@ class CommonPreviewComponent extends React.Component{
               {detailsTabs.length > 0 ?
                 detailsTabs.map((obj,i)=>{
                   return (
-                    <TabPane tab={obj} key={i}>{obj}</TabPane>
+                    <TabPane style={{backgroundColor:'#fbfbfb',padding:10,borderRadius:4}} tab={obj.value} key={i}> 
+                      <Row span={24}>{
+                        obj.componentTabs.map((compTab,t)=>{
+                          return (
+                            <Row 
+                            data-key={t}
+                            style={{backgroundColor:'#fbfbfb',borderWidth:2, padding:5,borderColor:'#fff'}}
+                            key={t} type='flex' justify='left' align='middle'>
+                              <CommonComponentTabPreview
+                                key={t}
+                                items={compTab[0]}
+                                index={t}
+                                title={compTab[0].title}
+                                value={compTab[0].value}
+                                color={compTab[0].color}
+                                placeholder={compTab.placeholder}
+                                type={compTab[0].type}
+                                span={20}
+                                disabled={false}
+                                handleChangeUpload={this.handleChangeUpload}
+                              />
+                            </Row>
+                          )
+                        })}
+                      </Row>
+                    </TabPane>
                   )
                 })
                 :
@@ -359,7 +497,10 @@ class CommonPreviewComponent extends React.Component{
                 }
               </Row>
             </Col>
-           <Checkbox.Group style={{ width: '100%' }}>
+           <Checkbox.Group style={{ width: '100%' }}
+              onChange={(e)=>this.props.handleChangeCheckList(e,this.props.items,this.props.index)} 
+              value={this.props.items.postValue}
+           >
             {detailsCheckList.length > 0 ?
                 detailsCheckList.map((obj,i)=>{
                   return (
@@ -370,18 +511,13 @@ class CommonPreviewComponent extends React.Component{
                 []
               }
             </Checkbox.Group>
-            {this.renderErrorMessage("checklist")}
+            {this.renderErrorMessage("checklist",items,index)}
         </Col>
       )
       break;
       case 'file' : 
         const props = {
-          name: 'file',
-          action: '//jsonplaceholder.typicode.com/posts/',
-          headers: {
-            authorization: 'authorization-text',
-          },
-          handleChangeUpload
+          
         };
         return (
           <Col span={span} style={{marginBottom:15}}>
@@ -394,11 +530,19 @@ class CommonPreviewComponent extends React.Component{
                   }
                 </Row>
               </Col>
-              <Upload {...props}>
+              <Upload 
+                name  = 'file'
+                action = '//jsonplaceholder.typicode.com/posts/'
+                headers = {{
+                  authorization: 'authorization-text'
+                }}
+                onChange = {(e)=>this.props.handleChangeUploadPost(e,this.props.items,this.props.index)}
+              >
                 <Button disabled={disabled}>
                   <Icon type="upload" /> Click to Upload
                 </Button>
               </Upload>
+              {this.renderErrorMessage("file",items,index)}
           </Col>
         )
       break;

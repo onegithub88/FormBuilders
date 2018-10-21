@@ -5,3 +5,9 @@ export const dispatchAction = (payload,action,dragStatus)=>({
 	payload,
 	dragStatus
 })
+
+export const dispatchActionTab = (payload,action,index)=>({
+	type:action,
+	payload,
+	index
+})
