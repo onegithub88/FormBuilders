@@ -1888,7 +1888,7 @@ class FormBuilders extends React.Component{
         </Col>
         {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].detailsTabs!=undefined ? this.state.tempDataComponent[0].detailsTabs.length > 0 ?
           <Col 
-            style={{backgroundColor:'#fafafa',marginTop:30,borderRadius:3,borderBottomLeftRadius:0,paddingTop:5,paddingLeft:5,paddingRight:5}} span={8}>
+            style={{backgroundColor:'#fafafa',height:345,marginTop:30,borderRadius:3,borderBottomLeftRadius:0,paddingTop:5,paddingLeft:5,paddingRight:5,overflowY:'scroll'}} span={8}>
               <Row type='flex' justify='left'
                 style={{padding:'10px 10px 10px 10px', backgroundColor: '#dedede'}}
                 onDragStart={(e)=>this.handleOnDragStartTab(e,"Text Input","text")}
@@ -1914,6 +1914,69 @@ class FormBuilders extends React.Component{
                 >
                 <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
                   <Icon type="font-colors" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >Email Input</span>
+                </Button>
+              </Row>
+              <Row type='flex' justify='left'
+                style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede'}}
+                onDragStart={(e)=>this.handleOnDragStartTab(e,"Text Area","textarea")}
+                draggable
+                >
+                <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                  <Icon type="read" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >Text Area</span>
+                </Button>
+              </Row>
+              <Row type='flex' justify='left'
+                style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede'}}
+                onDragStart={(e)=>this.handleOnDragStartTab(e,"Lable","label")}
+                draggable
+                >
+                <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                  <Icon type="font-size" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >Label</span>
+                </Button>
+              </Row>
+              <Row type='flex' justify='left'
+                style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede'}}
+                onDragStart={(e)=>this.handleOnDragStartTab(e,"dropdown","dropdown")}
+                draggable
+                >
+                <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                  <Icon type="align-left" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >dropdown</span>
+                </Button>
+              </Row>
+              <Row type='flex' justify='left'
+                style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede'}}
+                onDragStart={(e)=>this.handleOnDragStartTab(e,"Radio","radio")}
+                draggable
+                >
+                <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                  <Icon type="ordered-list" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >Radio Button</span>
+                </Button>
+              </Row>
+              <Row type='flex' justify='left'
+                style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede'}}
+                onDragStart={(e)=>this.handleOnDragStartTab(e,"Date","date")}
+                draggable
+                >
+                <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                  <Icon type="clock-circle" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >Date Time</span>
+                </Button>
+              </Row>
+              <Row type='flex' justify='left'
+                style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede'}}
+                onDragStart={(e)=>this.handleOnDragStartTab(e,"Checklist","checklist")}
+                draggable
+                >
+                <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                  <Icon type="ordered-list" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >CheckList Option</span>
+                </Button>
+              </Row>
+              <Row type='flex' justify='left'
+                style={{padding:'0px 10px 10px 10px', backgroundColor: '#dedede'}}
+                onDragStart={(e)=>this.handleOnDragStartTab(e,"Upload FIle","file")}
+                draggable
+                >
+                <Button style={{width: '100%',height: 40,textAlign:"left"}} type={'dashed'}>
+                  <Icon type="upload" theme="outlined" /><span style ={{fontWeight:'400',fontSize:15, color:'#999'}} >File Upload</span>
                 </Button>
               </Row>
           </Col>
