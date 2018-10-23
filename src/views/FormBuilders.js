@@ -58,6 +58,8 @@ class FormBuilders extends React.Component{
     visibleModalEmailInputs:false,
     visibleTabSetting:true,
     visibleTabComponent:false,
+    visibleModalEditMap:false,
+    visibleModalAddMap:false,
     dataErrorMessage: [],
     tempPostDataComponent:[],
     minHeight:window.innerHeight,
@@ -72,7 +74,8 @@ class FormBuilders extends React.Component{
        required:1,
        color:'#ededed',
        requiredOption:[],
-       selectOption:['text','number','email']
+       selectOption:['text','number','email'],
+       markValue:{mark:{lat:0,lng:0},center:{lat:0,lng:0},zoom:8}
       }
     ],
     visibleModalAction:false,
@@ -141,7 +144,8 @@ class FormBuilders extends React.Component{
       required:1,
       requiredOption:[],
       detailsTabs:[],
-      selectOption:['text','number','email']
+      selectOption:['text','number','email'],
+      markValue:{mark:{lat:0,lng:0},center:{lat:0,lng:0},zoom:8}
     }
     this.tempdataDrag.splice(0,1,initialdataDrag);
       switch (componentType) {
@@ -243,6 +247,28 @@ class FormBuilders extends React.Component{
           initialdataDrag.postValue = '';
           break;
 
+        case 'map' : 
+          var {tempDataComponent} = this.state;
+          initialdataDrag.title = 'Map';
+          initialdataDrag.type = 'map';
+          initialdataDrag.markValue = {
+            center: {
+              lat: -6.175392,
+              lng: 106.827153
+            },
+            mark: {
+              lat: -6.175392,
+              lng: 106.827153
+            },
+            zoom: 8
+          };
+          initialdataDrag.requiredOption = [];
+          initialdataDrag.postValue = '';
+          tempDataComponent[0]=initialdataDrag;
+          this.setState({tempDataComponent})
+          this.handleShowAddMap(true);
+          break;
+
           default:
           this.dragStatus=true;
       }
@@ -326,6 +352,11 @@ class FormBuilders extends React.Component{
           tempDataComponent[0] = this.props.dataComponent[index];
           this.setState({tempDataComponent,typeInput:'file',visibleModalFileUpload:visible,activeIndex:index,activeAction:action})
           break;
+        case 'map' : 
+          tempDataComponent[0] = this.props.dataComponent[index];
+          tempDataComponent[0].title = "map";
+          this.setState({tempDataComponent,typeInput:'map',visibleModalEditMap:visible,activeIndex:index,activeAction:action})
+          break;
         default:
           return 0
       }
@@ -334,7 +365,6 @@ class FormBuilders extends React.Component{
         tempDataComponent[0] = this.props.dataComponent[index];
       }else {
         tempDataComponent[0]       = this.state.tempDataComponent[0];
-        tempDataComponent[0].title = "TextInput";
       }
       this.setState({tempDataComponent,typeInput:'',visibleModalAction:visible,activeIndex:index,activeAction:action})
     }
@@ -495,7 +525,7 @@ class FormBuilders extends React.Component{
   renderDragDetails = () => {
     var DragDetails = [];
     DragDetails = this.props.dataComponent.map((items, i)=>{
-      if (items.idModule==this.state.idModule && items.idForm==this.state.idForm) {
+      if (items!=undefined && items.idModule==this.state.idModule && items.idForm==this.state.idForm) {
         return (
           <Row
             data-key={i}
@@ -2368,6 +2398,140 @@ class FormBuilders extends React.Component{
     );
     return  ModalFileUpload;
   } 
+
+  // add Map
+  handleShowAddMap=(visible)=>{
+    this.setState({
+      visibleModalAddMap:visible
+    })
+  }
+  handleShowEditMap=(visible)=>{
+    this.setState({
+      visibleModalEditMap:visible
+    })
+  }
+  
+  handleAddMap = () =>{
+    var {tempDataComponent}= this.state;
+    this.props.dispatch(dispatchAction(tempDataComponent[0],Const.ADD_COMPONENT))
+    this.handleShowAddMap(false);
+  }
+
+  handleEditMap = () =>{
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    this.props.dispatch(dispatchAction(tempDataComponent,Const.EDIT_COMPONENT))
+    this.handleShowEditMap(false);
+  }
+
+  handleOnChangeInputDetailsMap = (name, value) =>{
+    var {tempDataComponent} = this.state;
+    tempDataComponent[0]['type'] = 'map';
+    if (name=='title'){
+      tempDataComponent[0][name] = value;
+    }else {
+      tempDataComponent[0]['title']  = tempDataComponent[0].title;
+      tempDataComponent[0]['markValue']['mark'][name]   = Number(value);
+      tempDataComponent[0]['markValue']['center'][name] = Number(value);
+    }
+    this.setState({tempDataComponent});
+  }
+
+  renderModalAddMap = () =>{
+    var ModalAddMap =[];
+    ModalAddMap = (
+      <Modal
+        title={`Add Map Option`}
+        width={420}
+        visible={this.state.visibleModalAddMap}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleAddMap()}
+        onCancel={()=>this.handleShowAddMap(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Row style={{marginBottom: 15}}>
+              <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title Map</span>
+            </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].title:'' :''}
+                onChange={(e)=>this.handleOnChangeInputDetailsMap("title",e.target.value)}/>
+            </Row>
+            <Row style={{marginBottom: 15}}>
+              <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Latitude</span>
+            </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                type="number"
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].markValue.mark.lat:'' :''}
+                onChange={(e)=>this.handleOnChangeInputDetailsMap("lat",e.target.value)}/>
+            </Row>
+            <Row style={{marginBottom: 15}}>
+              <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Longitude</span>
+            </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                type="number"
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue.mark.lng:''}
+                onChange={(e)=>this.handleOnChangeInputDetailsMap("lng",e.target.value)}/>
+            </Row>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalAddMap;
+  } 
+
+  renderModalEditMap = () =>{
+    var ModalEditMap =[];
+    ModalEditMap = (
+      <Modal
+        title={`Add Map Option`}
+        width={420}
+        visible={this.state.visibleModalEditMap}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditMap()}
+        onCancel={()=>this.handleShowEditMap(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Row style={{marginBottom: 15}}>
+              <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title Map</span>
+            </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].title:''}
+                onChange={(e)=>this.handleOnChangeInputDetailsMap("title",e.target.value)}/>
+            </Row>
+            <Row style={{marginBottom: 15}}>
+              <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Latitude</span>
+            </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                type="number"
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].markValue.mark.lat:'':''}
+                onChange={(e)=>this.handleOnChangeInputDetailsMap("lat",e.target.value)}/>
+            </Row>
+            <Row style={{marginBottom: 15}}>
+              <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Longitude</span>
+            </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                type="number"
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].markValue.mark.lng:'' :''}
+                onChange={(e)=>this.handleOnChangeInputDetailsMap("lng",e.target.value)}/>
+            </Row>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalEditMap;
+  }
+
   // show Preview
   handleGotoPreview =(visible) => {
     var {dataComponent} = this.props;
@@ -2569,6 +2733,8 @@ class FormBuilders extends React.Component{
       {this.renderModalEditChecklist()}
       {this.renderModalEditFileUpload()}
       {this.handleModalActionTab()}
+      {this.renderModalAddMap()}
+      {this.renderModalEditMap()}
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
             <Row type='flex' justify='end'>
@@ -2720,6 +2886,14 @@ class FormBuilders extends React.Component{
                     <Button style={{width:'100%',height:40,textAlign:"left"}} type={'dashed'}>
                       <Icon type="upload" theme="outlined" /><span style={{fontWeight:'400',fontSize:17,color:'#999'}}>File Upload</span>
                     </Button>                  
+                  </Row>
+                  <Row type='flex' justify='left'
+                    style={{padding:'0px 10px 10px 10px',backgroundColor:'#dedede',marginRight:10}}
+                    onDragStart={(e)=>this.handleOnDragStart(e,"Map","map")}
+                    draggable>
+                    <Button style={{width:'100%',height:40,textAlign:"left"}} type={'dashed'}>
+                      <Icon type="environment" theme="outlined" /><span style={{fontWeight:'400',fontSize:17,color:'#999'}}>MAP</span>
+                    </Button>
                   </Row>
                 </Col>
               </Row>

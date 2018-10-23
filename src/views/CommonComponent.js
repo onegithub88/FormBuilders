@@ -5,7 +5,7 @@ import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, Date
 const {TextArea} = Input;
 const CheckboxGroup = Checkbox.Group;
 import CommonComponentTab from './CommonComponentTab';
-
+import GoogleMaps from 'google-map-react';
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
@@ -40,6 +40,7 @@ class CommonComponent extends React.Component{
     var color = this.props.value ? this.props.color :'primary';
     var options            = this.props.options ? this.props.options : [];
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
+    var items              = this.props.items ? this.props.items : {};
     var disabled           = this.props.disabled ? this.props.disabled :true;
     var detailsTabs        = this.props.items.detailsTabs ? this.props.items.detailsTabs : []; 
     var detailsDropDown    = this.props.items.detailsDropDown ? this.props.items.detailsDropDown : []; 
@@ -48,7 +49,6 @@ class CommonComponent extends React.Component{
     var handleChangeUpload = this.props.handleChangeUpload ? this.props.handleChangeUpload : () => {}
     var detailColumn       = this.props.items.detailColumn ? this.props.items.detailColumn : [];
     var detailRow          = this.props.items.detailRow ? this.props.items.detailRow : [];
-    
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -397,6 +397,40 @@ class CommonComponent extends React.Component{
                   <Icon type="upload" /> Click to Upload
                 </Button>
               </Upload>
+          </Col>
+        )
+      break;
+
+      case 'map' :  
+        const MarkComponent = ({ desc }) => <div><Icon style={{color:'#f22f2f', fontSize:20, fontWeight:'800'}} type="environment" theme="filled" />{desc}</div>;
+        return (
+          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
+              <Col>
+                <Row style={{marginBottom:10}}>
+                  {items.title!='' ?
+                    <span style={{marginBottom: 10, fontWeight:'600',fontSize:15}}>{title}</span>
+                    :
+                    []
+                  }
+                </Row>
+                <Row type={'flex'} align={'center'}>
+                  <Col span={24}>
+                    <div style={{ height: '100vh', width: '100%'}}>
+                      <GoogleMaps
+                        bootstrapURLKeys={{ key:'AIzaSyDKb6XY1KkkodetaxORro8FPFQdj7ILZrk'}}
+                        defaultCenter={items.markValue.center}
+                        defaultZoom={items.markValue.zoom}
+                      >
+                        <MarkComponent
+                          lat={items.markValue.mark.lat}
+                          lng={items.markValue.mark.lng}
+                          v={''}
+                        />
+                      </GoogleMaps>
+                    </div>
+                  </Col>
+                </Row>
+              </Col>
           </Col>
         )
       break;

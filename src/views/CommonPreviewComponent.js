@@ -5,6 +5,7 @@ import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, Date
 const {TextArea} = Input;
 const CheckboxGroup = Checkbox.Group;
 import CommonComponentTabPreview from './CommonComponentTabPreview';
+import GoogleMaps from 'google-map-react';
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
@@ -543,6 +544,40 @@ class CommonPreviewComponent extends React.Component{
                 </Button>
               </Upload>
               {this.renderErrorMessage("file",items,index)}
+          </Col>
+        )
+      break;
+      
+      case 'map' :  
+        const MarkComponent = ({ desc }) => <div><Icon style={{color:'#f22f2f', fontSize:20, fontWeight:'800'}} type="environment" theme="filled" />{desc}</div>;
+        return (
+          <Col span={span} style={{marginBottom:15,paddingBottom:10}}>
+              <Col>
+                <Row style={{marginBottom:10}}>
+                  {items.title!='' ?
+                    <span style={{fontWeight:'600',fontSize:15}}>{title}</span>
+                    :
+                    []
+                  }
+                </Row>
+                <Row type={'flex'} align={'center'}>
+                  <Col span={24}>
+                    <div style={{ height: '100vh', width: '100%' }}>
+                      <GoogleMaps
+                        bootstrapURLKeys={{ key:'AIzaSyDKb6XY1KkkodetaxORro8FPFQdj7ILZrk'}}
+                        defaultCenter={items.markValue.center}
+                        defaultZoom={items.markValue.zoom}
+                      >
+                        <MarkComponent
+                          lat={items.markValue.mark.lat}
+                          lng={items.markValue.mark.lng}
+                          v={''}
+                        />
+                      </GoogleMaps>
+                    </div>
+                  </Col>
+                </Row>
+              </Col>
           </Col>
         )
       break;
