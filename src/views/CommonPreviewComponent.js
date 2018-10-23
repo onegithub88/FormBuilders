@@ -564,7 +564,7 @@ class CommonPreviewComponent extends React.Component{
                   <Col span={24}>
                     <div style={{ height: '100vh', width: '100%' }}>
                       <GoogleMaps
-                        bootstrapURLKeys={{ key:'AIzaSyDKb6XY1KkkodetaxORro8FPFQdj7ILZrk'}}
+                        bootstrapURLKeys={{ key:'AIzaSyBHL-hz-eBvTvpgC4R5E8I4T6RRzC7hTsY'}}
                         defaultCenter={items.markValue.center}
                         defaultZoom={items.markValue.zoom}
                       >
