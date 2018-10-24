@@ -75,7 +75,18 @@ class FormBuilders extends React.Component{
        color:'#ededed',
        requiredOption:[],
        selectOption:['text','number','email'],
-       markValue:{mark:{lat:0,lng:0},center:{lat:0,lng:0},zoom:8}
+       markValue :
+        {
+          center: {
+            lat: -6.175392,
+            lng: 106.827153
+          },
+          mark: {
+            lat: -6.175392,
+            lng: 106.827153
+          },
+          zoom: 8
+        }
       }
     ],
     visibleModalAction:false,
@@ -145,7 +156,18 @@ class FormBuilders extends React.Component{
       requiredOption:[],
       detailsTabs:[],
       selectOption:['text','number','email'],
-      markValue:{mark:{lat:0,lng:0},center:{lat:0,lng:0},zoom:8}
+      markValue :
+      {
+        center: {
+          lat: -6.175392,
+          lng: 106.827153
+        },
+        mark: {
+          lat: -6.175392,
+          lng: 106.827153
+        },
+        zoom: 8
+      }
     }
     this.tempdataDrag.splice(0,1,initialdataDrag);
       switch (componentType) {
@@ -2412,17 +2434,68 @@ class FormBuilders extends React.Component{
   }
   
   handleAddMap = () =>{
+    var tempContinue = true;
     var {tempDataComponent}= this.state;
-    this.props.dispatch(dispatchAction(tempDataComponent[0],Const.ADD_COMPONENT))
-    this.handleShowAddMap(false);
+    var templat = Number(tempDataComponent[0].markValue.mark.lat);
+    var templng = Number(tempDataComponent[0].markValue.mark.lng);
+    
+    if (isNaN(templat) || isNaN(templng)){
+      tempContinue=false;
+      Modal.error({
+        title: 'Error !',
+        content: (
+          <div>
+            <p>Please Enter Valid Latitude and Longiude Value</p>
+          </div>
+        ),
+        onOk() {},
+      });
+    }
+
+    if (tempContinue) {
+      var koordinat = {
+        lat:templat,
+        lng:templng
+      }
+
+      tempDataComponent[0].markValue.mark=koordinat;
+      tempDataComponent[0].markValue.center=koordinat;
+      this.props.dispatch(dispatchAction(tempDataComponent[0],Const.ADD_COMPONENT))
+      this.handleShowAddMap(false);
+    }
+
   }
 
   handleEditMap = () =>{
+    var tempContinue = true;
     var {dataComponent}       = this.props;
     var {tempDataComponent}   = this.state;
-    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
-    this.props.dispatch(dispatchAction(tempDataComponent,Const.EDIT_COMPONENT))
-    this.handleShowEditMap(false);
+    var templat = Number(tempDataComponent[0].markValue.mark.lat);
+    var templng = Number(tempDataComponent[0].markValue.mark.lng);
+    if (isNaN(templat) || isNaN(templng)){
+      tempContinue=false;
+      Modal.error({
+        title: 'Error !',
+        content: (
+          <div>
+            <p>Please Enter Valid Latitude and Longiude Value</p>
+          </div>
+        ),
+        onOk() {},
+      });
+    }
+    if (tempContinue) {
+      var koordinat = {
+        lat:templat,
+        lng:templng
+      }
+
+      tempDataComponent[0].markValue.mark=koordinat;
+      tempDataComponent[0].markValue.center=koordinat;
+      dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+      this.props.dispatch(dispatchAction(tempDataComponent,Const.EDIT_COMPONENT))
+      this.handleShowEditMap(false);
+    }    
   }
 
   handleOnChangeInputDetailsMap = (name, value) =>{
@@ -2432,8 +2505,8 @@ class FormBuilders extends React.Component{
       tempDataComponent[0][name] = value;
     }else {
       tempDataComponent[0]['title']  = tempDataComponent[0].title;
-      tempDataComponent[0]['markValue']['mark'][name]   = Number(value);
-      tempDataComponent[0]['markValue']['center'][name] = Number(value);
+      tempDataComponent[0]['markValue']['mark'][name]   = value;
+      tempDataComponent[0]['markValue']['center'][name] = value;
     }
     this.setState({tempDataComponent});
   }
@@ -2465,7 +2538,7 @@ class FormBuilders extends React.Component{
             </Row>
             <Row style={{marginBottom: 20}}>
               <Input
-                type="number"
+                type="text"
                 value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].markValue.mark.lat:'' :''}
                 onChange={(e)=>this.handleOnChangeInputDetailsMap("lat",e.target.value)}/>
             </Row>
@@ -2474,7 +2547,7 @@ class FormBuilders extends React.Component{
             </Row>
             <Row style={{marginBottom: 20}}>
               <Input
-                type="number"
+                type="text"
                 value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue.mark.lng:''}
                 onChange={(e)=>this.handleOnChangeInputDetailsMap("lng",e.target.value)}/>
             </Row>
@@ -2512,7 +2585,6 @@ class FormBuilders extends React.Component{
             </Row>
             <Row style={{marginBottom: 20}}>
               <Input
-                type="number"
                 value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].markValue.mark.lat:'':''}
                 onChange={(e)=>this.handleOnChangeInputDetailsMap("lat",e.target.value)}/>
             </Row>
@@ -2521,7 +2593,6 @@ class FormBuilders extends React.Component{
             </Row>
             <Row style={{marginBottom: 20}}>
               <Input
-                type="number"
                 value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].markValue.mark.lng:'' :''}
                 onChange={(e)=>this.handleOnChangeInputDetailsMap("lng",e.target.value)}/>
             </Row>
