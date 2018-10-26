@@ -20,7 +20,7 @@ const checkAuth = () => (
     <Provider store={Store} >
       <Router history={history}>
         <Switch>
-          <Route  exact path="/" component={Home} />
+          <Route  exact path="/" component={FormBuilders} />
           <Route  path="/formbuilder/:idModule/:idForm" component={FormBuilders} />
     </Switch>
     </Router>

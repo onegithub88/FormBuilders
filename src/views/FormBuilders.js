@@ -33,9 +33,6 @@ class FormBuilders extends React.Component{
     requiredOption:1,
     tempContinue:true,
     visibleModalActionTab:false,
-    activeIndexTab:0,
-    activeIndexTabComponent:0,
-    activeActionTab:'',
     requiredOption:['required','readonly'],
     visibleModalAddInput:false,
     visibleModalEditTable:false,
@@ -60,6 +57,52 @@ class FormBuilders extends React.Component{
     visibleTabComponent:false,
     visibleModalEditMap:false,
     visibleModalAddMap:false,
+    //tab state
+    tempDataComponentTab:[
+      {
+       title:"",
+       type:'',
+       placeholder:'',
+       required:1,
+       color:'#ededed',
+       requiredOption:[],
+       selectOption:['text','number','email'],
+       markValue :
+        {
+          center: {
+            lat: -6.175392,
+            lng: 106.827153
+          },
+          mark: {
+            lat: -6.175392,
+            lng: 106.827153
+          },
+          zoom: 8
+        }
+      }
+    ],
+    typeInputTab:'',
+    activeIndexTab:0,
+    activeIndexTabComponent:0,
+    activeActionTab:'',
+    activeActionTab:0,
+    visibleModalAddInputTab:false,
+    visibleModalEditTableTab:false,
+    visibleModalEditInputTab:false,
+    visibleModalTextAreaTab:false,
+    visibleModalLabelTab:false,
+    visibleModalDropDownTab:false,
+    visibleModalAddButtonTab:false,
+    visibleModalRadioButtonTab:false,
+    visibleModalDateTimeTab:false,
+    visibleModalAddTableTab:false,
+    visibleModalChecklistTab:false,
+    visibleModalFileUploadTab:false,
+    visibleModalTextInputsTab:false,
+    visibleModalNumberInputsTab:false,
+    visibleModalEmailInputsTab:false,
+    visibleModalEditMapTab:false,
+    visibleModalAddMapTab:false,
     dataErrorMessage: [],
     tempPostDataComponent:[],
     minHeight:window.innerHeight,
@@ -250,7 +293,14 @@ class FormBuilders extends React.Component{
           break;
         case 'tab' : 
           initialdataDrag.value =0;
-          this.handleShowModalAddTabs(true);
+          initialdataDrag.value = 'List Items';
+          initialdataDrag.requiredOption = [];
+          initialdataDrag.postValue =[];
+          initialdataDrag.detailsTabs = [{
+            title:`Tab 1`,
+            value:`Tab 1`,
+            componentTabs:[]
+          }];
           break;
         case 'checklist' : 
           initialdataDrag.value = 'List Items';
@@ -637,6 +687,213 @@ class FormBuilders extends React.Component{
     if (tempContinue) {
       this.handleSaveForm();
     }
+  }
+  // edit tab component
+  handleChangeRequiredOptionTab = (name,value)=> {
+    var {tempDataComponentTab}=this.state;
+    tempDataComponentTab[0][name]=value;
+    this.setState({tempDataComponentTab})
+  }
+  // add Text Tab
+  handleShowModalTextInputsTab = (visible) => {
+    this.setState({
+      visibleModalTextInputsTab:visible
+    })
+  }
+
+  handleOnChangeTextInputTab = (name,value,typeChange) => {
+    var {tempDataComponentTab} = this.state;
+    tempDataComponentTab[0][name] = value;
+    this.setState({tempDataComponentTab})
+  }
+
+  handleEditTextInputsTab = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponentTab}   = this.state;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalTextInputsTab(false);
+  }
+
+  renderModalTextInputsTab = () =>{
+    var ModalTextInputsTab =[];
+    ModalTextInputsTab = (
+      <Modal
+        title={`Add Text Input`}
+        width={350}
+        visible={this.state.visibleModalTextInputsTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditTextInputsTab()}
+        onCancel={()=>this.handleShowModalTextInputsTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("value",e.target.value,"text")}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Placeholder</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].placeholder: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("placeholder",e.target.value,"text")}
+                />
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalTextInputsTab;
+  }
+  
+  // add Number Tab
+  handleShowModalNumberInputsTab = (visible) => {
+    this.setState({
+      visibleModalNumberInputsTab:visible
+    })
+  }
+
+  handleEditNumberInputsTab = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponentTab}   = this.state;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalNumberInputsTab(false);
+  }
+
+  renderModalNumberInputsTab = () =>{
+    var ModalNumberInputsTab =[];
+    ModalNumberInputsTab = (
+      <Modal
+        title={`Add Text Input`}
+        width={350}
+        visible={this.state.visibleModalNumberInputsTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditNumberInputsTab()}
+        onCancel={()=>this.handleShowModalNumberInputsTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("value",e.target.value,"text")}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Placeholder</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].placeholder: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("placeholder",e.target.value,"text")}
+                />
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalNumberInputsTab;
+  }
+
+  
+  // add Email Tab
+  handleShowModalEmailInputsTab = (visible) => {
+    this.setState({
+      visibleModalEmailInputsTab:visible
+    })
+  }
+
+  handleOnChangeTextInputTab = (name,value,typeChange) => {
+    var {tempDataComponentTab} = this.state;
+    tempDataComponentTab[0][name] = value;
+    this.setState({tempDataComponentTab})
+  }
+
+  handleEditEmailInputsTab = () => {
+    var {dataComponent}          = this.props;
+    var {tempDataComponentTab}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalEmailInputsTab(false);
+  }
+
+  renderModalEmailInputsTab = () =>{
+    var ModalEmailInputsTab =[];
+    ModalEmailInputsTab = (
+      <Modal
+        title={`Add Text Input`}
+        width={350}
+        visible={this.state.visibleModalEmailInputsTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditEmailInputsTab()}
+        onCancel={()=>this.handleShowModalEmailInputsTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("value",e.target.value,"text")}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Placeholder</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].placeholder: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("placeholder",e.target.value,"text")}
+                />
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalEmailInputsTab;
   }
 
   // add Text Input
@@ -1535,7 +1792,19 @@ class FormBuilders extends React.Component{
         type:'tab',
         placeholder:'',
         detailsTabs:detailsTabs,
-        selectOption:[]
+        selectOption:[],
+        markValue :
+        {
+          center: {
+            lat: -6.175392,
+            lng: 106.827153
+          },
+          mark: {
+            lat: -6.175392,
+            lng: 106.827153
+          },
+          zoom: 8
+        }
       },Const.ADD_COMPONENT))
       this.handleShowModalAddTabs(false);
     }
@@ -1695,20 +1964,24 @@ class FormBuilders extends React.Component{
 
   // metode crud Tab
   handleShowModalActionTab = (visible,indexTab,index,action,type,color) => {
-    var {tempDataComponent} = this.state;
+    var {tempDataComponentTab} = this.state;
     if (action=="edit") {
+      var mainIndex = this.state.activeIndex;
       switch (type) {
         case 'text' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'text', visibleModalTextInputs:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs[index];
+          this.setState({tempDataComponentTab,typeInputTab:'text', visibleModalTextInputsTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
         case 'number' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'number', visibleModalNumberInputs:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs[index];
+          this.setState({tempDataComponentTab,typeInput:'number', visibleModalNumberInputsTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
         case 'email' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'email', visibleModalEmailInputs:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs[index];
+          this.setState({tempDataComponentTab,typeInput:'email', visibleModalEmailInputsTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
         case 'textarea' : 
           tempDataComponent[0] = this.props.dataComponent[index];
@@ -1742,7 +2015,7 @@ class FormBuilders extends React.Component{
           return 0
       }
     } else {
-      this.setState({tempDataComponent,typeInput:'',visibleModalActionTab:visible,activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
+      this.setState({tempDataComponentTab,typeInput:'',visibleModalActionTab:visible,activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
     }
   }
 
@@ -1850,13 +2123,14 @@ class FormBuilders extends React.Component{
   handleDragComponentTab = (index) => {
     if(this.tempdataDragTabs.length > 0 && this.dragStatusTabs==true){
       var tempDataComponent = this.state.tempDataComponent;
-      tempDataComponent[0].detailsTabs[index].componentTabs.push(this.tempdataDragTabs);
+      tempDataComponent[0].detailsTabs[index].componentTabs.push(this.tempdataDragTabs[0]);
+      
       this.setState({tempDataComponent});
       this.tempdataDragTabs = [];
       this.dragStatusTabs   = false;
     }
   } 
-  //render tab
+  //render component tab
   renderTabComponent = () => {
     var TabComponent = [];
     TabComponent = (
@@ -1883,23 +2157,23 @@ class FormBuilders extends React.Component{
                           key={t} type='flex' justify='left' align='middle'>
                             <CommonComponentTab
                               key={t}
-                              items={compTab[0]}
+                              items={compTab}
                               index={t}
-                              title={compTab[0].title}
-                              value={compTab[0].value}
-                              color={compTab[0].color}
+                              title={compTab.title}
+                              value={compTab.value}
+                              color={compTab.color}
                               placeholder={compTab.placeholder}
-                              type={compTab[0].type}
+                              type={compTab.type}
                               span={18}
                               handleChangeUpload={this.handleChangeUpload}
                             />
                             <Col span={6}>
                               <Row style={{padding:'15px 10px 10px 10px'}}>
                                 <Col span={12}>
-                                  <Button onClick={()=>this.handleShowModalActionTab(true,i,t, "edits",compTab.type,'')} style={{marginRight: 20}} icon={'setting'}></Button>
+                                  <Button onClick={()=>this.handleShowModalActionTab(true,i,t, "edit",compTab.type,'')} style={{marginRight: 20}} icon={'setting'}></Button>
                                 </Col>
                                 <Col span={12}>
-                                  <Button onClick={()=>this.handleShowModalActionTab(true,i, t, "delete",'',compTab.type)} icon={'delete'}></Button>
+                                  <Button onClick={()=>this.handleShowModalActionTab(true,i, t, "delete",compTab.type,'')} icon={'delete'}></Button>
                                 </Col>
                               </Row>
                             </Col>
@@ -2806,6 +3080,11 @@ class FormBuilders extends React.Component{
       {this.handleModalActionTab()}
       {this.renderModalAddMap()}
       {this.renderModalEditMap()}
+      
+      {/* renderModalTab */}
+      {this.renderModalTextInputsTab()}
+      {this.renderModalNumberInputsTab()}
+      {this.renderModalEmailInputsTab()}
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
             <Row type='flex' justify='end'>

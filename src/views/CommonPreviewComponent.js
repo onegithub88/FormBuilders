@@ -461,13 +461,13 @@ class CommonPreviewComponent extends React.Component{
                             key={t} type='flex' justify='left' align='middle'>
                               <CommonComponentTabPreview
                                 key={t}
-                                items={compTab[0]}
+                                items={compTab}
                                 index={t}
-                                title={compTab[0].title}
-                                value={compTab[0].value}
-                                color={compTab[0].color}
+                                title={compTab.title}
+                                value={compTab.value}
+                                color={compTab.color}
                                 placeholder={compTab.placeholder}
-                                type={compTab[0].type}
+                                type={compTab.type}
                                 span={20}
                                 disabled={false}
                                 handleChangeUpload={this.handleChangeUpload}
