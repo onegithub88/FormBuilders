@@ -158,6 +158,18 @@ class CommonPreviewComponent extends React.Component{
     }
   }
   
+  statusCheck = {
+    checkText:false,
+    checkNumber:false,
+    checkEmail:false,
+    checkTextArea:false,
+    checkDropDown:false,
+    checkRadio:false,
+    checkDateTime:false,
+    checkListOption:false,
+    checkFileUpload:false
+  }
+  
   render (){
     var title = this.props.title ? this.props.title :'';
     var type  = this.props.type ? this.props.type :'';
@@ -165,7 +177,7 @@ class CommonPreviewComponent extends React.Component{
     var value = this.props.value ? this.props.value :'';
     var color = this.props.value ? this.props.color :'primary';
     var items              = this.props.items ? this.props.items : [];
-    var index              = this.props.index ? this.props.index : 0;
+    var index              = this.props.index ? this.props.index : 0; 
     var options            = this.props.options ? this.props.options : [];
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
     var disabled           = this.props.disabled ? this.props.disabled :false;
@@ -460,6 +472,7 @@ class CommonPreviewComponent extends React.Component{
                             style={{backgroundColor:'#fbfbfb',borderWidth:2, padding:5,borderColor:'#fff'}}
                             key={t} type='flex' justify='left' align='middle'>
                               <CommonComponentTabPreview
+                                statusCheck={this.statusCheck}
                                 key={t}
                                 items={compTab}
                                 index={t}

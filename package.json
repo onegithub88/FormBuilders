@@ -37,6 +37,7 @@
     "antd": "^3.9.3",
     "bootstrap": "^3.3.6",
     "css-loader": "^0.23.1",
+    "es6-promise-promise": "^1.0.0",
     "file-loader": "^0.8.5",
     "font-awesome": "^4.7.0",
     "google-map-react": "^1.0.9",

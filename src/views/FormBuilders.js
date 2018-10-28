@@ -833,7 +833,7 @@ class FormBuilders extends React.Component{
       visibleModalEmailInputsTab:visible
     })
   }
-
+  
   handleOnChangeTextInputTab = (name,value,typeChange) => {
     var {tempDataComponentTab} = this.state;
     tempDataComponentTab[0][name] = value;
@@ -843,7 +843,7 @@ class FormBuilders extends React.Component{
   handleEditEmailInputsTab = () => {
     var {dataComponent}          = this.props;
     var {tempDataComponentTab}   = this.state;
-    dataComponent[this.state.activeIndex] =  tempDataComponentTab[0];
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
     this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
     this.handleShowModalEmailInputsTab(false);
   }
@@ -895,6 +895,635 @@ class FormBuilders extends React.Component{
     );
     return  ModalEmailInputsTab;
   }
+  
+  // add TextArea Tab
+  handleShowModalTextAreaTab = (visible) => {
+    this.setState({
+      visibleModalTextAreaTab:visible
+    })
+  }
+
+  handleOnChangeTextInputTab = (name,value,typeChange) => {
+    var {tempDataComponentTab} = this.state;
+    tempDataComponentTab[0][name] = value;
+    this.setState({tempDataComponentTab})
+  }
+
+  handleEditTextAreaTab = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponentTab}   = this.state;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalTextAreaTab(false);
+  }
+
+  renderModalTextAreaTab = () =>{
+    var ModalTextAreaTab =[];
+    ModalTextAreaTab = (
+      <Modal
+        title={`Add TextArea`}
+        width={350}
+        visible={this.state.visibleModalTextAreaTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditTextAreaTab()}
+        onCancel={()=>this.handleShowModalTextAreaTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("value",e.target.value)}
+                />
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalTextAreaTab;
+  }
+
+  // add Label Tab
+    handleShowModalLabelTab = (visible) => {
+    this.setState({
+      visibleModalLabelTab:visible
+    })
+  }
+  
+  handleEditLabelTab = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponentTab}   = this.state;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalLabelTab(false);
+  }
+
+  renderModalLabelTab = () =>{
+    var ModalLabelTab =[];
+    ModalLabelTab = (
+      <Modal
+        title={`Add Label`}
+        width={350}
+        visible={this.state.visibleModalLabelTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditLabelTab()}
+        onCancel={()=>this.handleShowModalLabelTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Title</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeTextInputTab("value",e.target.value)}
+                />
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalLabelTab;
+  }
+
+  // add DropDown Tab
+  handleEditDropDownTab = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponentTab}   = this.state;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalDropDownTab(false);
+  }
+
+  handleShowModalDropDownTab = (visible) => {
+    this.setState({
+      visibleModalDropDownTab:visible
+    })
+  }
+  
+  handleDeleteDropDownTab = (index) => {
+    var {tempDataComponentTab} =this.state;
+    tempDataComponentTab[0].detailsDropDown.splice(index,1);
+    this.setState({tempDataComponentTab});
+  }
+
+  handleAddDropDownTab = () => {
+    var {tempDataComponentTab} =this.state;
+    var index = tempDataComponentTab[0].detailsDropDown.length;
+    tempDataComponentTab[0].detailsDropDown.push({
+      title:`New Select Option ${index++}`,
+      value:`New Select Option ${index++}`
+    })
+    this.setState({tempDataComponentTab});
+  }
+
+  handleOnChangeInputDetailsDropDownTab =(name,value,index) =>{
+    var {tempDataComponentTab} =this.state;
+    tempDataComponentTab[0].detailsDropDown[index][name] = value;
+    tempDataComponentTab[0].detailsDropDown[index].title = value;
+    this.setState({tempDataComponentTab});
+  }
+
+  renderModalEditDropDownTab = () =>{
+    var ModalDropDownTab =[];
+    ModalDropDownTab = (
+      <Modal
+        title={`Add DropDown Option`}
+        width={420}
+        visible={this.state.visibleModalDropDownTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditDropDownTab()}
+        onCancel={()=>this.handleShowModalDropDownTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+              <Row style={{marginBottom: 15}}>
+                <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title</span>
+              </Row>
+              <Row style={{marginBottom: 20}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value : ''}
+                  onChange={(e)=>this.handleOnChangeInputTabs("value",e.target.value)}/>
+              </Row>
+              <Row style={{marginBottom: 15}}>
+                <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Placeholder</span>
+              </Row>
+              <Row style={{marginBottom: 20}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].placeholder : ''}
+                  onChange={(e)=>this.handleOnChangeInputTabs("placeholder",e.target.value)}/>
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+              <Row/>
+                {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].type=='dropdown' ? this.state.tempDataComponentTab[0].detailsDropDown.length > 0 ? 
+                this.state.tempDataComponentTab[0].detailsDropDown.map((items,i)=>{
+                  return (
+                    <Card key={i} style={{ width: '100%', marginBottom:10}}>
+                      <Row>
+                        <Col span={4} style={{marginTop:3}}>
+                          <span style={{fontSize: 14, fontWeight: '500', color:'#666'}}>Title</span>
+                        </Col>
+                        <Col span={14} style={{marginBottom: 5,paddingRight:10}}>
+                          <Input
+                            value={items.value}
+                            onChange={(e)=>this.handleOnChangeInputDetailsDropDownTab("value", e.target.value,i)}
+                          />
+                        </Col>
+                        <Col span={3} style={{marginBottom: 5,paddingRight:10}}>
+                          <Button
+                            type={"danger"}
+                            icon={"delete"}
+                            onClick={()=>this.handleDeleteDropDownTab(i)}
+                          />
+                        </Col>
+                        <Col span={3} style={{marginBottom: 5,paddingRight:10}}>
+                          <Button
+                            type={"primary"}
+                            icon={"plus-circle"}
+                            onClick={()=>this.handleAddDropDownTab()}
+                          />
+                        </Col>
+                      </Row>
+                    </Card>
+                  )
+                })
+                :
+                <Col span={24} align="right" style={{marginBottom: 5,paddingRight:10}}>
+                  <span style={{fontSize: 14, fontWeight: '500', color:'#666',marginRight:10}}>Add New Option</span>
+                  <Button
+                    type={"primary"}
+                    icon={"plus-circle"}
+                    onClick={()=>this.handleAddDropDownTab()}
+                  />
+                </Col>
+                :
+                []
+                :
+                []
+              }
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalDropDownTab;
+  }
+
+  // add Radio Tab
+  handleShowModalRadioButtonTab = (visible) => {
+    this.setState({
+      visibleModalRadioButtonTab:visible
+    })
+  }
+
+  handleOnChangeInputDetailsRadioButtonTab =(name,value,index) =>{
+    var {tempDataComponentTab} =this.state;
+    tempDataComponentTab[0].detailsRadioButton[index][name] = value;
+    tempDataComponentTab[0].detailsRadioButton[index].title = value;
+    this.setState({tempDataComponentTab});
+  }
+
+  handleDeleteRadioButtonTab = (index) => {
+    var {tempDataComponentTab} =this.state;
+    tempDataComponentTab[0].detailsRadioButton.splice(index,1);
+    this.setState({tempDataComponentTab});
+  }
+
+  handleAddRadioButtonTab = () => {
+    var {tempDataComponentTab} =this.state;
+    var index = tempDataComponentTab[0].detailsRadioButton.length;
+    tempDataComponentTab[0].detailsRadioButton.push({
+      title:`New Option ${index++}`,
+      value:`New Option ${index++}`
+    })
+    this.setState({tempDataComponentTab});
+  }
+
+  handleEditRadioButtonTab = () => {
+    var {tempDataComponentTab} = this.state;
+    var {dataComponent}     = this.props;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] = tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalRadioButtonTab(false);
+  }
+
+  renderModalEditRadioButtonTab = () =>{
+    var ModalRadioButtonTab =[];
+    ModalRadioButtonTab = (
+      <Modal
+        title={`Add RadioButton Option`}
+        width={420}
+        visible={this.state.visibleModalRadioButtonTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditRadioButtonTab()}
+        onCancel={()=>this.handleShowModalRadioButtonTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+              <Row style={{marginBottom: 15}}>
+                <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title</span>
+              </Row>
+              <Row style={{marginBottom: 15}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].title:''}
+                  onChange={(e)=>this.handleOnChangeInputTabs("title",e.target.value)}/>
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+              <Row/>
+                {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].type=='radio' ? this.state.tempDataComponentTab[0].detailsRadioButton.length > 0 ? 
+                this.state.tempDataComponentTab[0].detailsRadioButton.map((items,i)=>{
+                  return (
+                    <Card key={i} style={{ width: '100%', marginBottom:10}}>
+                      <Row>
+                        <Col span={4} style={{marginTop:3}}>
+                          <span style={{fontSize: 14, fontWeight: '500', color:'#666'}}>Title</span>
+                        </Col>
+                        <Col span={14} style={{marginBottom: 5,paddingRight:10}}>
+                          <Input
+                            value={items.value}
+                            onChange={(e)=>this.handleOnChangeInputDetailsRadioButtonTab("value", e.target.value,i)}
+                          />
+                        </Col>
+                        <Col span={3} style={{marginBottom: 5,paddingRight:10}}>
+                          <Button
+                            type={"danger"}
+                            icon={"delete"}
+                            onClick={()=>this.handleDeleteRadioButtonTab(i)}
+                          />
+                        </Col>
+                        <Col span={3} style={{marginBottom: 5,paddingRight:10}}>
+                          <Button
+                            type={"primary"}
+                            icon={"plus-circle"}
+                            onClick={()=>this.handleAddRadioButtonTab()}
+                          />
+                        </Col>
+                      </Row>
+                    </Card>
+                  )
+                })
+                :
+                <Col span={24} align="right" style={{marginBottom: 5,paddingRight:10}}>
+                  <span style={{fontSize: 14, fontWeight: '500', color:'#666',marginRight:10}}>Add New RadioButton</span>
+                  <Button
+                    type={"primary"}
+                    icon={"plus-circle"}
+                    onClick={()=>this.handleAddRadioButtonTab()}
+                  />
+                </Col>
+                :
+                []
+                :
+                []
+              }
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalRadioButtonTab;
+  } 
+
+  
+  // add Date Tab
+  handleShowModalDateTimeTab = (visible) => {
+    this.setState({
+      visibleModalDateTimeTab:visible
+    })
+  }
+
+  handleShowModalTableTab=(visible)=>{
+    this.setState({
+      visibleModalEditTableTab:visible
+    })
+  }
+
+  handleEditDateTimeTab = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponentTab}   = this.state;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalDateTime(false);
+  }
+
+  renderModalDateTimeTab = () =>{
+    var ModalDateTimeTab =[];
+    ModalDateTimeTab = (
+      <Modal
+        title={`Add Date`}
+        width={350}
+        visible={this.state.visibleModalDateTimeTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditDateTimeTab()}
+        onCancel={()=>this.handleShowModalDateTimeTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Date</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeInputTabs("value",e.target.value)}
+                />
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalDateTimeTab;
+  }
+
+  // add checklist Tab
+  handleShowModalChecklistTab=(visible)=>{
+    this.setState({
+      visibleModalChecklistTab:visible
+    })
+  }
+
+  handleOnChangeInputDetailsChecklistTab =(name,value,index) =>{
+    var {tempDataComponentTab} =this.state;
+    tempDataComponentTab[0].detailsCheckList[index][name] = value;
+    tempDataComponentTab[0].detailsCheckList[index].title = value;
+    this.setState({tempDataComponentTab});
+  }
+
+  handleDeleteCheckListTab = (index) => {
+    var {tempDataComponentTab} =this.state;
+    tempDataComponentTab[0].detailsCheckList.splice(index,1);
+    this.setState({tempDataComponentTab});
+  }
+
+  handleAddCheckListTab = () => {
+    var {tempDataComponentTab} =this.state;
+    var index = tempDataComponentTab[0].detailsCheckList.length;
+    tempDataComponentTab[0].detailsCheckList.push({
+      title:`New CheckList ${index++}`,
+      value:`New CheckList ${index++}`
+    })
+    this.setState({tempDataComponentTab});
+  }
+
+  handleEditChecklistTab = () => {
+    var {tempDataComponentTab} = this.state;
+    var {dataComponent}     = this.props;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] = tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalChecklistTab(false);
+  }
+
+  renderModalEditChecklistTab = () =>{
+    var ModalChecklistTab =[];
+    ModalChecklistTab = (
+      <Modal
+        title={`Add CheckList Option`}
+        width={420}
+        visible={this.state.visibleModalChecklistTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditChecklistTab()}
+        onCancel={()=>this.handleShowModalChecklistTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+              <Row style={{marginBottom: 15}}>
+                <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title</span>
+              </Row>
+              <Row style={{marginBottom: 20}}>
+                <Input
+                  value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value:''}
+                  onChange={(e)=>this.handleOnChangeInputTabs("value",e.target.value)}/>
+              </Row>
+              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+              <Row/>
+                {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].type=='checklist' ? this.state.tempDataComponentTab[0].detailsCheckList.length > 0 ? 
+                this.state.tempDataComponentTab[0].detailsCheckList.map((items,i)=>{
+
+                  return (
+                    <Card key={i} style={{ width: '100%', marginBottom:10}}>
+                      <Row>
+                        <Col span={4} style={{marginTop:3}}>
+                          <span style={{fontSize: 14, fontWeight: '500', color:'#666'}}>Title</span>
+                        </Col>
+                        <Col span={14} style={{marginBottom: 5,paddingRight:10}}>
+                          <Input
+                            value={items.value}
+                            onChange={(e)=>this.handleOnChangeInputDetailsChecklistTab("value", e.target.value,i)}
+                          />
+                        </Col>
+                        <Col span={3} style={{marginBottom: 5,paddingRight:10}}>
+                          <Button
+                            type={"danger"}
+                            icon={"delete"}
+                            onClick={()=>this.handleDeleteCheckListTab(i)}
+                          />
+                        </Col>
+                        <Col span={3} style={{marginBottom: 5,paddingRight:10}}>
+                          <Button
+                            type={"primary"}
+                            icon={"plus-circle"}
+                            onClick={()=>this.handleAddCheckListTab()}
+                          />
+                        </Col>
+                      </Row>
+                    </Card>
+                  )
+                })
+                :
+                <Col span={24} align="right" style={{marginBottom: 5,paddingRight:10}}>
+                  <span style={{fontSize: 14, fontWeight: '500', color:'#666',marginRight:10}}>Add New CheckList</span>
+                  <Button
+                    type={"primary"}
+                    icon={"plus-circle"}
+                    onClick={()=>this.handleAddCheckListTab()}
+                  />
+                </Col>
+                :
+                []
+                :
+                []
+              }
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalChecklistTab;
+  } 
+
+  // add upload file Tab
+  handleShowFileUploadTab=(visible)=>{
+    this.setState({
+      visibleModalFileUploadTab:visible
+    })
+  }
+  handleEditFileUploadTab = () => {
+    var {tempDataComponentTab} = this.state;
+    var {dataComponent}     = this.props;
+    dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] = tempDataComponentTab[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowFileUploadTab(false);
+  }
+
+  handleChangeUploadTab = (info) => {
+    if (info.file.status !== 'uploading') {
+    }
+    if (info.file.status === 'done') {
+      message.success(`${info.file.name} file uploaded successfully`);
+    } else if (info.file.status === 'error') {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  };
+  
+  renderModalEditFileUploadTab = () =>{
+    var ModalFileUploadTab =[];
+    ModalFileUploadTab = (
+      <Modal
+        title={`Add FileUpload Option`}
+        width={420}
+        visible={this.state.visibleModalFileUploadTab}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditFileUploadTab()}
+        onCancel={()=>this.handleShowFileUploadTab(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Row style={{marginBottom: 15}}>
+              <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title File Upload</span>
+            </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                value={this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].value:''}
+                onChange={(e)=>this.handleOnChangeInputTabs("value",e.target.value)}/>
+            </Row>
+            {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
+              <Row style={{marginBottom: 15}}>
+                <Col>
+                  <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
+                </Col>
+              </Row>
+              :
+              []
+              :
+              []
+            }
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalFileUploadTab;
+  } 
 
   // add Text Input
   handleShowModalTextInputs = (visible) => {
@@ -1858,6 +2487,12 @@ class FormBuilders extends React.Component{
     this.setState({tempDataComponent});
   }
 
+  handleOnChangeInputTabs = (name,value) => {
+    var {tempDataComponentTab} =this.state;
+    tempDataComponentTab[0][name] = value;
+    this.setState({tempDataComponentTab});
+  }
+
   handleEditTabs= ()=> {
     var {tempDataComponent} = this.state;
     var {dataComponent}     = this.props;
@@ -1983,33 +2618,40 @@ class FormBuilders extends React.Component{
           this.setState({tempDataComponentTab,typeInput:'email', visibleModalEmailInputsTab:visible,
           activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
-        case 'textarea' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'textarea', visibleModalTextArea:visible,activeIndex:index,activeAction:action})
+        case 'textarea' :
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs[index];
+          this.setState({tempDataComponentTab,typeInput:'textarea', visibleModalTextAreaTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
         case 'label' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'label', visibleModalLabel:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs [index];
+          this.setState({tempDataComponentTab,typeInput:'label', visibleModalLabelTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
         case 'dropdown' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'dropdown',visibleModalDropDown:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs [index];
+          this.setState({tempDataComponentTab,typeInput:'dropdown',visibleModalDropDownTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
         break;
         case 'radio' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'radio', visibleModalRadioButton:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs [index];
+          this.setState({tempDataComponentTab,typeInput:'radio', visibleModalRadioButtonTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
         case 'date' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,visibleModalRadioButton:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs  [index];
+          this.setState({tempDataComponentTab,typeInput:'date', visibleModalRadioButtonTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action});
           break;
         case 'checklist' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'checklist',visibleModalChecklist:visible,activeIndex:index,activeAction:action})
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs  [index];
+          this.setState({tempDataComponentTab,typeInput:'checklist',visibleModalChecklistTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
-        case 'file' : 
-          tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,typeInput:'file',visibleModalFileUpload:visible,activeIndex:index,activeAction:action})
+        case 'file' :
+          tempDataComponentTab[0] = this.props.dataComponent[mainIndex].detailsTabs[indexTab].componentTabs  [index];
+          this.setState({tempDataComponentTab,typeInput:'file',visibleModalFileUploadTab:visible,
+          activeIndexTab:indexTab,activeIndexTabComponent:index,activeActionTab:action})
           break;
         default:
           return 0
@@ -2081,6 +2723,7 @@ class FormBuilders extends React.Component{
           ];
           break;
         case 'radio' : 
+          initialdataDragTab.title       = 'Chose Items';
           initialdataDragTab.value       = 'Chose Items';
           initialdataDragTab.placeholder = 'Select Option';
           initialdataDragTab.postValue = '';
@@ -2672,6 +3315,11 @@ class FormBuilders extends React.Component{
             <Row style={{marginBottom: 15}}>
               <span style={{fontSize: 16, fontWeight: '600', color:'#666'}}>Set Title File Upload</span>
             </Row>
+            <Row style={{marginBottom: 20}}>
+              <Input
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value:''}
+                onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}/>
+            </Row>
             {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
               <Row style={{marginBottom: 15}}>
                 <Col>
@@ -2683,11 +3331,6 @@ class FormBuilders extends React.Component{
               :
               []
             }
-            <Row style={{marginBottom: 20}}>
-              <Input
-                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value:''}
-                onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}/>
-            </Row>
           </Row>
         </Col>
       </Modal>
@@ -2941,8 +3584,6 @@ class FormBuilders extends React.Component{
     checkDateTime:false,
     checkListOption:false,
     checkFileUpload:false
-
-
   }
   // add InputChange Preview
   handleOnChageInputPreview = (value, items, index) => {
@@ -3085,6 +3726,13 @@ class FormBuilders extends React.Component{
       {this.renderModalTextInputsTab()}
       {this.renderModalNumberInputsTab()}
       {this.renderModalEmailInputsTab()}
+      {this.renderModalTextAreaTab()}
+      {this.renderModalLabelTab()}
+      {this.renderModalEditDropDownTab()}
+      {this.renderModalEditRadioButtonTab()}
+      {this.renderModalDateTimeTab()}
+      {this.renderModalEditChecklistTab()}
+      {this.renderModalEditFileUploadTab()}
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
             <Row type='flex' justify='end'>

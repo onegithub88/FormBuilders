@@ -31,12 +31,126 @@ class CommonComponent extends React.Component{
   callback=(key) => {
   }
   
+  // error render
+  renderErrorMessage = (name,items,index) => {
+    switch (name){
+      case 'text' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkText==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Text input Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkText==false){
+            this.props.handleChangeStatusCheck("checkText",true);
+          }
+        }
+      break;
+      case 'number' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkNumber==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Number input Required!"} type="error" showIcon /></Row>);
+        }
+        if (this.props.statusCheck.checkNumber==false){
+          this.props.handleChangeStatusCheck("checkNumber",true);
+        }
+      break;
+      case 'email' :
+        var checkRequired =false;
+        var checkEmail = this.handleValidateEmail(items.postValue);
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && this.props.statusCheck.checkEmail==true){
+          if (items.postValue.length==0) {
+            return (<Row key={index} style={{marginTop:5}}><Alert message={"Email input Required!"} type="error" showIcon /></Row>);
+          }else {
+            if (checkRequired==true && items.postValue.length> 0 && checkEmail==false){
+              return (<Row key={index} style={{marginTop:5}}><Alert message={"Email Not Valid!"} type="error" showIcon /></Row>);
+            }
+          }
+        }
+
+        if (this.props.statusCheck.checkEmail==false){
+          this.props.handleChangeStatusCheck("checkEmail",true);
+        }
+      break;
+      case 'textarea' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkTextArea==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"TextArea input Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkTextArea==false){
+            this.props.handleChangeStatusCheck("checkTextArea",true);
+          }
+        }
+      break;
+      case 'dropdown' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkDropDown==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Select Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkDropDown==false){
+            this.props.handleChangeStatusCheck("checkDropDown",true);
+          }
+        }
+      break;
+      case 'radio' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkRadio==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Choise Radio Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkRadio==false){
+            this.props.handleChangeStatusCheck("checkRadio",true);
+          }
+        }
+      break;
+      case 'date' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkDateTime==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Date Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkDateTime==false){
+            this.props.handleChangeStatusCheck("checkDateTime",true);
+          }
+        }
+      break;
+      case 'checklist' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkListOption==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Select checkList Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkListOption==false){
+            this.props.handleChangeStatusCheck("checkListOption",true);
+          }
+        }
+      break;
+      case 'file' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkFileUpload==true){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"File Upload Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (this.props.statusCheck.checkFileUpload==false){
+            this.props.handleChangeStatusCheck("checkFileUpload",true);
+          }
+        }
+      break;
+      default :
+      return []
+    }
+  }
+  
   render (){
     var title = this.props.title ? this.props.title :'';
     var type  = this.props.type ? this.props.type :'';
     var span  = this.props.span ? this.props.span : 24;
     var value = this.props.value ? this.props.value :'';
     var items = this.props.items ? this.props.items : []; 
+    var index              = this.props.index ? this.props.index : 0;
     var color = this.props.value ? this.props.color :'primary';
     var options            = this.props.options ? this.props.options : [];
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
@@ -124,6 +238,7 @@ class CommonComponent extends React.Component{
               placeholder={placeholder}
             />
           </Row>
+          {this.renderErrorMessage("checklist",items,index)}
         </Col>
       )
       break;

@@ -13,4 +13,10 @@ const changeDataStringForIe=function () {
         return false;
      }
 }();
+
+document.addEventListener('dragenter', function (event) {
+    console.log("MASUK KONDISI")
+    return false;
+});
+
 ReactDOM.render(<App/>, document.getElementById('root'));
