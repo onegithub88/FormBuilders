@@ -667,26 +667,48 @@ class FormBuilders extends React.Component{
 
   handleValidateForm = (callback) => {
     var tempContinue = true;
+    var tempRequiredTabValue = true;
+
     var tempError    = [];
     if (this.state.tempPostDataComponent.length > 0) {
       this.state.tempPostDataComponent.map((obj,i)=>{
         var tempRequired = '';
+        var tempRequiredTab = '';
         if (obj.type!='tab'){
           obj.requiredOption.filter((required)=> { 
             if (required == 'required'){
               tempRequired = required;
             }
           });
+         
+        }else {
+          obj.detailsTabs.map((tab,z)=>{
+            tab.componentTabs[z].requiredOption.filter((requiredTab)=> { 
+              if (requiredTab == 'required'){
+                tempRequiredTab = requiredTab;
+              }
+              if (tab.componentTabs[z].postValue.length==0){
+                tempRequiredTabValue=false
+              }
+            });
+          })
         }
+
         if (tempRequired=='required' && obj.postValue.length==0){
             tempContinue=false;
         }
       });
     }
     this.setState({tempContinue});
-    if (tempContinue) {
+    if (tempContinue && tempRequiredTabValue) {
       this.handleSaveForm();
     }
+  }
+
+  validateDetailsTabs=true
+
+  handleChangeValidateDetailTabs = (value)=> {
+    this.validateDetailsTabs = value;
   }
   // edit tab component
   handleChangeRequiredOptionTab = (name,value)=> {
@@ -3592,6 +3614,13 @@ class FormBuilders extends React.Component{
     this.setState({tempPostDataComponent});
   }
 
+   // add InputChange Tab
+   handleOnChageInputPreviewTab = (value, items, mainIndex, indexTab, IndexComponent) => {
+    var {tempPostDataComponent} = this.state;
+    tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].postValue=value.target.value;
+    this.setState({tempPostDataComponent});
+  }
+
   handleChangeStatusCheck = (type,value) => {
     this.statusCheck [type] = value;
   }
@@ -3635,7 +3664,7 @@ class FormBuilders extends React.Component{
                             disabled={false}
                             items={items}
                             index={i}
-                            title={items.title}
+                            title={items.title ? items.title :''}
                             value={items.value}
                             color={items.color}
                             placeholder={items.placeholder}
@@ -3643,6 +3672,8 @@ class FormBuilders extends React.Component{
                             span={24}
                             dataErrorMessage={this.state.dataErrorMessage}
                             handleOnChageInputPreview={this.handleOnChageInputPreview}
+                            handleOnChageInputPreviewTab={this.handleOnChageInputPreviewTab}
+                            handleChangeValidateDetailTabs={this.handleChangeValidateDetailTabs}
                         />
                     </Row>
                   )

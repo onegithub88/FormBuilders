@@ -158,7 +158,7 @@ class CommonPreviewComponent extends React.Component{
     }
   }
   
-  statusCheck = {
+  statusCheckTab = {
     checkText:false,
     checkNumber:false,
     checkEmail:false,
@@ -168,6 +168,10 @@ class CommonPreviewComponent extends React.Component{
     checkDateTime:false,
     checkListOption:false,
     checkFileUpload:false
+  }
+
+  handleChangeStatusCheckTab = (type,value) => {
+    this.statusCheck [type] = value;
   }
   
   render (){
@@ -466,6 +470,7 @@ class CommonPreviewComponent extends React.Component{
                     <TabPane style={{backgroundColor:'#fbfbfb',padding:10,borderRadius:4}} tab={obj.value} key={i}> 
                       <Row span={24}>{
                         obj.componentTabs.map((compTab,t)=>{
+                          compTab.postValue= compTab.postValue.length > 0 ? compTab.postValue: '';
                           return (
                             <Row 
                             data-key={t}
@@ -473,9 +478,12 @@ class CommonPreviewComponent extends React.Component{
                             key={t} type='flex' justify='left' align='middle'>
                               <CommonComponentTabPreview
                                 statusCheck={this.statusCheck}
+                                handleChangeStatusCheckTab={this.handleChangeStatusCheckTab}
                                 key={t}
                                 items={compTab}
                                 index={t}
+                                mainIndex={this.props.index}
+                                indexTabs={i}
                                 title={compTab.title}
                                 value={compTab.value}
                                 color={compTab.color}
@@ -484,6 +492,8 @@ class CommonPreviewComponent extends React.Component{
                                 span={20}
                                 disabled={false}
                                 handleChangeUpload={this.handleChangeUpload}
+                                handleChangeValidateDetailTabs={this.props.handleChangeValidateDetailTabs}
+                                handleOnChageInputPreviewTab={this.props.handleOnChageInputPreviewTab}
                               />
                             </Row>
                           )

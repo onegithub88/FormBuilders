@@ -1,14 +1,12 @@
 import React from 'react';
-import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, DatePicker,
-  Modal, Icon, Avatar, Table, Button, Row, Col, Card, Divider, Tag, Tabs,Upload, message
+import {Input, Select,Checkbox, Radio, DatePicker,Alert,
+  Icon, Button, Row, Col, Tabs, Upload
 } from 'antd';
 const {TextArea} = Input;
 const CheckboxGroup = Checkbox.Group;
 
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
-const TabPane = Tabs.TabPane;
-const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 class CommonComponent extends React.Component{
   state = {
     value: 1,
@@ -30,6 +28,16 @@ class CommonComponent extends React.Component{
 
   callback=(key) => {
   }
+
+  handleValidateEmail = (email) => {
+    var regeXEmail = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    if (regeXEmail.test(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   
   // error render
   renderErrorMessage = (name,items,index) => {
@@ -37,29 +45,30 @@ class CommonComponent extends React.Component{
       case 'text' :
         var checkRequired =false;
         items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
-        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkText==true){
+        if (checkRequired==true && items.postValue.length==0){
           return (<Row key={index} style={{marginTop:5}}><Alert message={"Text input Required!"} type="error" showIcon /></Row>);
         }else {
           if (this.props.statusCheck.checkText==false){
-            this.props.handleChangeStatusCheck("checkText",true);
+            this.props.handleChangeStatusCheckTab("checkText",true);
           }
         }
       break;
       case 'number' :
         var checkRequired =false;
         items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
-        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkNumber==true){
+
+        if (checkRequired==true && items.postValue.length==0){
           return (<Row key={index} style={{marginTop:5}}><Alert message={"Number input Required!"} type="error" showIcon /></Row>);
         }
         if (this.props.statusCheck.checkNumber==false){
-          this.props.handleChangeStatusCheck("checkNumber",true);
+          this.props.handleChangeStatusCheckTab("checkNumber",true);
         }
       break;
       case 'email' :
         var checkRequired =false;
         var checkEmail = this.handleValidateEmail(items.postValue);
         items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
-        if (checkRequired==true && this.props.statusCheck.checkEmail==true){
+        if (checkRequired==true){
           if (items.postValue.length==0) {
             return (<Row key={index} style={{marginTop:5}}><Alert message={"Email input Required!"} type="error" showIcon /></Row>);
           }else {
@@ -70,17 +79,17 @@ class CommonComponent extends React.Component{
         }
 
         if (this.props.statusCheck.checkEmail==false){
-          this.props.handleChangeStatusCheck("checkEmail",true);
+          this.props.handleChangeStatusCheckTab("checkEmail",true);
         }
       break;
       case 'textarea' :
         var checkRequired =false;
         items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
-        if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkTextArea==true){
+        if (checkRequired==true && items.postValue.length==0){
           return (<Row key={index} style={{marginTop:5}}><Alert message={"TextArea input Required!"} type="error" showIcon /></Row>);
         }else {
           if (this.props.statusCheck.checkTextArea==false){
-            this.props.handleChangeStatusCheck("checkTextArea",true);
+            this.props.handleChangeStatusCheckTab("checkTextArea",true);
           }
         }
       break;
@@ -91,7 +100,7 @@ class CommonComponent extends React.Component{
           return (<Row key={index} style={{marginTop:5}}><Alert message={"Select Option Required!"} type="error" showIcon /></Row>);
         }else {
           if (this.props.statusCheck.checkDropDown==false){
-            this.props.handleChangeStatusCheck("checkDropDown",true);
+            this.props.handleChangeStatusCheckTab("checkDropDown",true);
           }
         }
       break;
@@ -102,7 +111,7 @@ class CommonComponent extends React.Component{
           return (<Row key={index} style={{marginTop:5}}><Alert message={"Choise Radio Option Required!"} type="error" showIcon /></Row>);
         }else {
           if (this.props.statusCheck.checkRadio==false){
-            this.props.handleChangeStatusCheck("checkRadio",true);
+            this.props.handleChangeStatusCheckTab("checkRadio",true);
           }
         }
       break;
@@ -113,7 +122,7 @@ class CommonComponent extends React.Component{
           return (<Row key={index} style={{marginTop:5}}><Alert message={"Date Required!"} type="error" showIcon /></Row>);
         }else {
           if (this.props.statusCheck.checkDateTime==false){
-            this.props.handleChangeStatusCheck("checkDateTime",true);
+            this.props.handleChangeStatusCheckTab("checkDateTime",true);
           }
         }
       break;
@@ -124,7 +133,7 @@ class CommonComponent extends React.Component{
           return (<Row key={index} style={{marginTop:5}}><Alert message={"Select checkList Option Required!"} type="error" showIcon /></Row>);
         }else {
           if (this.props.statusCheck.checkListOption==false){
-            this.props.handleChangeStatusCheck("checkListOption",true);
+            this.props.handleChangeStatusCheckTab("checkListOption",true);
           }
         }
       break;
@@ -135,7 +144,7 @@ class CommonComponent extends React.Component{
           return (<Row key={index} style={{marginTop:5}}><Alert message={"File Upload Required!"} type="error" showIcon /></Row>);
         }else {
           if (this.props.statusCheck.checkFileUpload==false){
-            this.props.handleChangeStatusCheck("checkFileUpload",true);
+            this.props.handleChangeStatusCheckTab("checkFileUpload",true);
           }
         }
       break;
@@ -151,16 +160,13 @@ class CommonComponent extends React.Component{
     var value = this.props.value ? this.props.value :'';
     var items = this.props.items ? this.props.items : []; 
     var index              = this.props.index ? this.props.index : 0;
-    var color = this.props.value ? this.props.color :'primary';
-    var options            = this.props.options ? this.props.options : [];
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
     var disabled           = this.props.disabled ? this.props.disabled :false;
     var detailsDropDown    = this.props.items.detailsDropDown ? this.props.items.detailsDropDown : []; 
     var detailsCheckList   = this.props.items.detailsCheckList ? this.props.items.detailsCheckList : []; 
     var detailsRadioButton = this.props.items.detailsRadioButton ? this.props.items.detailsRadioButton : []; 
     var handleChangeUpload = this.props.handleChangeUpload ? this.props.handleChangeUpload : () => {}
-    var detailColumn       = this.props.items.detailColumn ? this.props.items.detailColumn : [];
-    var detailRow          = this.props.items.detailRow ? this.props.items.detailRow : [];
+    var handleOnChageInputPreviewTab = this.props.handleOnChageInputPreviewTab ? this.props.handleOnChageInputPreviewTab : () => {};
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -236,9 +242,12 @@ class CommonComponent extends React.Component{
               type={'text'}
               disabled={disabled}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
+              
             />
           </Row>
-          {this.renderErrorMessage("checklist",items,index)}
+          {this.renderErrorMessage("text",items,index)}
         </Col>
       )
       break;
@@ -257,8 +266,11 @@ class CommonComponent extends React.Component{
               type={'number'}
               disabled={disabled}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
             />
           </Row>
+          {this.renderErrorMessage("number",items,index)}
         </Col>
       )
       break;
@@ -277,8 +289,11 @@ class CommonComponent extends React.Component{
               type={'email'}
               disabled={disabled}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
             />
           </Row>
+          {this.renderErrorMessage("email",items,index)}
         </Col>
       )
       break;
@@ -294,7 +309,10 @@ class CommonComponent extends React.Component{
               disabled={disabled}
               rows={4}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
             />
+            {this.renderErrorMessage("textarea",items,index)}
           </Col>
         )
         break;
