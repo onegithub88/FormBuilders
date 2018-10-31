@@ -477,7 +477,7 @@ class CommonPreviewComponent extends React.Component{
                             style={{backgroundColor:'#fbfbfb',borderWidth:2, padding:5,borderColor:'#fff'}}
                             key={t} type='flex' justify='left' align='middle'>
                               <CommonComponentTabPreview
-                                statusCheck={this.statusCheck}
+                                statusCheck={this.statusCheckTab}
                                 handleChangeStatusCheckTab={this.handleChangeStatusCheckTab}
                                 key={t}
                                 items={compTab}
