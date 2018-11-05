@@ -10,6 +10,7 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
+import moment from 'moment';
 class CommonPreviewComponent extends React.Component{
   state = {
     value: 1
@@ -130,6 +131,17 @@ class CommonPreviewComponent extends React.Component{
             this.props.handleChangeStatusCheck("checkDateTime",true);
           }
         }
+      break;
+      case 'rangeDate' :
+      var checkRequired = false;
+      items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+      if (checkRequired==true && items.postValue.length==0 && this.props.statusCheck.checkRangeDate==true){
+        return (<Row key={index} style={{marginTop:5}}><Alert message={"Range Date Required!"} type="error" showIcon /></Row>);
+      }else {
+        if (this.props.statusCheck.checkRangeDate==false){
+          this.props.handleChangeStatusCheck("checkRangeDate",true);
+        }
+      }
       break;
       case 'checklist' :
         var checkRequired =false;
@@ -336,7 +348,6 @@ class CommonPreviewComponent extends React.Component{
                 []
                 }
             </Row>
-            {this.renderErrorMessage("label")}
           </Col>
         )
         break;
@@ -443,6 +454,30 @@ class CommonPreviewComponent extends React.Component{
           </Col>
         );
       break;
+      case 'rangedate' :
+        const dateFormat = 'YYYY/MM/DD';
+        return (
+          <Col span={span} style={{marginBottom: 15}}>
+            <Row style={{marginBottom:10}}>
+              {this.props.value ?
+                <span>{value}</span>
+                :
+                []
+              }
+            </Row>
+            <Row>
+              <RangePicker
+                ranges={{ Today: [moment(), moment()], 'This Month': [moment(), moment().endOf('month')] }}
+                showTime
+                defaultValue={items.postValue.length > 0 ? [moment(items.postValue[0].startDate, dateFormat), moment(items.postValue[0].endDate, dateFormat)]:''}
+                value={items.postValue.length > 0 ? [moment(items.postValue[0].startDate, dateFormat), moment(items.postValue[0].endDate, dateFormat)]:''}
+                format="YYYY/MM/DD"
+                onChange={(e)=>this.props.handleChangeRangeDate(e,this.props.items,this.props.index)} 
+              />  
+            </Row>
+          </Col>
+        );
+      break;
       case 'table':
         return(
           <Col span={span} style={{marginBottom:15}}>
@@ -470,7 +505,9 @@ class CommonPreviewComponent extends React.Component{
                     <TabPane style={{backgroundColor:'#fbfbfb',padding:10,borderRadius:4}} tab={obj.value} key={i}> 
                       <Row span={24}>{
                         obj.componentTabs.map((compTab,t)=>{
-                          compTab.postValue= compTab.postValue.length > 0 ? compTab.postValue: '';
+                          if (compTab.type!='date'){
+                            compTab.postValue = compTab.postValue.length > 0 ? compTab.postValue: '';
+                          }
                           return (
                             <Row 
                             data-key={t}
@@ -494,6 +531,7 @@ class CommonPreviewComponent extends React.Component{
                                 handleChangeUpload={this.handleChangeUpload}
                                 handleChangeValidateDetailTabs={this.props.handleChangeValidateDetailTabs}
                                 handleOnChageInputPreviewTab={this.props.handleOnChageInputPreviewTab}
+                                handleOnChageFirstCheckTab={this.props.handleOnChageFirstCheckTab}
                               />
                             </Row>
                           )

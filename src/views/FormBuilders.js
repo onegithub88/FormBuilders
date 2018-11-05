@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { LocaleProvider, Layout, Form, Input, Menu, Select, Checkbox, Alert,
+import { LocaleProvider, Layout, Form, Input, Menu, Select, Checkbox, Alert, DatePicker,
   Modal, Icon, Avatar, Table, Button, Radio, Row, Col, Card,Upload, message, Tabs,
 } from 'antd';
 const RadioGroup = Radio.Group;
@@ -43,6 +43,7 @@ class FormBuilders extends React.Component{
     visibleModalAddButton:false,
     visibleModalRadioButton:false,
     visibleModalDateTime:false,
+    visibleModalRangeDate:false,
     visibleModalAddTable:false,
     visibleModalTabs:false,
     visibleModalEditTabs:false,
@@ -293,8 +294,13 @@ class FormBuilders extends React.Component{
           ];
           break;
           break;
+        case 'rangedate' : 
+          initialdataDrag.value = 'Range Date';
+          initialdataDrag.requiredOption = [];
+          initialdataDrag.postValue = [{startDate:moment(),endDate:moment()}];
+          break;
         case 'date' : 
-          initialdataDrag.value = "Date";
+          initialdataDrag.value = "Range Date";
           initialdataDrag.requiredOption = [];
           initialdataDrag.postValue = moment(new Date());
           break;
@@ -424,7 +430,11 @@ class FormBuilders extends React.Component{
           break;
         case 'date' : 
           tempDataComponent[0] = this.props.dataComponent[index];
-          this.setState({tempDataComponent,visibleModalRadioButton:visible,activeIndex:index,activeAction:action})
+          this.setState({tempDataComponent,visibleModalDateTime:visible,activeIndex:index,activeAction:action})
+          break;
+        case 'rangedate' : 
+          tempDataComponent[0] = this.props.dataComponent[index];
+          this.setState({tempDataComponent,visibleModalRangeDate:visible,activeIndex:index,activeAction:action})
           break;
         case 'tab' : 
           tempDataComponent[0] = this.props.dataComponent[index];
@@ -681,24 +691,25 @@ class FormBuilders extends React.Component{
 
   handleValidateForm = (callback) => {
     var tempContinue = true;
-
-    var tempError    = [];
+    var tempDataRequiredTabValue = [];
+    var {tempPostDataComponent} = this.state;
     if (this.state.tempPostDataComponent.length > 0) {
       this.state.tempPostDataComponent.map((obj,i)=>{
         var tempRequired = '';
-        var tempRequiredTab = '';
         if (obj.type!='tab'){
           obj.requiredOption.filter((required)=> { 
             if (required == 'required'){
               tempRequired = required;
             }
           });
-         
+          if (tempRequired=='required' && obj.postValue.length==0){
+            tempDataRequiredTabValue.push(false);
+          }
         }else {
-          var tempDataRequiredTabValue = [];
           var tempRequiredTabValue     = true;
           obj.detailsTabs.map((tab,z)=>{
             tab.componentTabs.map((comptab,x)=>{
+              var tempRequiredTab = '';
               comptab.requiredOption.filter((requiredTab)=> { 
                 if (requiredTab == 'required'){
                   tempRequiredTab = requiredTab;
@@ -707,34 +718,27 @@ class FormBuilders extends React.Component{
               if (tempRequiredTab=='required'){
                 if (comptab.postValue.length==0){
                   tempDataRequiredTabValue.push(false);
+                  tempPostDataComponent[i].detailsTabs[z].componentTabs[x].firstCheck=true;
+                  
                 } else {
-                  if (compTab.type=="email"){
+                  if (comptab.type=="email"){
                     var checkEmail = this.handleValidateEmail(comptab.postValue);
                     if (checkEmail==false){
                       tempDataRequiredTabValue.push(false);
+                      tempPostDataComponent[i].detailsTabs[z].componentTabs[x].firstCheck=true;
                     }
                   }
                 }
-              }else{
-                
               }
             });
           })
-          // tempDataRequiredTabValue.map(check=>{
-          //   if (check==false){
-          //     tempRequiredTabValue=false;
-          //   }
-          // });
-          if (tempRequiredTabValue==false){
-              tempContinue=false;
-          }
         }
       });
     }
-    if (tempContinue) {
+    if (tempContinue && tempDataRequiredTabValue.length==0) {
       this.handleSaveForm();
     }
-    this.setState({tempContinue});
+    this.setState({tempPostDataComponent});
   }
 
   validateDetailsTabs=true
@@ -1049,17 +1053,6 @@ class FormBuilders extends React.Component{
                   onChange={(e)=>this.handleOnChangeTextInputTab("value",e.target.value)}
                 />
               </Row>
-              {this.state.tempDataComponentTab[0]!=undefined ? this.state.tempDataComponentTab[0].requiredOption ? 
-                <Row style={{marginBottom: 15}}>
-                  <Col>
-                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponentTab[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOptionTab("requiredOption",text)} />
-                  </Col>
-                </Row>
-                :
-                []
-                :
-                []
-              }
             </Col>
           </Row>
         </Col>
@@ -2305,6 +2298,77 @@ class FormBuilders extends React.Component{
     return  ModalDateTime;
   }
 
+  // add RangeDate
+  handleShowModalRangeDate = (visible) => {
+    this.setState({
+      visibleModalRangeDate:visible
+    })
+  }
+
+  handleEditRangeDate = () => {
+    var {dataComponent}       = this.props;
+    var {tempDataComponent}   = this.state;
+    dataComponent[this.state.activeIndex] =  tempDataComponent[0];
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.handleShowModalRangeDate(false);
+  }
+
+  handleOnChangeRangeDate = (name, value) => {
+    var tempDate = moment(value._d).format('YYYY/MM/DD');
+    var {tempDataComponent} =this.state;
+    tempDataComponent[0].postValue[0][name] = tempDate;
+    this.setState({tempDataComponent});
+  }
+
+  renderModalRangeDate = () =>{
+    var ModalRangeDate =[];
+    ModalRangeDate = (
+      <Modal
+        title={`Add Range Date`}
+        width={350}
+        visible={this.state.visibleModalRangeDate}
+        okText={'Submit'}
+        cancelText={'Cancel'}
+        onOk={()=>this.handleEditRangeDate()}
+        onCancel={()=>this.handleShowModalRangeDate(false)}
+        >
+        <Col type={'flex'} align={'left'}>
+          <Row>
+            <Col>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Date</Row>
+              <Row style={{marginBottom: 10}}>
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value: ''}
+                  onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
+                />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Start Date</Row>
+              <Row style={{marginBottom: 10}}>
+                <DatePicker style={{width:300}}  onChange={(e)=>this.handleOnChangeRangeDate("startDate",e)} />
+              </Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set End Date</Row>
+              <Row style={{marginBottom: 10}}>
+                <DatePicker style={{width:300}}  onChange={(e)=>this.handleOnChangeRangeDate("endDate",e)} />
+              </Row>
+              {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
+                <Row style={{marginBottom: 15}}>
+                  <Col>
+                    <CheckboxGroup options={this.state.requiredOption} value ={this.state.tempDataComponent[0].requiredOption} onChange={(text)=>this.handleChangeRequiredOption("requiredOption",text)} />
+                  </Col>
+                </Row>
+                :
+                []
+                :
+                []
+              }
+            </Col>
+          </Row>
+        </Col>
+      </Modal>
+    );
+    return  ModalRangeDate;
+  }
+
   // add table
   handleShowModalAddTable=(visible)=>{
     this.setState({
@@ -2732,40 +2796,48 @@ class FormBuilders extends React.Component{
         case 'text' : 
           initialdataDragTab.title = "Text";
           initialdataDragTab.value = "Text";
-          initialdataDragTab.postValue = "";
+          initialdataDragTab.firstCheck = false;
+          initialdataDragTab.postValue  = "";
           initialdataDragTab.placeholder    = "enter text";
           initialdataDragTab.requiredOption = [];
           break;
         case 'number' : 
           initialdataDragTab.title = "Input Number";
           initialdataDragTab.value = "Input Number";
-          initialdataDragTab.postValue = 0;
+          initialdataDragTab.firstCheck = false;
+          initialdataDragTab.postValue  = 0;
           initialdataDragTab.placeholder    = "enter number";
           initialdataDragTab.requiredOption = [];
           break;
         case 'email' : 
           initialdataDragTab.title = "Input Email";
           initialdataDragTab.value = "Input Email";
-          initialdataDragTab.postValue = '';
+          initialdataDragTab.firstCheck = false;
+          initialdataDragTab.postValue  = '';
           initialdataDragTab.placeholder    = "enter email";
           initialdataDragTab.requiredOption = [];
           break;
         case 'textarea' : 
           initialdataDragTab.title = "TextArea";
           initialdataDragTab.value = "TextArea";
-          initialdataDragTab.postValue = '';
+          initialdataDragTab.firstCheck = false;
+          initialdataDragTab.postValue  = '';
           initialdataDragTab.placeholder    = "Placeholder";
           initialdataDragTab.requiredOption = [];
           break;
         case 'label' : 
           initialdataDragTab.title = "Label";
           initialdataDragTab.value = "Label";
+          initialdataDragTab.postValue  = '';
+          initialdataDragTab.firstCheck = false;
           initialdataDragTab.placeholder = "Placeholder";
           initialdataDragTab.requiredOption = [];
           break;
         case 'dropdown' : 
           initialdataDragTab.value       = 'Select Items';
+          initialdataDragTab.title       = "Select";
           initialdataDragTab.placeholder = 'Select Option';
+          initialdataDragTab.firstCheck = false;
           initialdataDragTab.type        = 'dropdown';
           initialdataDragTab.postValue = '';
           initialdataDragTab.requiredOption = [];
@@ -2779,6 +2851,7 @@ class FormBuilders extends React.Component{
         case 'radio' : 
           initialdataDragTab.title       = 'Chose Items';
           initialdataDragTab.value       = 'Chose Items';
+          initialdataDragTab.firstCheck = false;
           initialdataDragTab.placeholder = 'Select Option';
           initialdataDragTab.postValue = '';
           initialdataDragTab.requiredOption = [];
@@ -2790,13 +2863,23 @@ class FormBuilders extends React.Component{
           ];
           break;
         case 'date' : 
-          initialdataDragTab.value = "Date";
+          initialdataDragTab.value          = "Date";
+          initialdataDragTab.title          = "Date";
           initialdataDragTab.requiredOption = [];
-          initialdataDragTab.postValue = moment(new Date());
+          initialdataDragTab.firstCheck = false;
+          initialdataDragTab.postValue  = moment();
+          break;
+        case 'rangedate' : 
+          initialdataDragTab.value ='enter title';
+          initialdataDragTab.requiredOption = [];
+          initialdataDragTab.firstCheck = false;
+          initialdataDragTab.postValue = [{startDate:moment(),endDate:moment()}];
           break;
         case 'checklist' : 
           initialdataDragTab.value = 'List Items';
+          initialdataDragTab.title = "List";
           initialdataDragTab.requiredOption = [];
+          initialdataDragTab.firstCheck = false;
           initialdataDragTab.postValue =[];
           initialdataDragTab.detailsCheckList = [
             {
@@ -2807,7 +2890,9 @@ class FormBuilders extends React.Component{
           break;
         case 'file' : 
           initialdataDragTab.value = 'File Upload';
+          initialdataDragTab.title = "File";
           initialdataDragTab.requiredOption = [];
+          initialdataDragTab.firstCheck = false;
           initialdataDragTab.postValue = '';
           break;
 
@@ -3607,7 +3692,16 @@ class FormBuilders extends React.Component{
 
   handleChangeDateTime = (value, items, index) => {
     var {tempPostDataComponent} = this.state;
-    tempPostDataComponent[index].postValue=value.target.value;
+    tempPostDataComponent[index].postValue=value;
+    this.setState({tempPostDataComponent});
+  }
+
+  handleChangeRangeDate = (value, items, index) => {
+    var startDate=moment(value[0]._d).format("YYYY/MM/DD");
+    var endDate=moment(value[1]._d).format("YYYY/MM/DD");
+    var {tempPostDataComponent} = this.state;
+    tempPostDataComponent[index].postValue[0].startDate=startDate;
+    tempPostDataComponent[index].postValue[0].endDate=endDate;
     this.setState({tempPostDataComponent});
   }
 
@@ -3646,6 +3740,7 @@ class FormBuilders extends React.Component{
     checkDropDown:false,
     checkRadio:false,
     checkDateTime:false,
+    checkRangeDate:false,
     checkListOption:false,
     checkFileUpload:false
   }
@@ -3659,9 +3754,37 @@ class FormBuilders extends React.Component{
    // add InputChange Tab
    handleOnChageInputPreviewTab = (value, items, mainIndex, indexTab, IndexComponent) => {
     var {tempPostDataComponent} = this.state;
-    tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].postValue=value.target.value;
+    if (items.type=='dropdown' || items.type=='checklist' || items.type=='date'){
+      if (items.type=='date'){
+        tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].postValue=moment(value._d);
+      }else {
+        tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].postValue=value;
+      }
+    }else {
+      if (items.type=='file'){
+        if (value.file.status !== 'uploading') {
+        }
+        if (value.file.status === 'done') {
+          tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].postValue=value.file.name;
+          this.setState({tempPostDataComponent});
+          message.success(`${value.file.name} file uploaded successfully`);
+        } else if (value.file.status === 'error') {
+          message.error(`${value.file.name} file upload failed.`);
+        }
+      }else {
+        tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].postValue=value.target.value;
+      }
+    }
+    tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].firstCheck=true;
     this.setState({tempPostDataComponent});
   }
+
+    // add InputChange Tab
+    handleOnChageFirstCheckTab = (value, items, mainIndex, indexTab, IndexComponent) => {
+      var {tempPostDataComponent} = this.state;
+      tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].firstCheck=value;
+      this.setState({tempPostDataComponent});
+    }
 
   handleChangeStatusCheck = (type,value) => {
     this.statusCheck [type] = value;
@@ -3701,6 +3824,7 @@ class FormBuilders extends React.Component{
                             handleChangeDropDown={this.handleChangeDropDown}
                             handleChangeRadioButton={this.handleChangeRadioButton}
                             handleChangeDateTime={this.handleChangeDateTime}
+                            handleChangeRangeDate={this.handleChangeRangeDate}
                             handleChangeCheckList={this.handleChangeCheckList}
                             handleChangeUploadPost={this.handleChangeUploadPost}
                             disabled={false}
@@ -3715,6 +3839,7 @@ class FormBuilders extends React.Component{
                             dataErrorMessage={this.state.dataErrorMessage}
                             handleOnChageInputPreview={this.handleOnChageInputPreview}
                             handleOnChageInputPreviewTab={this.handleOnChageInputPreviewTab}
+                            handleOnChageFirstCheckTab={this.handleOnChageFirstCheckTab}
                             handleChangeValidateDetailTabs={this.handleChangeValidateDetailTabs}
                         />
                     </Row>
@@ -3794,7 +3919,8 @@ class FormBuilders extends React.Component{
       {this.handleModalActionTab()}
       {this.renderModalAddMap()}
       {this.renderModalEditMap()}
-      
+      {this.renderModalRangeDate()}
+
       {/* renderModalTab */}
       {this.renderModalTextInputsTab()}
       {this.renderModalNumberInputsTab()}
@@ -3926,13 +4052,23 @@ class FormBuilders extends React.Component{
                     </div>
                   </div>
                   {/* Date */}
-                  <div href="#" id="RadioButtons" type='flex' justify='left'
+                  <div href="#" id="Date" type='flex' justify='left'
                   style={{padding:'10px 10px 0px 10px',cursor:'pointer', backgroundColor: '#dedede', marginRight: 10}}
                   onDragStart={(e)=>this.handleOnDragStart(e,"Date","date")}
                   draggable
                   >
                     <div style={{width: '100%',height: 40,textAlign:"left",backgroundColor:'#fff',borderRadius:2,border:1,paddingTop:6,paddingLeft:16}}>
                       <Icon type="clock-circle" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >  Date Time</span>
+                    </div>
+                  </div>
+                  {/* Range Date */}
+                  <div href="#" id="RangeDate" type='flex' justify='left'
+                  style={{padding:'10px 10px 0px 10px',cursor:'pointer', backgroundColor: '#dedede', marginRight: 10}}
+                  onDragStart={(e)=>this.handleOnDragStart(e,"RangeDate","rangedate")}
+                  draggable
+                  >
+                    <div style={{width: '100%',height: 40,textAlign:"left",backgroundColor:'#fff',borderRadius:2,border:1,paddingTop:6,paddingLeft:16}}>
+                      <Icon type="clock-circle" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >  Range Time</span>
                     </div>
                   </div>
                   {/* Table */}

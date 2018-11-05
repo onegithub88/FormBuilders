@@ -6,6 +6,7 @@ const {TextArea} = Input;
 const CheckboxGroup = Checkbox.Group;
 import CommonComponentTab from './CommonComponentTab';
 import GoogleMaps from 'google-map-react';
+import moment from 'moment';
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
@@ -14,6 +15,9 @@ class CommonComponent extends React.Component{
   state = {
     value: 1,
   }
+  onChangeRangeDate = (dates, dateStrings) => {
+  }
+
   renderDetailsOption = ()=> {
     var DetailsOption = [];
     DetailsOption     = this.props.options.map((obj,i)=>{
@@ -289,6 +293,31 @@ class CommonComponent extends React.Component{
           </Col>
         );
       break;
+      case 'rangedate' :
+        const dateFormat = 'YYYY/MM/DD';
+        return (
+          <Col span={span} style={{marginBottom: 15, paddingBottom: 10,marginTop:20}}>
+            <Row style={{marginBottom:10}}>
+              {this.props.value ?
+                <span style={{marginBottom: 10}}>{value}</span>
+                :
+                []
+              }
+            </Row>
+            <Row>
+            <RangePicker
+              ranges={{ Today: [moment(), moment()], 'This Month': [moment(), moment().endOf('month')] }}
+              showTime
+              defaultValue={items.postValue.length > 0 ? [moment(items.postValue[0].startDate, dateFormat), moment(items.postValue[0].endDate, dateFormat)]:''}
+              value={items.postValue.length > 0 ? [moment(items.postValue[0].startDate, dateFormat), moment(items.postValue[0].endDate, dateFormat)]:''}
+              disabled
+              format="YYYY/MM/DD"
+              onChange={this.onChangeRangeDate}
+            />
+            </Row>
+          </Col>
+        );
+      break;
       case 'table':
         return(
           <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
@@ -322,7 +351,7 @@ class CommonComponent extends React.Component{
                             key={t} type='flex' justify='left' align='middle'>
                               <CommonComponentTab
                                 key={t}
-                                items={compTab}
+                                 items={compTab}
                                 index={t}
                                 title={compTab.title}
                                 value={compTab.value}
@@ -419,6 +448,7 @@ class CommonComponent extends React.Component{
                       <GoogleMaps
                         bootstrapURLKeys={{ key:'AIzaSyBHL-hz-eBvTvpgC4R5E8I4T6RRzC7hTsY'}}
                         defaultCenter={items.markValue.center}
+                        center = {items.markValue.center}
                         defaultZoom={items.markValue.zoom}
                       >
                         <MarkComponent
