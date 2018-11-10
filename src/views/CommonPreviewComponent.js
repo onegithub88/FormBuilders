@@ -455,25 +455,40 @@ class CommonPreviewComponent extends React.Component{
         );
       break;
       case 'rangedate' :
-        const dateFormat = 'YYYY/MM/DD';
+        var handleDisableDate=(current)=>{
+          var startDate= items.postValue[0].startDate;
+          if (startDate){
+            return current && current < moment(startDate);
+          } else {
+            return current && current < moment().endOf('day');
+          }
+        }
         return (
-          <Col span={span} style={{marginBottom: 15}}>
-            <Row style={{marginBottom:10}}>
-              {this.props.value ?
-                <span>{value}</span>
-                :
-                []
-              }
-            </Row>
+          <Col span={span} style={{marginBottom: 15, paddingBottom: 10,marginTop:20}}>
             <Row>
-              <RangePicker
-                ranges={{ Today: [moment(), moment()], 'This Month': [moment(), moment().endOf('month')] }}
-                showTime
-                defaultValue={items.postValue.length > 0 ? [moment(items.postValue[0].startDate, dateFormat), moment(items.postValue[0].endDate, dateFormat)]:''}
-                value={items.postValue.length > 0 ? [moment(items.postValue[0].startDate, dateFormat), moment(items.postValue[0].endDate, dateFormat)]:''}
-                format="YYYY/MM/DD"
-                onChange={(e)=>this.props.handleChangeRangeDate(e,this.props.items,this.props.index)} 
-              />  
+              <Col style={{marginBottom:10}}>
+                <Row style={{marginBottom:10}}>{this.props.value ? this.props.value.startDate : ''}</Row>
+                <Row>
+                  <DatePicker 
+                    style={{width:300}} 
+                    value={items.postValue.length > 0 ? items.postValue[0].startDate:moment()}
+                    format="YYYY/MM/DD"
+                    onChange={(e)=>this.props.handleChangeDateTime(e,this.props.items,this.props.index,"startDate")}
+                  />
+                </Row>
+              </Col>
+              <Col>
+                <Row style={{marginBottom:10}}>{this.props.value ? this.props.value.endDate : moment()}</Row>
+                <Row>
+                  <DatePicker 
+                    style={{width:300}}
+                    disabledDate={handleDisableDate.bind(this)} 
+                    value={items.postValue.length > 0 ? items.postValue[0].endDate :moment()}
+                    format="YYYY/MM/DD"
+                    onChange={(e)=>this.props.handleChangeDateTime(e,this.props.items,this.props.index,"endDate")}
+                  />
+                </Row>
+              </Col>
             </Row>
           </Col>
         );

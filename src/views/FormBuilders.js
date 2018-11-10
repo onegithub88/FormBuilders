@@ -295,7 +295,7 @@ class FormBuilders extends React.Component{
           break;
           break;
         case 'rangedate' : 
-          initialdataDrag.value = 'Range Date';
+          initialdataDrag.value = {startDate:"Start Date",endDate:"End Date"};
           initialdataDrag.requiredOption = [];
           initialdataDrag.postValue = [{startDate:moment(),endDate:moment()}];
           break;
@@ -491,6 +491,14 @@ class FormBuilders extends React.Component{
     var {tempDataComponent} = this.state;
     if (typeChange){
       switch(typeChange) {
+        case 'rangeDate' :
+          if (name=="startDate"){
+            tempDataComponent[0].value.startDate = value;
+          } else {
+            tempDataComponent[0].value.endDate = value;
+          }
+          this.setState({tempDataComponent});
+        break;
         case 'tab':
           if (value > 4) {
             tempDataComponent[0][name] = 0;
@@ -2319,7 +2327,16 @@ class FormBuilders extends React.Component{
     tempDataComponent[0].postValue[0][name] = tempDate;
     this.setState({tempDataComponent});
   }
-
+  
+  handleDisableDate(current){
+    var startDate= this.state.tempDataComponent[0].postValue[0].startDate;
+    if (startDate){
+      return current && current < moment(startDate);
+    } else {
+      return current && current < moment().endOf('day');
+    }
+  }
+  
   renderModalRangeDate = () =>{
     var ModalRangeDate =[];
     ModalRangeDate = (
@@ -2335,20 +2352,19 @@ class FormBuilders extends React.Component{
         <Col type={'flex'} align={'left'}>
           <Row>
             <Col>
-              <Row style={{marginBottom: 5, fontSize: 14}}>Set Date</Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Start Date Title</Row>
               <Row style={{marginBottom: 10}}>
                 <Input
-                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value: ''}
-                  onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
+                  value={this.state.tempDataComponent[0]!=undefined ? typeof(this.state.tempDataComponent[0].value)=="object" ? this.state.tempDataComponent[0].value.startDate: '':''}
+                  onChange={(e)=>this.handleOnChangeInputDetails("startDate",e.target.value,"rangeDate")}
                 />
               </Row>
-              <Row style={{marginBottom: 5, fontSize: 14}}>Set Start Date</Row>
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set End Date Title</Row>
               <Row style={{marginBottom: 10}}>
-                <DatePicker style={{width:300}}  onChange={(e)=>this.handleOnChangeRangeDate("startDate",e)} />
-              </Row>
-              <Row style={{marginBottom: 5, fontSize: 14}}>Set End Date</Row>
-              <Row style={{marginBottom: 10}}>
-                <DatePicker style={{width:300}}  onChange={(e)=>this.handleOnChangeRangeDate("endDate",e)} />
+                <Input
+                  value={this.state.tempDataComponent[0]!=undefined ? typeof(this.state.tempDataComponent[0].value)=="object" ? this.state.tempDataComponent[0].value.endDate: '':''}
+                  onChange={(e)=>this.handleOnChangeInputDetails("endDate",e.target.value,"rangeDate")}
+                />
               </Row>
               {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].requiredOption ? 
                 <Row style={{marginBottom: 15}}>
@@ -3690,10 +3706,21 @@ class FormBuilders extends React.Component{
     this.setState({tempPostDataComponent});
   }
 
-  handleChangeDateTime = (value, items, index) => {
+  handleChangeDateTime = (value, items, index,typeValue) => {
     var {tempPostDataComponent} = this.state;
-    tempPostDataComponent[index].postValue=value;
-    this.setState({tempPostDataComponent});
+    if (items.type=="rangedate"){
+      if (typeValue && typeValue=="startDate"){
+        tempPostDataComponent[index].postValue[0].startDate=value;
+        this.setState({tempPostDataComponent});
+
+      }else {
+        tempPostDataComponent[index].postValue[0].endDate=value;
+        this.setState({tempPostDataComponent});
+      }
+    }else{
+      tempPostDataComponent[index].postValue=value;
+      this.setState({tempPostDataComponent});
+    }
   }
 
   handleChangeRangeDate = (value, items, index) => {
@@ -4068,7 +4095,7 @@ class FormBuilders extends React.Component{
                   draggable
                   >
                     <div style={{width: '100%',height: 40,textAlign:"left",backgroundColor:'#fff',borderRadius:2,border:1,paddingTop:6,paddingLeft:16}}>
-                      <Icon type="clock-circle" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >  Range Time</span>
+                      <Icon type="clock-circle" theme="outlined" /><span style ={{fontWeight:'400',fontSize:17, color:'#999'}} >  Range Date</span>
                     </div>
                   </div>
                   {/* Table */}
