@@ -15,7 +15,7 @@ export const dispatchActionTab = (payload,action,index)=>({
 
 export const commonDispatch=(dispatch,data,status,action)=>{
     dispatch({
-      type:`${action}_${SUCCESS_STATUS}`,
+      type:`${action}`,
       status:status,
       payload:data
     })
@@ -41,9 +41,9 @@ export const apiCall = ({
 	get : async (endpoint,header,callback,dispatch) => {
 			await api.get(endpoint,header).then((result) => {
 			if(header.params && header.params.type!=''){
-				callback.call(this,result.data,dispatch);
+				callback.call(this,result);
 			}else {
-				callback.call(this,result.data.data,dispatch);
+				callback.call(this,result);
 			}
 		  
 		}).catch(error => {

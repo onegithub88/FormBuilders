@@ -5,6 +5,7 @@ export const Const = {
 	CREATE_FORM : "create_form",
 	CREATE_WORKFLOW : "create_workflow",
 	CREATE_FORMDETAIL : "create_detailform",
+	GET_FORMDETAIL : "get_detailform",
 	ADD_MODULE: 'ADD_MODULE',
 	DELETE_MODULE: 'DELETE_MODULE',
 	ADD_FORM: 'ADD_FORM',

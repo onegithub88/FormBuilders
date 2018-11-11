@@ -148,7 +148,27 @@ class FormBuilders extends React.Component{
     var idWorkFlow = this.props.match.params.idWorkFlow;
     var idForm   = this.props.match.params.idForm;
     // this.setState({idWorkFlow,idForm})
+    this.handleLoadDetailForm();
   }
+
+  handleGetLoadDetailForm = (callback) => {
+    if (callback.data.data.status=true) {
+      var {dataComponent}=this.props;
+      dataComponent=callback.data.data.detailForm;
+      this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT));
+    }
+  }
+
+  handleLoadDetailForm = () =>{
+    var api   = `${Const.GET_FORMDETAIL}`;
+    var header = {
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    apiCall.get(api,header,this.handleGetLoadDetailForm);
+    
+  } 
 
   componentDidMount = () => {
     // var detailsTabs = [];
@@ -778,7 +798,7 @@ class FormBuilders extends React.Component{
     var {dataComponent}       = this.props;
     var {tempDataComponentTab}   = this.state;
     dataComponent[this.state.activeIndex].detailsTabs[this.state.activeIndexTab].componentTabs[this.state.activeIndexTabComponent] =  tempDataComponentTab[0];
-    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT))
+    this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT));
     this.handleShowModalTextInputsTab(false);
   }
 
@@ -3752,7 +3772,12 @@ class FormBuilders extends React.Component{
     }
   };
 
-  handleCallbackSaveForm = (scope,callback) => {
+  handleCallbackSaveForm = (callback) => {
+    if (callback.data.status==true){
+      message.success(callback.data.message);
+      this.handleLoadDetailForm();
+      this.handleGotoPreview(false);
+    }
   }
 
   handleSaveForm = () => {
