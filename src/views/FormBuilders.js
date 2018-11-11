@@ -14,7 +14,7 @@ import './../assets/common/css/layoutIsat.css';
 import moment from 'moment';
 import 'moment/locale/fr';
 const { Header, Footer, Sider, Content } = Layout;
-import {dispatchAction,dispatchActionTab} from './../actions';
+import {dispatchAction,dispatchActionTab, apiCall, commonDispatch} from './../actions';
 import {Const} from './../const/Const';
 import CommonComponent from './CommonComponent';
 import CommonComponentTab from './CommonComponentTab';
@@ -26,6 +26,8 @@ var ALLOWED_DROP        = "move";
 var NO_HOVER            = null;
 class FormBuilders extends React.Component{
   state = {
+    idWorkFlow:0,
+    idForm:0,
     typeInput:'textinput',
     title:'',
     value:'',
@@ -137,16 +139,15 @@ class FormBuilders extends React.Component{
     activeIndex:0,
     activeAction:'',
     value:1,
-    idModule:0,
-    idForm:0
+    idWorkFlow:0
   };
 
   tempDataT7an =[];
 
   componentWillMount =() => {
-    var idModule = this.props.match.params.idModule;
+    var idWorkFlow = this.props.match.params.idWorkFlow;
     var idForm   = this.props.match.params.idForm;
-    this.setState({idModule,idForm})
+    // this.setState({idWorkFlow,idForm})
   }
 
   componentDidMount = () => {
@@ -162,7 +163,7 @@ class FormBuilders extends React.Component{
     // }
     // var title = '';
     // this.props.dispatch(dispatchAction({
-    //   idModule:this.state.idModule,
+    //   idWorkFlow:this.state.idWorkFlow,
     //   idForm:this.state.idForm,
     //   title:title,
     //   type:'tab',
@@ -205,7 +206,7 @@ class FormBuilders extends React.Component{
   // action drag start
   handleOnDragStart = (e,title,componentType) => {
     var initialdataDrag = {
-      idModule:this.state.idModule,
+      idWorkFlow:this.state.idWorkFlow,
       idForm:this.state.idForm,
       title:title,
       type:componentType,
@@ -629,7 +630,7 @@ class FormBuilders extends React.Component{
   renderDragDetails = () => {
     var DragDetails = [];
     DragDetails = this.props.dataComponent.map((items, i)=>{
-      if (items!=undefined && items.idModule==this.state.idModule && items.idForm==this.state.idForm) {
+      if (items!=undefined && items.idWorkFlow==this.state.idWorkFlow && items.idForm==this.state.idForm) {
         return (
           <Row
             data-key={i}
@@ -2424,7 +2425,7 @@ class FormBuilders extends React.Component{
     if (this.state.typeInput!='') {
       var title = 'Table';
       this.props.dispatch(dispatchAction({
-        idModule:this.state.idModule,
+        idWorkFlow:this.state.idWorkFlow,
         idForm:this.state.idForm,
         value:'Table',
         title:title,
@@ -2549,7 +2550,7 @@ class FormBuilders extends React.Component{
     if (this.state.typeInput!='') {
       var title = '';
       this.props.dispatch(dispatchAction({
-        idModule:this.state.idModule,
+        idWorkFlow:this.state.idWorkFlow,
         idForm:this.state.idForm,
         title:title,
         type:'tab',
@@ -2798,7 +2799,7 @@ class FormBuilders extends React.Component{
   // action drag Tab
   handleOnDragStartTab = (e,title,componentType) => {
     var initialdataDragTab = {
-      idModule:this.state.idModule,
+      idWorkFlow:this.state.idWorkFlow,
       idForm:this.state.idForm,
       title:title,
       type:componentType,
@@ -3751,8 +3752,23 @@ class FormBuilders extends React.Component{
     }
   };
 
+  handleCallbackSaveForm = (scope,callback) => {
+  }
+
   handleSaveForm = () => {
-    this.handleGotoPreview(false);
+    var api    = `${Const.CREATE_FORMDETAIL}`;
+    var data   = {
+      dataPost:{
+        idWorkFlow:this.state.idWorkFlow,
+        idForm:this.state.idForm,
+        detailForm:this.state.tempPostDataComponent}
+    };
+    var header = {
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    apiCall.post(api, data,this.handleCallbackSaveForm,header);
   }
 
   renderPushError= () => {

@@ -21,7 +21,7 @@ const checkAuth = () => (
       <Router history={history}>
         <Switch>
           <Route  exact path="/" component={FormBuilders} />
-          <Route  path="/formbuilder/:idModule/:idForm" component={FormBuilders} />
+          <Route  path="/formbuilder/:idWorkFlow/:idForm" component={FormBuilders} />
     </Switch>
     </Router>
   </Provider>

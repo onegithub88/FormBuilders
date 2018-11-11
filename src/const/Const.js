@@ -1,7 +1,10 @@
 import React from 'react';
 export const Const = {
 	path:'/',
-	api:'http://dev.nostratech.com:10093/',
+	api:'http://localhost:8888/api',
+	CREATE_FORM : "create_form",
+	CREATE_WORKFLOW : "create_workflow",
+	CREATE_FORMDETAIL : "create_detailform",
 	ADD_MODULE: 'ADD_MODULE',
 	DELETE_MODULE: 'DELETE_MODULE',
 	ADD_FORM: 'ADD_FORM',
@@ -12,5 +15,4 @@ export const Const = {
 	DELETE_COMPONENT: 'DELETE_COMPONENT',
 	EDIT_COMPONENT: 'EDIT_COMPONENT',
 	ADD_COMPONENT_TAB:'ADD_COMPONENT_TAB'
-
 };

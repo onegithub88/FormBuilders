@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var port = '9090';
 module.exports = {
    entry: [
+   'babel-polyfill',
     './src/index'
   ],
   output: {
@@ -18,11 +19,6 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en|id/),
-    new webpack.ProvidePlugin({
-        $: "jquery",
-        jQuery: "jquery",
-        Promise: 'es6-promise-promise'
-    })
   ],
   module: {
     loaders: [{ test: /\.js$/, loaders: ['babel'],exclude: /node_modules/},

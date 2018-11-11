@@ -12,7 +12,7 @@ import './../assets/common/css/layoutIsat.css';
 import moment from 'moment';
 import 'moment/locale/fr';
 const { Header, Sider, Content,Footer } = Layout;
-import {dispatchAction} from './../actions';
+import {dispatchAction, apiCall, commonDispatch} from './../actions';
 import {Const} from './../const/Const';
 import history from './../controllers/History';
 var index = 0;
@@ -83,11 +83,15 @@ class Home extends React.Component{
     history.push(`/formbuilder/module${moduleId}/formId${FormId}`);
   }
 
+  handleSaveWorkFlow = () => {
+    
+  }
+
   componentWillMount = () => {
     var modules = {
       key:0,
-      name: "Module 1",
-      keterangan: "test Module 1"
+      name: "WorkFlow 1",
+      keterangan: "test WorkFlow 1"
     }
 
     var form = {
