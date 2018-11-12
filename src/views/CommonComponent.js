@@ -311,7 +311,7 @@ class CommonComponent extends React.Component{
                 <Row>
                   <DatePicker 
                     style={{width:300}} 
-                    value={items.postValue.length > 0 ? items.postValue[0].startDate : moment()}
+                    value={items.postValue.length > 0 ? moment(items.postValue[0].startDate) : moment()}
                     disabled
                     format="YYYY/MM/DD"
                     onChange={this.onChangeRangeDate}
@@ -324,7 +324,7 @@ class CommonComponent extends React.Component{
                   <DatePicker 
                     style={{width:300}}
                     disabledDate={handleDisableDate.bind(this)} 
-                    value={items.postValue.length > 0 ? items.postValue[0].endDate :moment}
+                    value={items.postValue.length > 0 ? moment(items.postValue[0].endDate) :moment}
                     disabled
                     format="YYYY/MM/DD"
                     onChange={this.onChangeRangeDate}

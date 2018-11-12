@@ -3,6 +3,7 @@ export const Const = {
 	path:'/',
 	api:'http://localhost:8888/api',
 	CREATE_FORM : "create_form",
+	GET_FORM:'GET_FORM',
 	CREATE_WORKFLOW : "create_workflow",
 	CREATE_FORMDETAIL : "create_detailform",
 	GET_FORMDETAIL : "get_detailform",

@@ -147,7 +147,7 @@ class FormBuilders extends React.Component{
   componentWillMount =() => {
     var idWorkFlow = this.props.match.params.idWorkFlow;
     var idForm   = this.props.match.params.idForm;
-    // this.setState({idWorkFlow,idForm})
+    this.setState({idWorkFlow,idForm});
     this.handleLoadDetailForm();
   }
 
@@ -318,7 +318,7 @@ class FormBuilders extends React.Component{
         case 'rangedate' : 
           initialdataDrag.value = {startDate:"Start Date",endDate:"End Date"};
           initialdataDrag.requiredOption = [];
-          initialdataDrag.postValue = [{startDate:moment(),endDate:moment()}];
+          initialdataDrag.postValue = [{startDate:new Date().getTime(),endDate:new Date().getTime()}];
           break;
         case 'date' : 
           initialdataDrag.value = "Range Date";
@@ -2910,7 +2910,7 @@ class FormBuilders extends React.Component{
           initialdataDragTab.value ='enter title';
           initialdataDragTab.requiredOption = [];
           initialdataDragTab.firstCheck = false;
-          initialdataDragTab.postValue = [{startDate:moment(),endDate:moment()}];
+          initialdataDragTab.postValue = [{startDate:new Date().getTime(),endDate:new Date().getTime()}];
           break;
         case 'checklist' : 
           initialdataDragTab.value = 'List Items';
@@ -3731,11 +3731,11 @@ class FormBuilders extends React.Component{
     var {tempPostDataComponent} = this.state;
     if (items.type=="rangedate"){
       if (typeValue && typeValue=="startDate"){
-        tempPostDataComponent[index].postValue[0].startDate=value;
+        tempPostDataComponent[index].postValue[0].startDate=value.valueOf();
         this.setState({tempPostDataComponent});
 
       }else {
-        tempPostDataComponent[index].postValue[0].endDate=value;
+        tempPostDataComponent[index].postValue[0].endDate=value.valueOf();
         this.setState({tempPostDataComponent});
       }
     }else{
@@ -3880,39 +3880,41 @@ class FormBuilders extends React.Component{
             <Card>
               {this.state.tempPostDataComponent.length > 0 ? 
                 this.state.tempPostDataComponent.map((items,i)=>{
-                  return (
-                    <Row
-                        data-key={i}
-                        style={{paddingTop: 5}}
-                        key={i} type='flex' justify='left' align='middle'>
-                        <CommonPreviewComponent
-                            key={i}
-                            statusCheck={this.statusCheck}
-                            handleChangeStatusCheck={this.handleChangeStatusCheck}
-                            handleChangeDropDown={this.handleChangeDropDown}
-                            handleChangeRadioButton={this.handleChangeRadioButton}
-                            handleChangeDateTime={this.handleChangeDateTime}
-                            handleChangeRangeDate={this.handleChangeRangeDate}
-                            handleChangeCheckList={this.handleChangeCheckList}
-                            handleChangeUploadPost={this.handleChangeUploadPost}
-                            disabled={false}
-                            items={items}
-                            index={i}
-                            title={items.title ? items.title :''}
-                            value={items.value}
-                            color={items.color}
-                            placeholder={items.placeholder}
-                            type={items.type}
-                            span={24}
-                            dataErrorMessage={this.state.dataErrorMessage}
-                            handleOnChageInputPreview={this.handleOnChageInputPreview}
-                            handleOnChageInputPreviewTab={this.handleOnChageInputPreviewTab}
-                            handleOnChageFirstCheckTab={this.handleOnChageFirstCheckTab}
-                            handleChangeValidateDetailTabs={this.handleChangeValidateDetailTabs}
-                        />
-                    </Row>
-                  )
-              })
+                  if (items!=undefined && items.idWorkFlow==this.state.idWorkFlow && items.idForm==this.state.idForm) {
+                    return (
+                      <Row
+                          data-key={i}
+                          style={{paddingTop: 5}}
+                          key={i} type='flex' justify='left' align='middle'>
+                          <CommonPreviewComponent
+                              key={i}
+                              statusCheck={this.statusCheck}
+                              handleChangeStatusCheck={this.handleChangeStatusCheck}
+                              handleChangeDropDown={this.handleChangeDropDown}
+                              handleChangeRadioButton={this.handleChangeRadioButton}
+                              handleChangeDateTime={this.handleChangeDateTime}
+                              handleChangeRangeDate={this.handleChangeRangeDate}
+                              handleChangeCheckList={this.handleChangeCheckList}
+                              handleChangeUploadPost={this.handleChangeUploadPost}
+                              disabled={false}
+                              items={items}
+                              index={i}
+                              title={items.title ? items.title :''}
+                              value={items.value}
+                              color={items.color}
+                              placeholder={items.placeholder}
+                              type={items.type}
+                              span={24}
+                              dataErrorMessage={this.state.dataErrorMessage}
+                              handleOnChageInputPreview={this.handleOnChageInputPreview}
+                              handleOnChageInputPreviewTab={this.handleOnChageInputPreviewTab}
+                              handleOnChageFirstCheckTab={this.handleOnChageFirstCheckTab}
+                              handleChangeValidateDetailTabs={this.handleChangeValidateDetailTabs}
+                          />
+                      </Row>
+                    )
+                  }
+                })
               :
               <Row type="flex" justify="center">
                 <Col span={13}>

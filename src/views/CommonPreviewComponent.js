@@ -471,7 +471,7 @@ class CommonPreviewComponent extends React.Component{
                 <Row>
                   <DatePicker 
                     style={{width:300}} 
-                    value={items.postValue.length > 0 ? items.postValue[0].startDate:moment()}
+                    value={items.postValue.length > 0 ? moment(items.postValue[0].startDate):moment()}
                     format="YYYY/MM/DD"
                     onChange={(e)=>this.props.handleChangeDateTime(e,this.props.items,this.props.index,"startDate")}
                   />
@@ -483,7 +483,7 @@ class CommonPreviewComponent extends React.Component{
                   <DatePicker 
                     style={{width:300}}
                     disabledDate={handleDisableDate.bind(this)} 
-                    value={items.postValue.length > 0 ? items.postValue[0].endDate :moment()}
+                    value={items.postValue.length > 0 ? moment(items.postValue[0].endDate) :moment()}
                     format="YYYY/MM/DD"
                     onChange={(e)=>this.props.handleChangeDateTime(e,this.props.items,this.props.index,"endDate")}
                   />

@@ -1,6 +1,6 @@
 import React, { Component} from 'react';
 import PropTypes from 'prop-types';
-import { LocaleProvider, Layout, Form, Radio, Input, Menu, Select,
+import { LocaleProvider, Layout, Form, Radio, Input, Menu, Select, message,
   Modal, Icon, Avatar, Table, Button, Row, Col, Card
 } from 'antd';
 const RadioGroup = Radio.Group;
@@ -80,14 +80,53 @@ class Home extends React.Component{
   };
 
   handleGoToGenerateForm = (moduleId,FormId) => {
-    history.push(`/formbuilder/module${moduleId}/formId${FormId}`);
+    history.push(`/formbuilder/idWorkFlow${moduleId}/idForm${FormId}`);
   }
 
   handleSaveWorkFlow = () => {
     
   }
 
+  handleGetSaveForm =(callback)=>{
+    this.handleLoadForm();
+  }
+
+  handleSaveForm () {
+    var api    =`${Const.CREATE_FORM}`;
+    var header ={
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    var dataForm = {
+      dataPost:[]
+    }
+
+    for (var i=0;i<this.props.dataForm.length;i++) {
+      dataForm.dataPost.push(this.props.dataForm[i]);
+    }
+    apiCall.post(api,dataForm,this.handleGetSaveForm,header);
+  }
+
+  handleGetLoadForm =(callback)=>{
+    if (callback.data.status==true){
+      this.props.dispatch(dispatchAction(callback.data.data,Const.EDIT_FORM));
+    }
+  }
+
+  handleLoadForm () {
+    var api    =`${Const.GET_FORM}`;
+    var header ={
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    apiCall.get(api,header,this.handleGetLoadForm);
+
+  }
+
   componentWillMount = () => {
+    this.handleLoadForm();
     var modules = {
       key:0,
       name: "WorkFlow 1",
@@ -100,11 +139,10 @@ class Home extends React.Component{
       name: "Form 1",
       keterangan: "TEST FORM 1",
     }
+
     if (this.props.dataForm.length==0 && this.props.dataModule.length==0) {
       this.props.dispatch(dispatchAction(modules,Const.ADD_MODULE));
-      setTimeout(()=>{
-        this.props.dispatch(dispatchAction(form,Const.ADD_FORM));
-      },500);
+      
     }
   }
 
@@ -143,7 +181,10 @@ class Home extends React.Component{
     var {dataForm}     = this.props;
     dataForm[this.state.activeIndex]=tempDataForm[0];
     this.props.dispatch(dispatchAction(dataForm,Const.ADD_FORM));
-    this.handleShowCanceEditForm(false);
+    setTimeout(()=>{
+      this.handleSaveForm();
+      this.handleShowCanceEditForm(false);
+    },500);
   }
 
   handleShowModalAddForm = (visible) => {
@@ -175,7 +216,7 @@ class Home extends React.Component{
   handleSetActiveModule = (index) => {
     this.setState({activeMenuModule:index})
   }
-
+  // action crud
   handleAddGeneral = () => {
     switch (this.state.title) {
       case 'Module':
@@ -193,21 +234,41 @@ class Home extends React.Component{
         break;
       case 'Form':
         var index = 0;
+        var tempContinue = true;
         if (this.props.dataForm.length> 0) {
           index = this.props.dataForm.length;
         }
         var payload = {
           key:index,
+          idForm:index,
+          idWorkFlow:this.state.activeMenuModule,
           keyModule:this.state.activeMenuModule,
           name: this.state.name,
           keterangan: this.state.ket,
         }
-        this.props.dispatch(dispatchAction(payload,Const.ADD_FORM));
+        this.props.dataForm.map(form=>{
+          if (form.name==this.state.name){
+            tempContinue=false;
+            message.error("Nama Form Sudah Ada");
+          }
+          if (form.idForm=="idForm"+index){
+            tempContinue=false;
+            message.error("ID Form Sudah Ada");
+          }
+        })
+        if (tempContinue){
+          this.props.dispatch(dispatchAction(payload,Const.ADD_FORM));
+          setTimeout(()=>{
+            this.handleSaveForm();
+          },500);
+        }
         default: ''
 
     }
-    this.handleShowModalAddModule(false)
-    this.handleClearFormInput();
+    if (tempContinue){
+      this.handleShowModalAddModule(false)
+      this.handleClearFormInput();
+    }
   }
   handleChangeSelectModule = (selected) => {
     this.setState({
@@ -326,6 +387,9 @@ class Home extends React.Component{
         }
       })
       this.props.dispatch(dispatchAction(dataForm,Const.DELETE_FORM));
+      setTimeout(()=>{
+        this.handleSaveForm();
+      },500);
     }else if (actionType=='edit'){
       var tempDataForm = [];
       dataForm.map((obj,i)=>{
