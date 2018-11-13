@@ -471,7 +471,6 @@ class FormBuilders extends React.Component{
           break;
         case 'map' : 
           tempDataComponent[0] = this.props.dataComponent[index];
-          tempDataComponent[0].title = "map";
           this.setState({tempDataComponent,typeInput:'map',visibleModalEditMap:visible,activeIndex:index,activeAction:action})
           break;
         default:
@@ -3633,7 +3632,7 @@ class FormBuilders extends React.Component{
             </Row>
             <Row style={{marginBottom: 20}}>
               <Input
-                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].markValue!=undefined ? this.state.tempDataComponent[0].title:'' :''}
+                value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].title!=undefined ? this.state.tempDataComponent[0].title:'' :''}
                 onChange={(e)=>this.handleOnChangeInputDetailsMap("title",e.target.value)}/>
             </Row>
             <Row style={{marginBottom: 15}}>
@@ -3708,10 +3707,11 @@ class FormBuilders extends React.Component{
 
   // show Preview
   handleGotoPreview =(visible) => {
+    this.handleClearStatusCheck();
     var {dataComponent} = this.props;
     this.setState({
       tempPostDataComponent:dataComponent
-    },this.setState({visibleModalPreview:visible}))
+    },this.setState({visibleModalPreview:visible}));
     
   }
 
@@ -3928,11 +3928,25 @@ class FormBuilders extends React.Component{
     );
     return  ModalPreview;
   }
+  handleClearStatusCheck = () => {
+    this.statusCheck = {
+      checkText:false,
+      checkNumber:false,
+      checkEmail:false,
+      checkTextArea:false,
+      checkDropDown:false,
+      checkRadio:false,
+      checkDateTime:false,
+      checkRangeDate:false,
+      checkListOption:false,
+      checkFileUpload:false
+    }
+  }
   
   handleShowPreviewCode = (visible) => {
     this.setState({
       visibleModalPreviewPayload:visible
-    })
+    });
   }
 
   renderModalPreviewCode = () =>{

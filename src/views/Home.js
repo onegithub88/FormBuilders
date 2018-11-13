@@ -107,7 +107,7 @@ class Home extends React.Component{
     }
     apiCall.post(api,dataForm,this.handleGetSaveForm,header);
   }
-
+ 
   handleGetLoadForm =(callback)=>{
     if (callback.data.status==true){
       this.props.dispatch(dispatchAction(callback.data.data,Const.EDIT_FORM));
@@ -131,13 +131,6 @@ class Home extends React.Component{
       key:0,
       name: "WorkFlow 1",
       keterangan: "test WorkFlow 1"
-    }
-
-    var form = {
-      key:0,
-      keyModule:0,
-      name: "Form 1",
-      keterangan: "TEST FORM 1",
     }
 
     if (this.props.dataForm.length==0 && this.props.dataModule.length==0) {
@@ -180,7 +173,7 @@ class Home extends React.Component{
     var {tempDataForm} = this.state;
     var {dataForm}     = this.props;
     dataForm[this.state.activeIndex]=tempDataForm[0];
-    this.props.dispatch(dispatchAction(dataForm,Const.ADD_FORM));
+    this.props.dispatch(dispatchAction(dataForm,Const.EDIT_FORM));
     setTimeout(()=>{
       this.handleSaveForm();
       this.handleShowCanceEditForm(false);
