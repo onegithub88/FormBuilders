@@ -14,6 +14,14 @@ import 'moment/locale/fr';
 const { Header, Sider, Content,Footer } = Layout;
 import {dispatchAction, apiCall, commonDispatch} from './../actions';
 import {Const} from './../const/Const';
+import {
+  Router,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+  withRouter
+} from "react-router-dom";
 import history from './../controllers/History';
 var index = 0;
 
@@ -47,12 +55,25 @@ class Home extends React.Component{
       title: 'Action',
       dataIndex: 'action',
       render:(text, record)=>{
-        this.index++;
+          var dataID ={
+            idWorkFlow:record.idWorkFlow,
+            idForm:record.idForm
+          } 
+          var textId =JSON.stringify(dataID);
+          var encriptCode = Buffer.from(textId,'utf8').toString('base64');
           return (
-            <Row type="flex" justify="end">
-              <Button onClick={()=>this.handleShowModalAction(true,record.key, "edit")} type="primary" shape="circle" icon="edit" style={{marginRight: 15}} />
-              <Button onClick={()=>this.handleShowModalAction(true,record.key, "delete")} type="primary" shape="circle" icon="delete" style={{marginRight: 25}} />
-              <Button onClick={(index)=>this.handleGoToGenerateForm(record.keyModule,record.key)} type="primary" ghost>Generate Form</Button>
+            <Row type="flex" justify="end" key={record.indexKey}>
+              <Link to={{
+                pathname:"formviwer",
+                search: encriptCode,
+                }} 
+                target="_blank"
+              >
+                <Button type="primary" shape="circle" icon="eye" style={{marginRight: 15}} />
+              </Link>
+              <Button onClick={()=>this.handleShowModalAction(true,record.indexKey, "edit")} type="primary" shape="circle" icon="edit" style={{marginRight: 15}} />
+              <Button onClick={()=>this.handleShowModalAction(true,record.indexKey, "delete")} type="primary" shape="circle" icon="delete" style={{marginRight: 25}} />
+              <Button onClick={(index)=>this.handleGoToGenerateForm(record.keyModule,record.idForm)} type="primary" ghost>Generate Form</Button>
             </Row>
           )
         }
@@ -80,7 +101,7 @@ class Home extends React.Component{
   };
 
   handleGoToGenerateForm = (moduleId,FormId) => {
-    history.push(`/formbuilder/idWorkFlow${moduleId}/idForm${FormId}`);
+    history.push(`/formbuilder/idWorkFlow${moduleId}/${FormId}`);
   }
 
   handleSaveWorkFlow = () => {
@@ -88,6 +109,8 @@ class Home extends React.Component{
   }
 
   handleGetSaveForm =(callback)=>{
+    console.log("from callback save data");
+    console.log(callback);
     this.handleLoadForm();
   }
 
@@ -107,22 +130,50 @@ class Home extends React.Component{
     }
     apiCall.post(api,dataForm,this.handleGetSaveForm,header);
   }
+  handleGetDeleteForm(callback,scope){
+    console.log("FROM DELETE FORM ");
+    console.log(callback);
+    console.log(scope);
+    if (callback.data.status){
+      scope.handleLoadForm();
+    }else {
+      message.error('delete filed');
+    }
+
+  }
+  handleDeleteForm (index) {
+    console.log("FROM DELETE FORM START");
+    console.log(this.props);
+    var idWorkFlow = this.props.dataForm[index].idWorkFlow;
+    var idForm     = this.props.dataForm[index].idForm;
+    console.log("FROM DELETE ACTION");
+    console.log(idWorkFlow);
+    console.log(idForm);
+    var api    =`${Const.DELETE_FORM}/${idWorkFlow}/${idForm}`;
+    var header ={
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    apiCall.get(api,header,this.handleGetDeleteForm,this);
+  } 
  
-  handleGetLoadForm =(callback)=>{
+  handleGetLoadForm =(callback,scope)=>{
+    console.log("FROM LOAD DATA");
     if (callback.data.status==true){
-      this.props.dispatch(dispatchAction(callback.data.data,Const.EDIT_FORM));
+      scope.props.dispatch(dispatchAction(callback.data.data,Const.EDIT_FORM));
     }
   }
 
   handleLoadForm () {
+    console.log("LOAD FORM BROW");
     var api    =`${Const.GET_FORM}`;
     var header ={
       headers:{
         'Content-Type':'application/json'
       }
     }
-    apiCall.get(api,header,this.handleGetLoadForm);
-
+    apiCall.get(api,header,this.handleGetLoadForm,this);
   }
 
   componentWillMount = () => {
@@ -231,10 +282,11 @@ class Home extends React.Component{
         if (this.props.dataForm.length> 0) {
           index = this.props.dataForm.length;
         }
+        var CodeForm = 'idForm' + Math.random().toString(36).substr(2, 9);
         var payload = {
-          key:index,
-          idForm:index,
-          idWorkFlow:this.state.activeMenuModule,
+          key:CodeForm,
+          idForm:CodeForm,
+          idWorkFlow:"idWorkFlow"+this.state.activeMenuModule,
           keyModule:this.state.activeMenuModule,
           name: this.state.name,
           keterangan: this.state.ket,
@@ -243,10 +295,6 @@ class Home extends React.Component{
           if (form.name==this.state.name){
             tempContinue=false;
             message.error("Nama Form Sudah Ada");
-          }
-          if (form.idForm=="idForm"+index){
-            tempContinue=false;
-            message.error("ID Form Sudah Ada");
           }
         })
         if (tempContinue){
@@ -374,14 +422,14 @@ class Home extends React.Component{
     var {dataForm} =this.props;
     var {tempDataForm} = this.state;
     if(actionType=='delete'){
-      dataForm.map((obj,i)=>{
-        if (obj.key==index){
-          dataForm.splice(i,1);
-        }
-      })
-      this.props.dispatch(dispatchAction(dataForm,Const.DELETE_FORM));
+      // dataForm.map((obj,i)=>{
+      //   if (obj.key==index){
+      //     dataForm.splice(i,1);
+      //   }
+      // })
+      // this.props.dispatch(dispatchAction(dataForm,Const.DELETE_FORM));
       setTimeout(()=>{
-        this.handleSaveForm();
+        this.handleDeleteForm(index);
       },500);
     }else if (actionType=='edit'){
       var tempDataForm = [];
@@ -488,11 +536,14 @@ class Home extends React.Component{
   }
 
   render() {
-    var index = 0;
+    var index    = 0;
+    var indexKey = 0;
     var data = this.props.dataModule.length > 0 ? this.props.dataForm.length > 0 ? this.props.dataForm.filter((obj)=>{
       if (obj.keyModule==this.state.activeMenuModule) {
         index++;
         obj.no = index;
+        obj.indexKey=indexKey;
+        indexKey++;
         return obj;
       }
 
@@ -581,4 +632,4 @@ class Home extends React.Component{
       );
 	}
 }
-module.exports = connect(state => ({dataModule:state.Modules.dataModule,dataForm:state.Forms.dataForm}), dispatch=>({dispatch:dispatch}))(Home);
+module.exports = connect(state => ({dataModule:state.Modules.dataModule,dataForm:state.Forms.dataForm,dataComponent:state.FormBuilders.dataComponent}), dispatch=>({dispatch:dispatch}))(Home);

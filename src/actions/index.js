@@ -38,16 +38,15 @@ export const apiCall = ({
 		    callback.call(this,_tempErrDetail,dispatch);
 		});
 	},
-	get : async (endpoint,header,callback,dispatch) => {
+	get : async (endpoint,header,callback,scope) => {
 			await api.get(endpoint,header).then((result) => {
 			if(header.params && header.params.type!=''){
-				callback.call(this,result);
+				callback.call(this,result,scope);
 			}else {
-				callback.call(this,result);
+				callback.call(this,result,scope);
 			}
-		  
 		}).catch(error => {
-		    var _tempErrDetail = error.response.data.error.error_details ? error.response.data.error.error_details : null;
+		    var _tempErrDetail = error.response.data ? error.response.data : null;
 		    callback.call(this,_tempErrDetail,dispatch);
 		});
 	}

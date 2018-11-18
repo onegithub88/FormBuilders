@@ -1,23 +1,16 @@
 import React from 'react';
-import { LocaleProvider, Layout, Form, Input, Menu, Select,Checkbox, Radio, DatePicker,
-  Modal, Icon, Avatar, Table, Button, Row, Col, Card, Divider, Tag, Tabs,Upload, message
+import {Input, Select,Checkbox, Radio, DatePicker,Alert,
+  Icon, Button, Row, Col, Tabs, Upload
 } from 'antd';
 const {TextArea} = Input;
 const CheckboxGroup = Checkbox.Group;
-import CommonComponentTab from './CommonComponentTab';
-import GoogleMaps from 'google-map-react';
-import moment from 'moment';
+
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
-const TabPane = Tabs.TabPane;
-const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 class CommonComponent extends React.Component{
   state = {
     value: 1,
   }
-  onChangeRangeDate = (dates, dateStrings) => {
-  }
-
   renderDetailsOption = ()=> {
     var DetailsOption = [];
     DetailsOption     = this.props.options.map((obj,i)=>{
@@ -35,24 +28,145 @@ class CommonComponent extends React.Component{
 
   callback=(key) => {
   }
+
+  handleValidateEmail = (email) => {
+    var regeXEmail = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    if (regeXEmail.test(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  
+  // error render
+  renderErrorMessage = (name,items,index) => {
+    switch (name){
+      case 'text' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Text input Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (items.firstCheck==false){
+            return [];
+          }
+        }
+      break;
+      case 'number' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Number input Required!"} type="error" showIcon /></Row>);
+        }
+        if (items.firstCheck==false){
+          return [];
+        }
+      break;
+      case 'email' :
+        var checkRequired =false;
+        var checkEmail = this.handleValidateEmail(items.postValue);
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.firstCheck){
+          if (items.postValue.length==0 ) {
+            return (<Row key={index} style={{marginTop:5}}><Alert message={"Email input Required!"} type="error" showIcon /></Row>);
+          }else {
+            if (checkRequired==true && items.postValue.length> 0 && checkEmail==false){
+              return (<Row key={index} style={{marginTop:5}}><Alert message={"Email Not Valid!"} type="error" showIcon /></Row>);
+            }
+          }
+        }
+
+        if (items.firstCheck==false){
+          return [];
+        }
+      break;
+      case 'textarea' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"TextArea input Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (items.firstCheck==false){
+            return [];
+          }
+        }
+      break;
+      case 'dropdown' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Select Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (items.firstCheck==false){
+            return [];
+          }
+        }
+      break;
+      case 'radio' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Choise Radio Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (items.firstCheck==false){
+            return [];
+          }
+        }
+      break;
+      case 'date' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Date Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (items.firstCheck==false){
+            return [];
+          }
+        }
+      break;
+      case 'checklist' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"Select checkList Option Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (items.firstCheck==false){
+            return [];
+          }
+        }
+      break;
+      case 'file' :
+        var checkRequired =false;
+        items.requiredOption.map((obj)=>obj.indexOf('required')>-1 ? checkRequired=true : false);
+        if (checkRequired==true && items.postValue.length==0 && items.firstCheck){
+          return (<Row key={index} style={{marginTop:5}}><Alert message={"File Upload Required!"} type="error" showIcon /></Row>);
+        }else {
+          if (items.firstCheck==false){
+            return [];
+          }
+        }
+      break;
+      default :
+      return []
+    }
+  }
   
   render (){
     var title = this.props.title ? this.props.title :'';
     var type  = this.props.type ? this.props.type :'';
     var span  = this.props.span ? this.props.span : 24;
     var value = this.props.value ? this.props.value :'';
-    var color = this.props.value ? this.props.color :'primary';
-    var options            = this.props.options ? this.props.options : [];
+    var items = this.props.items ? this.props.items : []; 
+    var index              = this.props.index ? this.props.index : 0;
     var placeholder        = this.props.placeholder ? this.props.placeholder :'';
-    var items              = this.props.items ? this.props.items : {};
-    var disabled           = this.props.disabled ? this.props.disabled :true;
-    var detailsTabs        = this.props.items.detailsTabs ? this.props.items.detailsTabs : []; 
+    var disabled           = this.props.disabled ? this.props.disabled :false;
     var detailsDropDown    = this.props.items.detailsDropDown ? this.props.items.detailsDropDown : []; 
     var detailsCheckList   = this.props.items.detailsCheckList ? this.props.items.detailsCheckList : []; 
     var detailsRadioButton = this.props.items.detailsRadioButton ? this.props.items.detailsRadioButton : []; 
     var handleChangeUpload = this.props.handleChangeUpload ? this.props.handleChangeUpload : () => {}
-    var detailColumn       = this.props.items.detailColumn ? this.props.items.detailColumn : [];
-    var detailRow          = this.props.items.detailRow ? this.props.items.detailRow : [];
+    var handleOnChageInputPreviewTab = this.props.handleOnChageInputPreviewTab ? this.props.handleOnChageInputPreviewTab : () => {};
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -128,8 +242,12 @@ class CommonComponent extends React.Component{
               type={'text'}
               disabled={disabled}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
+              
             />
           </Row>
+          {this.renderErrorMessage("text",items,index)}
         </Col>
       )
       break;
@@ -148,8 +266,11 @@ class CommonComponent extends React.Component{
               type={'number'}
               disabled={disabled}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
             />
           </Row>
+          {this.renderErrorMessage("number",items,index)}
         </Col>
       )
       break;
@@ -168,8 +289,11 @@ class CommonComponent extends React.Component{
               type={'email'}
               disabled={disabled}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
             />
           </Row>
+          {this.renderErrorMessage("email",items,index)}
         </Col>
       )
       break;
@@ -185,7 +309,10 @@ class CommonComponent extends React.Component{
               disabled={disabled}
               rows={4}
               placeholder={placeholder}
+              value={this.props.items.postValue}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
             />
+            {this.renderErrorMessage("textarea",items,index)}
           </Col>
         )
         break;
@@ -197,6 +324,7 @@ class CommonComponent extends React.Component{
               :
               []
             }
+            {this.renderErrorMessage("textarea",items,index)}
           </Col>
         )
         break;
@@ -224,7 +352,8 @@ class CommonComponent extends React.Component{
                 style={{ width: 300}}
                 placeholder={placeholder}
                 optionFilterProp="children"
-                onChange={()=>this.handleChangeDropDown()}
+                value={this.props.items.postValue}
+                onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
               >
                 { detailsDropDown.length > 0 ? 
@@ -238,59 +367,9 @@ class CommonComponent extends React.Component{
                 }
               </Select>
             </Row>
+            {this.renderErrorMessage("dropdown",items,index)}
         </Col>
        )
-      break;
-      case 'button' :
-        var styleCancelButton = {
-          marginTop:20,
-          marginRight:20,
-          width:100,
-          height:30,
-          paddingTop:4,
-          paddingBottom:8,
-          borderRadius:4,
-          backgroundColor:'#ef2f2f',
-          cursor:'pointer',
-          textAlign:'center',
-          color:'#fff',
-          fontWeight:'500'
-        }
-        var styleSubmitButton = {
-          marginTop:20,
-          marginRight:20,
-          width:100,
-          height:30,
-          paddingTop:4,
-          paddingBottom:8,
-          borderRadius:4,
-          borderColor:'#1890ff',
-          backgroundColor:'#1890ff',
-          cursor:'pointer',
-          textAlign:'center',
-          color:'#fff',
-          fontWeight:'500'
-        }
-        if (items.postValue!='' && items.postValue=="Submit"){
-          return (
-            <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
-              <Row type="flex">
-                <Col>
-                  <div style = {styleCancelButton}>Cancel</div>
-                </Col>
-                <Col>
-                  <div style = {styleSubmitButton}>Submit</div>
-                </Col>
-              </Row>
-            </Col>
-          )
-        }else{
-          return (
-            <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
-              <div style = {styleCancelButton}>Cancel</div>
-            </Col>
-          )
-        }
       break;
       case 'radio' :
         return (
@@ -303,7 +382,10 @@ class CommonComponent extends React.Component{
               }
             </Row>
             <Row>
-              <RadioGroup style={{width:365}} onChange={this.onChange} value={this.state.value}>
+              <RadioGroup style={{width:365}} 
+                value={this.props.items.postValue}
+                onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
+              >
                 {detailsRadioButton.length > 0 ?
                   detailsRadioButton.map((obj,i)=>{
                     return (
@@ -315,6 +397,7 @@ class CommonComponent extends React.Component{
                 }
               </RadioGroup>
             </Row>
+            {this.renderErrorMessage("radio",items,index)}
           </Col>
         );
       break;
@@ -329,108 +412,14 @@ class CommonComponent extends React.Component{
               }
             </Row>
             <Row>
-              <DatePicker disabled={true} style={{width:300}} onChange={()=>this.onChange()} />
+              <DatePicker style={{width:300}} 
+                onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
+                value={this.props.items.postValue}
+              />
             </Row>
+            {this.renderErrorMessage("date",items,index)}
           </Col>
         );
-      break;
-      case 'rangedate' :
-        var handleDisableDate=(current)=>{
-          var startDate= items.postValue[0].startDate;
-          if (startDate){
-            return current && current < moment(startDate);
-          } else {
-            return current && current < moment().endOf('day');
-          }
-        }
-        return (
-          <Col span={span} style={{marginBottom: 15, paddingBottom: 10,marginTop:20}}>
-            <Row>
-              <Col style={{marginBottom:10}}>
-                <Row style={{marginBottom:10}}>{this.props.value ? this.props.value.startDate : ''}</Row>
-                <Row>
-                  <DatePicker 
-                    style={{width:300}} 
-                    value={items.postValue.length > 0 ? moment(items.postValue[0].startDate) : moment()}
-                    disabled
-                    format="YYYY/MM/DD"
-                    onChange={this.onChangeRangeDate}
-                  />
-                </Row>
-              </Col>
-              <Col>
-                <Row style={{marginBottom:10}}>{this.props.value ? this.props.value.endDate : ''}</Row>
-                <Row>
-                  <DatePicker 
-                    style={{width:300}}
-                    disabledDate={handleDisableDate.bind(this)} 
-                    value={items.postValue.length > 0 ? moment(items.postValue[0].endDate) :moment}
-                    disabled
-                    format="YYYY/MM/DD"
-                    onChange={this.onChangeRangeDate}
-                  />
-                </Row>
-              </Col>
-            </Row>
-          </Col>
-        );
-      break;
-      case 'table':
-        return(
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
-            <Row style={{marginBottom:10}}>
-              {this.props.title ?
-                <span style={{marginBottom: 10}}>{title}</span>
-                :
-                []
-              }
-            </Row>
-            <Row>
-              <Table columns={detailColumn} dataSource={detailRow} /> 
-            </Row>
-          </Col>
-        )
-      break;
-      case 'tab' : 
-        return (
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
-            <Tabs onChange={()=>this.callback()} type="card">
-              {detailsTabs.length > 0 ?
-                detailsTabs.map((obj,i)=>{
-                  return (
-                    <TabPane style={{backgroundColor:'#fafafa',padding:10,borderRadius:3}} tab={obj.value} key={i}> 
-                      <Row span={24}>{
-                        obj.componentTabs.map((compTab,t)=>{
-                          return (
-                            <Row 
-                            data-key={t}
-                            style={{backgroundColor:'#fafafa',borderWidth:2, padding:5,borderColor:'#fff'}}
-                            key={t} type='flex' justify='left' align='middle'>
-                              <CommonComponentTab
-                                key={t}
-                                 items={compTab}
-                                index={t}
-                                title={compTab.title}
-                                value={compTab.value}
-                                color={compTab.color}
-                                placeholder={compTab.placeholder}
-                                type={compTab.type}
-                                span={20}
-                                handleChangeUpload={this.handleChangeUpload}
-                              />
-                            </Row>
-                          )
-                        })}
-                      </Row>
-                    </TabPane>
-                  )
-                })
-                :
-                []
-              }
-            </Tabs>
-          </Col>
-        )
       break;
       case 'checklist' : 
       return (
@@ -444,7 +433,9 @@ class CommonComponent extends React.Component{
                 }
               </Row>
             </Col>
-           <Checkbox.Group style={{ width: '100%' }}>
+           <Checkbox.Group style={{ width: '100%' }}
+              onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
+           >
             {detailsCheckList.length > 0 ?
                 detailsCheckList.map((obj,i)=>{
                   return (
@@ -455,6 +446,7 @@ class CommonComponent extends React.Component{
                 []
               }
             </Checkbox.Group>
+            {this.renderErrorMessage("checklist",items,index)}
         </Col>
       )
       break;
@@ -478,46 +470,19 @@ class CommonComponent extends React.Component{
                   }
                 </Row>
               </Col>
-              <Upload {...props}>
-                <Button disabled={true}>
+              <Upload 
+                name  = 'file'
+                action = '//jsonplaceholder.typicode.com/posts/'
+                headers = {{
+                  authorization: 'authorization-text'
+                }}
+                onChange={(e)=>handleOnChageInputPreviewTab(e,this.props.items,this.props.mainIndex,this.props.indexTabs,this.props.index)}
+              >
+                <Button>
                   <Icon type="upload" /> Click to Upload
                 </Button>
               </Upload>
-          </Col>
-        )
-      break;
-
-      case 'map' :  
-        const MarkComponent = ({ desc }) => <div><Icon style={{color:'#f22f2f', fontSize:20, fontWeight:'800'}} type="environment" theme="filled" />{desc}</div>;
-        return (
-          <Col span={span} style={{marginBottom:15,paddingBottom:10,marginTop:20}}>
-              <Col>
-                <Row style={{marginBottom:10}}>
-                  {items.title!='' ?
-                    <span style={{marginBottom: 10, fontWeight:'600',fontSize:15}}>{title}</span>
-                    :
-                    []
-                  }
-                </Row>
-                <Row type={'flex'} align={'center'}>
-                  <Col span={24}>
-                    <div style={{ height: '100vh', width: '100%'}}>
-                      <GoogleMaps
-                        bootstrapURLKeys={{ key:'AIzaSyBHL-hz-eBvTvpgC4R5E8I4T6RRzC7hTsY'}}
-                        defaultCenter={items.markValue.center}
-                        center = {items.markValue.center}
-                        defaultZoom={items.markValue.zoom}
-                      >
-                        <MarkComponent
-                          lat={items.markValue.mark.lat}
-                          lng={items.markValue.mark.lng}
-                          v={''}
-                        />
-                      </GoogleMaps>
-                    </div>
-                  </Col>
-                </Row>
-              </Col>
+            {this.renderErrorMessage("file",items,index)}
           </Col>
         )
       break;

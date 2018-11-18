@@ -149,13 +149,16 @@ class FormBuilders extends React.Component{
     var idForm   = this.props.match.params.idForm;
     this.setState({idWorkFlow,idForm});
     this.handleLoadDetailForm();
+    this.handleClearStatusCheck();
   }
 
-  handleGetLoadDetailForm = (callback) => {
+  handleGetLoadDetailForm = (callback,scope) => {
     if (callback.data.data.status=true) {
-      var {dataComponent}=this.props;
-      dataComponent=callback.data.data.detailForm;
-      this.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT));
+      var {dataComponent}=scope.props;
+      dataComponent=callback.data.data;
+      scope.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT));
+    }else {
+      scope.props.dispatch(dispatchAction([],Const.EDIT_COMPONENT));
     }
   }
 
@@ -166,7 +169,7 @@ class FormBuilders extends React.Component{
         'Content-Type':'application/json'
       }
     }
-    apiCall.get(api,header,this.handleGetLoadDetailForm);
+    apiCall.get(api,header,this.handleGetLoadDetailForm,this);
     
   } 
 
@@ -298,9 +301,10 @@ class FormBuilders extends React.Component{
           ];
           break;
         case 'button' : 
-          initialdataDrag.selectOption = ['Red','Blue','Green', 'Grey'];
+          initialdataDrag.selectOption = ['Cancel','Submit'];
           initialdataDrag.color = "primary";
           initialdataDrag.value = "Button";
+          initialdataDrag.postValue = "Submit";
           break;
         case 'radio' : 
           initialdataDrag.value       = 'Chose Items';
@@ -438,7 +442,6 @@ class FormBuilders extends React.Component{
         break;
         case 'button' : 
           tempDataComponent[0]       = this.props.dataComponent[index];
-          tempDataComponent[0].color = color;
           this.setState({tempDataComponent,typeInput:'button',visibleModalAddButton:visible,activeIndex:index,activeAction:action})
         break;
         case 'radio' : 
@@ -2096,23 +2099,15 @@ class FormBuilders extends React.Component{
         >
         <Col type={'flex'} align={'left'}>
           <Row>
-            <Col>
-              <Row style={{marginBottom: 5, fontSize: 14}}>Set Button Text</Row>
-              <Row style={{marginBottom: 10}}>
-                <Input
-                  value={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].value :''}
-                  onChange={(e)=>this.handleOnChangeInputDetails("value",e.target.value)}
-                />
-              </Row>
-              <Row style={{marginBottom: 5, fontSize: 14}}>Set Button Color</Row>
+            <Col> 
+              <Row style={{marginBottom: 5, fontSize: 14}}>Set Button Type</Row>
               <Row style={{marginBottom: 10}}>
                 <Select
                   style={{ width: 300}}
-                  placeholder="Color (Red, Green, Blue, 'Grey')"
-                  defaultValue={"Red"}
-                  value ={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].color:''}
+                  placeholder="Type (Cancel, Submit)"
+                  value ={this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent[0].postValue:''}
                   optionFilterProp="children"
-                  onChange={(e)=>this.handleSelectColorButton("color",e)}
+                  onChange={(e)=>this.handleSelectColorButton("postValue",e)}
                   filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                 >
                  {this.state.tempDataComponent[0]!=undefined ? this.state.tempDataComponent.length > 0 ? this.state.tempDataComponent[0].selectOption.length > 0 ? 
@@ -3783,10 +3778,7 @@ class FormBuilders extends React.Component{
   handleSaveForm = () => {
     var api    = `${Const.CREATE_FORMDETAIL}`;
     var data   = {
-      dataPost:{
-        idWorkFlow:this.state.idWorkFlow,
-        idForm:this.state.idForm,
-        detailForm:this.state.tempPostDataComponent}
+      dataPost:this.state.tempPostDataComponent
     };
     var header = {
       headers:{
@@ -3896,6 +3888,8 @@ class FormBuilders extends React.Component{
                               handleChangeRangeDate={this.handleChangeRangeDate}
                               handleChangeCheckList={this.handleChangeCheckList}
                               handleChangeUploadPost={this.handleChangeUploadPost}
+                              handleGotoPreview={this.handleGotoPreview}
+                              handleValidateForm={this.handleValidateForm}
                               disabled={false}
                               items={items}
                               index={i}
@@ -3979,6 +3973,10 @@ class FormBuilders extends React.Component{
     return  ModalPreviewCode;
   }
 
+  handleGotoDasboard=()=>{
+    history.push('/');
+  }
+
   render() {
     return (
       <Row>
@@ -4018,15 +4016,37 @@ class FormBuilders extends React.Component{
       {this.renderModalEditFileUploadTab()}
         <Layout>
           <Header style={{backgroundColor: '#020292'}}>
-            <Row type='flex' justify='end'>
-             <Col span={4} style={{paddingLeft:25}}>
+            <Row type='flex' justify='between'>
+              <Col span={15} style={{paddingLeft:25}}>
+                <Button
+                  style={{
+                    marginTop:20,
+                    marginRight:20,
+                    width:175,
+                    height:32,
+                    paddingTop:4,
+                    paddingBottom:10,
+                    borderRadius:4,
+                    borderColor:'#ef2f2f',
+                    backgroundColor:'#ef2f2f',
+                    cursor:'pointer',
+                    textAlign:'center',
+                    color:'#fff',
+                    fontWeight:'500'
+                  }}
+                  onClick = {() =>this.handleGotoDasboard()}
+                  type="dash">
+                  <Icon type="arrow-left" />back to Dasboard
+                </Button>
+              </Col>
+              <Col span={4} style={{paddingLeft:25}}>
                 <Button
                   onClick = {() =>this.handleShowPreviewCode(true)}
                   type="dash">
                   Preview Payload<Icon type="code" />
                 </Button>
               </Col>
-              <Col span={6} style={{paddingLeft:25}}>
+              <Col span={4} style={{paddingLeft:25}}>
                 <Button
                   onClick = {() =>this.handleGotoPreview(true)}
                   type="primary">

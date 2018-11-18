@@ -394,14 +394,55 @@ class CommonPreviewComponent extends React.Component{
        )
       break;
       case 'button' :
-        var backgrounColor = '#22ff22 !important';
+      var styleCancelButton = {
+        marginTop:20,
+        marginRight:20,
+        width:100,
+        height:30,
+        paddingTop:4,
+        paddingBottom:8,
+        borderRadius:4,
+        backgroundColor:'#ef2f2f',
+        cursor:'pointer',
+        textAlign:'center',
+        color:'#fff',
+        fontWeight:'500'
+      }
+      var styleSubmitButton = {
+        marginTop:20,
+        marginRight:20,
+        width:100,
+        height:30,
+        paddingTop:4,
+        paddingBottom:8,
+        borderRadius:4,
+        borderColor:'#1890ff',
+        backgroundColor:'#1890ff',
+        cursor:'pointer',
+        textAlign:'center',
+        color:'#fff',
+        fontWeight:'500'
+      }
+      if (items.postValue!='' && items.postValue=="Submit"){
         return (
-          <Col span={span} style={{marginBottom: 15}}>
-            <div>
-              <Button color={'#22ff22'} style={{paddingLeft:10, paddingRight:10, marginTop: 20, backgrounColor:backgrounColor}}  type={color}>{value}</Button>
-            </div>
+          <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
+            <Row type="flex">
+              <Col>
+                <div onClick={()=>this.props.handleGotoPreview(false)} style = {styleCancelButton}>Cancel</div>
+              </Col>
+              <Col>
+                <div onClick={()=>this.props.handleValidateForm("visibleTabSetting",true)} style = {styleSubmitButton}>Submit</div>
+              </Col>
+            </Row>
           </Col>
         )
+      }else{
+        return (
+          <Col span={span} style={{marginBottom: 15, paddingBottom: 10}}>
+            <div onClick={()=>this.handleChangeTabNavigate("visibleTabSetting",true)} style = {styleCancelButton}>Cancel</div>
+          </Col>
+        )
+      }
       break;
       case 'radio' :
         return (
