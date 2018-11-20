@@ -11,7 +11,7 @@ import {dispatchAction, apiCall} from './../actions';
 import {Const} from './../const/Const';
 import CommonComponent from './CommonComponent';
 import CommonComponentTab from './CommonComponentTab';
-import CommonPreviewComponent from './CommonPreviewComponent';
+import ComponentViewer from './ComponentViewer';
 import history from './../controllers/History';
 class FormViewer extends React.Component{
   state = {
@@ -101,7 +101,59 @@ class FormViewer extends React.Component{
     if (callback.data.data.status=true) {
       var {dataComponentViewer}=scope.props;
       var {tempPostDataComponent}=scope.state;
-      dataComponentViewer=callback.data.data;
+      dataComponentViewer=callback.data.data.form ? callback.data.data.form : [];
+      for(var i=0;i<dataComponentViewer.length;i++){
+        switch (dataComponentViewer[i].type) {
+            case 'text' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+            case 'number' : 
+              dataComponentViewer[i].postValue  = 0;
+              break;
+            case 'email' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+            case 'textarea' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+            case 'label' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+            case 'dropdown' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+            case 'button' : 
+              dataComponentViewer[i].postValue  = dataComponentViewer[i].postValue;
+              break;
+            case 'radio' :
+              dataComponentViewer[i].postValue  = "";
+              break;
+              break;
+            case 'rangedate' : 
+              dataComponentViewer[i].postValue  = [{startDate:new Date().getTime(),endDate:new Date().getTime()}];
+              break;
+            case 'date' : 
+              dataComponentViewer[i].postValue  = moment(new Date());
+              break;
+            case 'table' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+            case 'tab' : 
+              dataComponentViewer[i].postValue  = [];
+              break;
+            case 'checklist' : 
+              dataComponentViewer[i].postValue  = [];
+              break;
+            case 'file' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+            case 'map' : 
+              dataComponentViewer[i].postValue  = "";
+              break;
+              default:
+              return 0;
+        }
+      }
       tempPostDataComponent = dataComponentViewer;
       scope.props.dispatch(dispatchAction(dataComponentViewer,Const.EDIT_COMPONENT_VIEWER));
       setTimeout(()=>{
@@ -120,27 +172,98 @@ class FormViewer extends React.Component{
       }
     }
     apiCall.get(api,header,this.handleGetLoadDetailForm,this);
-    
   } 
+  handleClearDataValue (){
+    var {tempPostDataComponent} = this.state;
+    for (var i=0;i < tempPostDataComponent.length;i++){
+      switch (tempPostDataComponent[i].type) {
+        case 'text' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'number' : 
+          tempPostDataComponent[i].postValue  = 0;
+          break;
+        case 'email' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'textarea' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'label' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'dropdown' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'button' : 
+          tempPostDataComponent[i].postValue  = tempPostDataComponent[i].postValue;
+          break;
+        case 'radio' :
+          tempPostDataComponent[i].postValue  = "";
+          break;
+          break;
+        case 'rangedate' : 
+          tempPostDataComponent[i].postValue  = [{startDate:new Date().getTime(),endDate:new Date().getTime()}];
+          break;
+        case 'date' : 
+          tempPostDataComponent[i].postValue  = moment(new Date());
+          break;
+        case 'table' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'tab' : 
+          tempPostDataComponent[i].postValue  = [];
+          break;
+        case 'checklist' : 
+          tempPostDataComponent[i].postValue  = [];
+          break;
+        case 'file' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'map' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+          default:
+          return 0;
+      }
+    }
+    this.setState({tempPostDataComponent})
+  }
 
   handleCallbackSaveForm = (callback) => {
     if (callback.data.status==true){
       message.success(callback.data.message);
-      this.handleLoadDetailForm();
-      this.handleGotoPreview(false);
     }
+    this.handleClearDataValue();
   }
 
   handleSaveForm = () => {
     var api    = `${Const.CREATE_FORMDETAIL}`;
-    var data   = {
-      dataPost:this.state.tempPostDataComponent
-    };
     var header = {
       headers:{
         'Content-Type':'application/json'
       }
     }
+    var generateDataPayload = {
+    "workflow":this.state.idWorkFlow,
+    "formid":this.state.idForm,
+    "formversionID":this.state.idForm,
+    "tickedtid":"ticekt1",
+    "system":{"inputdate":moment().format("DD-MM-YYYY"),"inputby":"jaky","submit":"B","customcalculation":["Insert into 123 values(1,2,3)","Insert into 123 values(1,2,3)"]},
+    "form":this.state.tempPostDataComponent 
+    };
+    for (var i=0;i<this.state.tempPostDataComponent.length;i++){
+    var elementId ="ID"+Math.random().toString(12).substr(2,4);
+    generateDataPayload.form[i].elemenname  = this.state.tempPostDataComponent[i].value;
+    generateDataPayload.form[i].elementype  = this.state.tempPostDataComponent[i].type;
+    generateDataPayload.form[i].elemenid    = elementId;
+    generateDataPayload.form[i].processtype = "input";
+    generateDataPayload.form[i].tablename   = "@";
+    generateDataPayload.form[i].elemenvalue = "";
+    }
+    var data   = {
+    dataPost:generateDataPayload
+    };
     apiCall.post(api, data,this.handleCallbackSaveForm,header);
   }
 
@@ -206,9 +329,8 @@ class FormViewer extends React.Component{
   }
 
   handleCancelSubmitForm = (visible) => {
-    this.setState({visibleModalPreview:visible,statusCheck:{
-      checkText:false
-    }});
+    this.handleClearDataValue();
+    history.push('/');
   }
 
   handleValidateEmail = (email) => {
@@ -360,7 +482,7 @@ class FormViewer extends React.Component{
                         data-key={i}
                         style={{paddingTop: 5}}
                         key={i} type='flex' justify='left' align='middle'>
-                        <CommonPreviewComponent
+                        <ComponentViewer
                             key={i}
                             statusCheck={this.statusCheck}
                             handleChangeStatusCheck={this.handleChangeStatusCheck}
@@ -386,6 +508,7 @@ class FormViewer extends React.Component{
                             handleOnChageInputPreviewTab={this.handleOnChageInputPreviewTab}
                             handleOnChageFirstCheckTab={this.handleOnChageFirstCheckTab}
                             handleChangeValidateDetailTabs={this.handleChangeValidateDetailTabs}
+                            handleCancelSubmitForm={this.handleCancelSubmitForm}
                         />
                     </Row>
                 )

@@ -155,7 +155,7 @@ class FormBuilders extends React.Component{
   handleGetLoadDetailForm = (callback,scope) => {
     if (callback.data.data.status=true) {
       var {dataComponent}=scope.props;
-      dataComponent=callback.data.data;
+      dataComponent=callback.data.data.form ? callback.data.data.form : [];
       scope.props.dispatch(dispatchAction(dataComponent,Const.EDIT_COMPONENT));
     }else {
       scope.props.dispatch(dispatchAction([],Const.EDIT_COMPONENT));
@@ -3771,21 +3771,96 @@ class FormBuilders extends React.Component{
     if (callback.data.status==true){
       message.success(callback.data.message);
       this.handleLoadDetailForm();
+      this.handleClearDataValue();
       this.handleGotoPreview(false);
     }
   }
 
   handleSaveForm = () => {
     var api    = `${Const.CREATE_FORMDETAIL}`;
-    var data   = {
-      dataPost:this.state.tempPostDataComponent
-    };
+  
     var header = {
       headers:{
         'Content-Type':'application/json'
       }
     }
+    var generateDataPayload = {
+      "workflow":this.state.idWorkFlow,
+      "formid":this.state.idForm,
+      "formversionID":this.state.idForm,
+      "tickedtid":"ticekt1",
+      "system":{"inputdate":moment().format("DD-MM-YYYY"),"inputby":"jaky","submit":"B","customcalculation":["Insert into 123 values(1,2,3)","Insert into 123 values(1,2,3)"]},
+      "form":this.state.tempPostDataComponent 
+    };
+    for (var i=0;i<this.state.tempPostDataComponent.length;i++){
+      var elementId ="ID"+Math.random().toString(12).substr(2,4);
+      generateDataPayload.form[i].elemenname  = this.state.tempPostDataComponent[i].value;
+      generateDataPayload.form[i].elementype  = this.state.tempPostDataComponent[i].type;
+      generateDataPayload.form[i].elemenid    = elementId;
+      generateDataPayload.form[i].processtype = "input";
+      generateDataPayload.form[i].tablename   = "@";
+      generateDataPayload.form[i].elemenvalue = "";
+    }
+    var data   = {
+      dataPost:generateDataPayload
+    };
     apiCall.post(api, data,this.handleCallbackSaveForm,header);
+  }
+
+  handleClearDataValue (){
+    var {tempPostDataComponent} = this.state;
+    for (var i=0;i < tempPostDataComponent.length;i++){
+      switch (tempPostDataComponent[i].type) {
+        case 'text' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'number' : 
+          tempPostDataComponent[i].postValue  = 0;
+          break;
+        case 'email' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'textarea' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'label' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'dropdown' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'button' : 
+          tempPostDataComponent[i].postValue  = tempPostDataComponent[i].postValue;
+          break;
+        case 'radio' :
+          tempPostDataComponent[i].postValue  = "";
+          break;
+          break;
+        case 'rangedate' : 
+          tempPostDataComponent[i].postValue  = [{startDate:new Date().getTime(),endDate:new Date().getTime()}];
+          break;
+        case 'date' : 
+          tempPostDataComponent[i].postValue  = moment(new Date());
+          break;
+        case 'table' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'tab' : 
+          tempPostDataComponent[i].postValue  = [];
+          break;
+        case 'checklist' : 
+          tempPostDataComponent[i].postValue  = [];
+          break;
+        case 'file' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+        case 'map' : 
+          tempPostDataComponent[i].postValue  = "";
+          break;
+          default:
+          return 0;
+      }
+    }
   }
 
   renderPushError= () => {
@@ -3839,18 +3914,19 @@ class FormBuilders extends React.Component{
     this.setState({tempPostDataComponent});
   }
 
-    // add InputChange Tab
-    handleOnChageFirstCheckTab = (value, items, mainIndex, indexTab, IndexComponent) => {
-      var {tempPostDataComponent} = this.state;
-      tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].firstCheck=value;
-      this.setState({tempPostDataComponent});
-    }
+  // add InputChange Tab
+  handleOnChageFirstCheckTab = (value, items, mainIndex, indexTab, IndexComponent) => {
+    var {tempPostDataComponent} = this.state;
+    tempPostDataComponent[mainIndex].detailsTabs[indexTab].componentTabs[IndexComponent].firstCheck=value;
+    this.setState({tempPostDataComponent});
+  }
 
   handleChangeStatusCheck = (type,value) => {
     this.statusCheck [type] = value;
   }
 
   handleCancelSubmitForm = (visible) => {
+    this.handleClearDataValue();
     this.setState({visibleModalPreview:visible,statusCheck:{
       checkText:false
     }});
