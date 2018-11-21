@@ -611,4 +611,4 @@ class FormViewer extends React.Component{
     );
   }
 }
-module.exports = connect(state => ({dataModule:state.Modules.dataModule,dataForm:state.Forms.dataForm,dataComponentViewer:state.ComponentViewer.dataComponentViewer}), dispatch=>({dispatch:dispatch}))(FormViewer);
+module.exports = connect(state => ({dataWorkFlow:state.WorkFlows.dataWorkFlow,dataForm:state.Forms.dataForm,dataComponentViewer:state.ComponentViewer.dataComponentViewer}), dispatch=>({dispatch:dispatch}))(FormViewer);

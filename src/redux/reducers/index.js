@@ -1,11 +1,11 @@
 import {combineReducers} from 'redux';
-import Modules from './moduleReducer';
+import WorkFlows from './workFlowReducer';
 import Forms from './formReducer';
 import FormBuilders from './formBuilderReducer';
 import ComponentViewer from './ComponentViewer';
 
 export default combineReducers({
-  Modules,
+  WorkFlows,
   Forms,
   FormBuilders,
   ComponentViewer

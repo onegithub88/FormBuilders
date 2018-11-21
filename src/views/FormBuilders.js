@@ -4315,4 +4315,4 @@ class FormBuilders extends React.Component{
     );
 	}
 }
-module.exports = connect(state => ({dataModule:state.Modules.dataModule,dataForm:state.Forms.dataForm,dataComponent:state.FormBuilders.dataComponent}), dispatch=>({dispatch:dispatch}))(FormBuilders);
+module.exports = connect(state => ({dataWorkFlow:state.WorkFlows.dataWorkFlow,dataForm:state.Forms.dataForm,dataComponent:state.FormBuilders.dataComponent}), dispatch=>({dispatch:dispatch}))(FormBuilders);

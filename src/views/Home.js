@@ -31,7 +31,7 @@ class Home extends React.Component{
     selected:0,
     tempDataForm :[
       {key:0,
-       keyModule:0,
+       keyWorkFlow:0,
        name: "Form 1",
        keterangan: "TEST FORM 1",
       }
@@ -73,7 +73,7 @@ class Home extends React.Component{
               </Link>
               <Button onClick={()=>this.handleShowModalAction(true,record.indexKey, "edit")} type="primary" shape="circle" icon="edit" style={{marginRight: 15}} />
               <Button onClick={()=>this.handleShowModalAction(true,record.indexKey, "delete")} type="primary" shape="circle" icon="delete" style={{marginRight: 25}} />
-              <Button onClick={(index)=>this.handleGoToGenerateForm(record.keyModule,record.idForm)} type="primary" ghost>Generate Form</Button>
+              <Button onClick={(index)=>this.handleGoToGenerateForm(record.keyWorkFlow,record.idForm)} type="primary" ghost>Generate Form</Button>
             </Row>
           )
         }
@@ -81,36 +81,30 @@ class Home extends React.Component{
     ],
     title:'',
     collapsed: false,
-    visibleAddModule: false,
+    visibleAddWorkFlow: false,
     visibleAddForm:false,
-    activeMenuModule:0,
-    activeSelectModule:'',
+    activeMenuWorkFlow:0,
+    activeSelectWorkFlow:'',
     name:'',
     ket:'',
-    dataModule:{
+    dataWorkFlow:{
       key:0,
-      nameModule: '',
-      keteranganModule :'',
+      nameWorkFlow: '',
+      keteranganWorkFlow :'',
     },
     dataForm : {
       key:0,
-      keyModule:0,
+      keyWorkFlow:0,
       nameForm:'',
       KeteranganForm:''
     }
   };
 
-  handleGoToGenerateForm = (moduleId,FormId) => {
-    history.push(`/formbuilder/idWorkFlow${moduleId}/${FormId}`);
-  }
-
-  handleSaveWorkFlow = () => {
-    
+  handleGoToGenerateForm = (WorkFlowId,FormId) => {
+    history.push(`/formbuilder/idWorkFlow${WorkFlowId}/${FormId}`);
   }
 
   handleGetSaveForm =(callback)=>{
-    console.log("from callback save data");
-    console.log(callback);
     this.handleLoadForm();
   }
 
@@ -130,10 +124,42 @@ class Home extends React.Component{
     }
     apiCall.post(api,dataForm,this.handleGetSaveForm,header);
   }
+  handleGetLoadWorkFlow =(callback,scope)=>{
+    if (callback.data.status==true){
+      scope.props.dispatch(dispatchAction(callback.data.data,Const.EDIT_WORKFLOW));
+    }
+  }
+
+  handleLoadWorkFlow () {
+    var api    =`${Const.GET_WORKFLOW}`;
+    var header ={
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    apiCall.get(api,header,this.handleGetLoadWorkFlow,this);
+  }
+  handleGetSaveWorkFlow =(callback)=>{
+    this.handleLoadWorkFlow();
+  }
+
+  handleSaveWorkFlow () {
+    var api    =`${Const.CREATE_WORKFLOW}`;
+    var header ={
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    var dataWorkFlow = {
+      dataPost:[]
+    }
+
+    for (var i=0;i<this.props.dataWorkFlow.length;i++) {
+      dataWorkFlow.dataPost.push(this.props.dataWorkFlow[i]);
+    }
+    apiCall.post(api,dataWorkFlow,this.handleGetSaveWorkFlow,header);
+  }
   handleGetDeleteForm(callback,scope){
-    console.log("FROM DELETE FORM ");
-    console.log(callback);
-    console.log(scope);
     if (callback.data.status){
       scope.handleLoadForm();
     }else {
@@ -142,13 +168,8 @@ class Home extends React.Component{
 
   }
   handleDeleteForm (index) {
-    console.log("FROM DELETE FORM START");
-    console.log(this.props);
     var idWorkFlow = this.props.dataForm[index].idWorkFlow;
     var idForm     = this.props.dataForm[index].idForm;
-    console.log("FROM DELETE ACTION");
-    console.log(idWorkFlow);
-    console.log(idForm);
     var api    =`${Const.DELETE_FORM}/${idWorkFlow}/${idForm}`;
     var header ={
       headers:{
@@ -159,14 +180,12 @@ class Home extends React.Component{
   } 
  
   handleGetLoadForm =(callback,scope)=>{
-    console.log("FROM LOAD DATA");
     if (callback.data.status==true){
       scope.props.dispatch(dispatchAction(callback.data.data,Const.EDIT_FORM));
     }
   }
 
   handleLoadForm () {
-    console.log("LOAD FORM BROW");
     var api    =`${Const.GET_FORM}`;
     var header ={
       headers:{
@@ -177,17 +196,8 @@ class Home extends React.Component{
   }
 
   componentWillMount = () => {
+    this.handleLoadWorkFlow();
     this.handleLoadForm();
-    var modules = {
-      key:0,
-      name: "WorkFlow 1",
-      keterangan: "test WorkFlow 1"
-    }
-
-    if (this.props.dataForm.length==0 && this.props.dataModule.length==0) {
-      this.props.dispatch(dispatchAction(modules,Const.ADD_MODULE));
-      
-    }
   }
 
   handleInputChange = (name,text) => {
@@ -206,10 +216,10 @@ class Home extends React.Component{
     }
   }
 
-  handleShowModalAddModule = (visible) => {
+  handleShowModalAddWorkFlow = (visible) => {
     this.setState({
-      visibleAddModule: visible,
-      title:'Module',
+      visibleAddWorkFlow: visible,
+      title:'WorkFlow',
       activeAction:'tambah'
     });
   }
@@ -232,17 +242,17 @@ class Home extends React.Component{
   }
 
   handleShowModalAddForm = (visible) => {
-    if (this.props.dataModule.length > 0){
+    if (this.props.dataWorkFlow.length > 0){
       this.setState({
-        visibleAddModule: visible,
+        visibleAddWorkFlow: visible,
         title:'Form',
         activeAction:'tambah',
-        activeSelectModule:this.state.activeSelectModule,
-        activeMenuModule:this.state.activeMenuModule
+        activeSelectWorkFlow:this.state.activeSelectWorkFlow,
+        activeMenuWorkFlow:this.state.activeMenuWorkFlow
       });
     }else {
-      var title   = 'Module';
-      var message = 'Silahkan Tambahkan Module Terlebih Dahulu';
+      var title   = 'WorkFlow';
+      var message = 'Silahkan Tambahkan WorkFlow Terlebih Dahulu';
       this.showAlert('info',title,message);
     }
   }
@@ -257,24 +267,36 @@ class Home extends React.Component{
     this.setState({name:'',ket:''})
   }
 
-  handleSetActiveModule = (index) => {
-    this.setState({activeMenuModule:index})
+  handleSetActiveWorkFlow = (index) => {
+    this.setState({activeMenuWorkFlow:index})
   }
   // action crud
   handleAddGeneral = () => {
     switch (this.state.title) {
-      case 'Module':
+      case 'WorkFlow':
         var index = 0;
-        if (this.props.dataModule.length> 0) {
-          index = this.props.dataModule.length;
+        var tempContinue = true;
+        if (this.props.dataWorkFlow.length> 0) {
+          index = this.props.dataWorkFlow.length;
         }
         var payload = {
           key:index,
           name: this.state.name,
           keterangan: this.state.ket,
         }
-        this.props.dispatch(dispatchAction(payload,Const.ADD_MODULE));
-        this.handleSetActiveModule(payload.key);
+        this.props.dataWorkFlow.map(workflow=>{
+          if (workflow.name==this.state.name){
+            tempContinue=false;
+            message.error("Nama WorkFlow Sudah Ada");
+          }
+        })
+        if (tempContinue){
+          this.props.dispatch(dispatchAction(payload,Const.ADD_WORKFLOW));
+          this.handleSetActiveWorkFlow(payload.key);
+          setTimeout(()=>{
+            this.handleSaveWorkFlow();
+          },500)
+        }
         break;
       case 'Form':
         var index = 0;
@@ -286,8 +308,8 @@ class Home extends React.Component{
         var payload = {
           key:CodeForm,
           idForm:CodeForm,
-          idWorkFlow:"idWorkFlow"+this.state.activeMenuModule,
-          keyModule:this.state.activeMenuModule,
+          idWorkFlow:"idWorkFlow"+this.state.activeMenuWorkFlow,
+          keyWorkFlow:this.state.activeMenuWorkFlow,
           name: this.state.name,
           keterangan: this.state.ket,
         }
@@ -307,30 +329,30 @@ class Home extends React.Component{
 
     }
     if (tempContinue){
-      this.handleShowModalAddModule(false)
+      this.handleShowModalAddWorkFlow(false)
       this.handleClearFormInput();
     }
   }
-  handleChangeSelectModule = (selected) => {
+  handleChangeSelectWorkFlow = (selected) => {
     this.setState({
-      activeMenuModule:selected,
-      activeSelectModule:this.props.dataModule[selected].name
+      activeMenuWorkFlow:selected,
+      activeSelectWorkFlow:this.props.dataWorkFlow[selected].name
     })
   }
-  renderSelectModule = () => {
-    var SelectModule = [];
-    SelectModule = this.props.dataModule.map((items,i)=>{
+  renderSelectWorkFlow = () => {
+    var SelectWorkFlow = [];
+    SelectWorkFlow = this.props.dataWorkFlow.map((items,i)=>{
       return (
         <Option key={i} value={i}>{items.name}</Option>
       )
     });
     return (
       <Select
-        defaultValue={this.state.activeSelectModule}
+        defaultValue={this.state.activeSelectWorkFlow}
         style={{ span: 24 }}
-        onChange={(e)=>this.handleChangeSelectModule(e)}
+        onChange={(e)=>this.handleChangeSelectWorkFlow(e)}
       >
-        {SelectModule}
+        {SelectWorkFlow}
       </Select>
     );
   }
@@ -340,19 +362,19 @@ class Home extends React.Component{
     ModalGeneral = (
       <Modal
         title={`Add New ${this.state.title}`}
-        visible={this.state.visibleAddModule}
+        visible={this.state.visibleAddWorkFlow}
         okText={'Save'}
         cancelText ={'Cancel'}
         onOk={()=>this.handleAddGeneral()}
-        onCancel={()=>this.handleShowModalAddModule(false)}
+        onCancel={()=>this.handleShowModalAddWorkFlow(false)}
       >
       <Form layout={"vertical"}>
         {this.state.title=="Form" ?
           (<FormItem
-              label={`Select Module`}
+              label={`Select WorkFlow`}
               wrapperCol ={{ span: 24 }}
             >
-              {this.renderSelectModule()}
+              {this.renderSelectWorkFlow()}
           </FormItem>
           )
           :
@@ -399,23 +421,23 @@ class Home extends React.Component{
     }
   }
 
-  handleOnClickItemModule = (items,i) => {
-    this.setState({activeMenuModule:i, activeSelectModule:this.props.dataModule[i].name});
+  handleOnClickItemWorkFlow = (items,i) => {
+    this.setState({activeMenuWorkFlow:i, activeSelectWorkFlow:this.props.dataWorkFlow[i].name});
   }
 
-  renderDetailsMenuModule = () => {
-    var MenuModule = []
-    MenuModule = this.props.dataModule.map((items,i)=>{
+  renderDetailsMenuWorkFlow = () => {
+    var MenuWorkFlow = []
+    MenuWorkFlow = this.props.dataWorkFlow.map((items,i)=>{
       return (
-        <Menu.Item key={i}>
+        <Menu.Item key={i} onClick={(event) => this.handleOnClickItemWorkFlow(items,i)}>
           <Icon type="book" />
-            <span className="nav-text" onClick={(event) => this.handleOnClickItemModule(items,i)}>
+            <span className="nav-text">
               {items.name}
             </span>
         </Menu.Item>
       )
     });
-    return MenuModule;
+    return MenuWorkFlow;
   }
 
   handleAction = (actionType,index) => {
@@ -497,10 +519,10 @@ class Home extends React.Component{
           <Form layout={"vertical"}>
             {this.state.title=="Form" ?
               (<FormItem
-                  label={`Select Module`}
+                  label={`Select WorkFlow`}
                   wrapperCol ={{ span: 24 }}
                 >
-                  {this.renderSelectModule()}
+                  {this.renderSelectWorkFlow()}
               </FormItem>
               )
               :
@@ -538,8 +560,8 @@ class Home extends React.Component{
   render() {
     var index    = 0;
     var indexKey = 0;
-    var data = this.props.dataModule.length > 0 ? this.props.dataForm.length > 0 ? this.props.dataForm.filter((obj)=>{
-      if (obj.keyModule==this.state.activeMenuModule) {
+    var data = this.props.dataWorkFlow.length > 0 ? this.props.dataForm.length > 0 ? this.props.dataForm.filter((obj)=>{
+      if (obj.keyWorkFlow==this.state.activeMenuWorkFlow) {
         index++;
         obj.no = index;
         obj.indexKey=indexKey;
@@ -548,7 +570,7 @@ class Home extends React.Component{
       }
 
     }) : null  : null;
-      var defaultMenuKey = this.props.dataModule.length> 0 ? `"${(Number(this.state.activeMenuModule)+Number(1))}"` : '0';
+      var defaultMenuKey = this.props.dataWorkFlow.length> 0 ? `"${(Number(this.state.activeMenuWorkFlow)+Number(1))}"` : '0';
 
       return (
         <LocaleProvider locale={frFR} >
@@ -567,8 +589,8 @@ class Home extends React.Component{
                 <span style={{color:'#fff', fontSize: 12, marginLeft: 10}}>Admin ISAT</span>
               </div>
               <Menu theme="dark" mode="inline" defaultSelectedKeys={[defaultMenuKey]}>
-                { this.props.dataModule.length > 0 ?
-                  this.renderDetailsMenuModule()
+                { this.props.dataWorkFlow.length > 0 ?
+                  this.renderDetailsMenuWorkFlow()
                   :
                   []
                 }
@@ -586,8 +608,8 @@ class Home extends React.Component{
                   <Col span={4}>
                     <div className="table-operations">
                       <Button
-                        onClick={()=>this.handleShowModalAddModule(true)}
-                       >Add Module<Icon type="plus-circle" />
+                        onClick={()=>this.handleShowModalAddWorkFlow(true)}
+                       >Add WorkFlow<Icon type="plus-circle" />
                       </Button>
                     </div>
                   </Col>
@@ -597,14 +619,14 @@ class Home extends React.Component{
                 <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
                   <Table
                     columns={this.state.columns}
-                    locale={{ emptyText: 'Data form kosong, silahkan menambahkan module sebelum membuat form !' }}
+                    locale={{ emptyText: 'Data form kosong, silahkan menambahkan WorkFlow sebelum membuat form !' }}
                     dataSource={data}
                     bordered
                     title={() => (
                       <Row type="flex" justify="space-between">
                         <Col  >
                           <div className="table-operations">
-                            <span style={{fontSize: 16, fontWeight: '800',paddingTop: 10}}>{this.props.dataModule.length > 0 ? this.props.dataModule[(this.state.activeMenuModule)].name :''}</span>
+                            <span style={{fontSize: 16, fontWeight: '800',paddingTop: 10}}>{this.props.dataWorkFlow.length > 0 ? this.props.dataWorkFlow[(this.state.activeMenuWorkFlow)].name :''}</span>
                           </div>
                         </Col>
                         <Col >
@@ -632,4 +654,4 @@ class Home extends React.Component{
       );
 	}
 }
-module.exports = connect(state => ({dataModule:state.Modules.dataModule,dataForm:state.Forms.dataForm,dataComponent:state.FormBuilders.dataComponent}), dispatch=>({dispatch:dispatch}))(Home);
+module.exports = connect(state => ({dataWorkFlow:state.WorkFlows.dataWorkFlow,dataForm:state.Forms.dataForm,dataComponent:state.FormBuilders.dataComponent}), dispatch=>({dispatch:dispatch}))(Home);
