@@ -28,6 +28,8 @@ var index = 0;
 class Home extends React.Component{
   index=0;
   state = {
+    visibleModalActionWorkFlow:false,
+    activeIndexWorkFlow:0,
     selected:0,
     tempDataForm :[
       {key:0,
@@ -343,7 +345,7 @@ class Home extends React.Component{
     var SelectWorkFlow = [];
     SelectWorkFlow = this.props.dataWorkFlow.map((items,i)=>{
       return (
-        <Option key={i} value={i}>{items.name}</Option>
+        <Option key={i} value={i}>{items.name? items.name :''}</Option>
       )
     });
     return (
@@ -420,10 +422,56 @@ class Home extends React.Component{
       default:
     }
   }
-
+  //add WorkFlow
+  handleShowModalWorkFlow = (visible,index) => {
+    this.setState({visibleModalActionWorkFlow:visible,activeIndexWorkFlow:index,activeMenuWorkFlow:0})
+  }
+  
   handleOnClickItemWorkFlow = (items,i) => {
     this.setState({activeMenuWorkFlow:i, activeSelectWorkFlow:this.props.dataWorkFlow[i].name});
   }
+  handleModalActionWorkFlow = () => {
+    var ModalActionWorkFlow = [];
+    ModalActionWorkFlow = (
+          <Modal
+            title={`Warning!`}
+            visible={this.state.visibleModalActionWorkFlow}
+            okText={'Ok'}
+            cancelText={'Cancel'}
+            onOk={()=>this.handleDeleteWorkFlow(this.state.activeIndexWorkFlow)}
+            onCancel={()=>this.handleShowModalWorkFlow(false,this.state.activeIndexWorkFlow)}
+            >
+            <Col>
+              <Row>
+                Apakah anda yakin ingin menghapus WorkFlow ini ?
+              </Row>
+            </Col>
+          </Modal>
+        )
+    return ModalActionWorkFlow;
+  }
+
+  handleGetDeleteWorkFlow(callback,scope){
+    if (callback.data.status){
+      setTimeout(()=>{
+        scope.handleLoadWorkFlow();
+      },500);
+      scope.handleShowModalWorkFlow(false,0);
+    }else {
+      message.error('delete filed');
+    }
+
+  }
+  handleDeleteWorkFlow (index) {
+    var idWorkFlow =this.props.dataWorkFlow[index].key;
+    var api    =`${Const.DELETE_WORKFLOW}/${idWorkFlow}`;
+    var header ={
+      headers:{
+        'Content-Type':'application/json'
+      }
+    }
+    apiCall.get(api,header,this.handleGetDeleteWorkFlow,this);
+  } 
 
   renderDetailsMenuWorkFlow = () => {
     var MenuWorkFlow = []
@@ -432,7 +480,10 @@ class Home extends React.Component{
         <Menu.Item key={i} onClick={(event) => this.handleOnClickItemWorkFlow(items,i)}>
           <Icon type="book" />
             <span className="nav-text">
-              {items.name}
+              {items.name? items.name:'-'}
+            </span>
+            <span onClick={()=>this.handleShowModalWorkFlow(true,i)} style={{float:'right'}}>
+              <Icon type="delete" />
             </span>
         </Menu.Item>
       )
@@ -578,6 +629,7 @@ class Home extends React.Component{
           <Layout>
             {this.handleModalAction()}
             {this.renderModalGeneral()}
+            {this.handleModalActionWorkFlow()}
             <Sider
               breakpoint="lg"
               collapsedWidth="0"
